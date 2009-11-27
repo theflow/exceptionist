@@ -1,0 +1,10 @@
+<% for uber_exc in @uber_exceptions %>
+  <div class="span-24 last append-bottom">
+    <h6><a href="/exceptions/<%= uber_exc.id %>"><%= uber_exc.title %></a></h6>
+
+    <div class="span-4"><%= uber_exc.occurrences_count %></div>
+    <div class="span-6 quiet">Last: <%= format_time(uber_exc.last_occurrence.occurred_at) %></div>
+    <div class="span-6 quiet">First: <%= format_time(uber_exc.first_occurrence.occurred_at) %></div>
+    <div class="span-8 last"></div>
+  </div>
+<% end %>

@@ -1,0 +1,46 @@
+<h2><%= @uber_exception.title %> (<%= @uber_exception.occurrences_count %>)</h2>
+
+<hr />
+
+<div class="span-24 last append-bottom">
+  <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %> &laquo;</div>
+  <div class="span-18">
+    <% @uber_exception.occurrences.each_with_index do |occurrence, id| %>
+      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_id=<%= occurrence.id %>"><%= id+1 %></a>
+    <% end %>
+  </div>
+  <div class="span-3 last">&raquo; <%= format_time(@uber_exception.last_occurrence.occurred_at) %></div>
+</div>
+
+<hr />
+
+<div class="span-24 last append-bottom head_box">
+  <div class="span-21"><%= @occurrence.exception_message %></div>
+  <div class="span-3 last"><%= format_time(@occurrence.occurred_at) %></div>
+</div>
+
+<div class="span-24 last append-bottom">
+  <dl>
+    <dt>URL:</dt>
+    <dd><%= @occurrence.url %></dd>
+
+    <dt>Params:</dt>
+    <dd><%= @occurrence.parameters.inspect %></dd>
+
+    <dt>Session:</dt>
+    <dd><%= @occurrence.session.inspect %></dd>
+
+    <dt>Backtrace:</dt>
+    <dd class="backtrace"><code><%= @occurrence.exception_backtrace %></code><dd>
+
+    <dt>Environment:</dt>
+    <dd>
+      <div class="span-22 last">
+      <% @occurrence.environment.each do |key, value| %>
+        <div class="span-6"><code><%= key %></code></div>
+        <div class="span-16 last"><%= value == '' ? '&nbsp;' : value %></div>
+      <% end %>
+      </div>
+    </dd>
+  </dl>
+</div>

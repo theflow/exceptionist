@@ -1,0 +1,41 @@
+module Exceptionist
+  class UberException < Model
+    attr_accessor :id
+
+    def initialize(id)
+      @id = id
+    end
+
+    def self.find_all
+      redis.set_members('Exceptionist::UberExceptions').map { |id| new(id) }
+    end
+
+    def self.find_all_sorted_by_time
+      redis.sort('Exceptionist::UberExceptions', :by => "Exceptionist::UberExceptions:ByTime:*", :order => 'DESC').map { |id| new(id) }
+    end
+
+    def self.find_all_sorted_by_count
+      redis.sort('Exceptionist::UberExceptions', :by => "Exceptionist::UberExceptions:ByCount:*", :order => 'DESC').map { |id| new(id) }
+    end
+
+    def last_occurrence
+      Occurrence.find(redis.list_range(key(id), -1, -1))
+    end
+
+    def first_occurrence
+      Occurrence.find(redis.list_range(key(id), 0, 0))
+    end
+
+    def occurrences
+      Exceptionist::Occurrence.find_all(redis.list_range(key(id), 0, -1))
+    end
+
+    def title
+      last_occurrence.title
+    end
+
+    def occurrences_count
+      redis.list_length(key(id))
+    end
+  end
+end

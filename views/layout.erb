@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title><%= @title || 'The Exceptionist' %></title>
+  <link type="text/css" href="/blueprint.css" rel="stylesheet" media="screen"/>
+
+  <style>
+    div.head_box {
+      padding: 5px;
+      background-color: #eee;
+      font-size: 1.5em;
+      color: #111;
+    }
+
+    dd.backtrace {
+      background-color: #0B0F21;
+      color: #fff;
+      white-space: pre;
+      overflow: auto;
+      padding: 5px 10px;
+    }
+
+    dd {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container prepend-top">
+    <h1><%= @title %></h1>
+
+    <%= yield %>
+  </div>
+</body>
+</html>
