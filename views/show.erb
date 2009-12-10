@@ -35,7 +35,7 @@
     <dd><%= @occurrence.session.inspect %></dd>
 
     <dt>Backtrace:</dt>
-    <dd class="backtrace"><code><%= @occurrence.exception_backtrace %></code><dd>
+    <dd class="backtrace"><code><%= @occurrence.exception_backtrace.join("\n") %></code><dd>
 
     <dt>Environment:</dt>
     <dd>
