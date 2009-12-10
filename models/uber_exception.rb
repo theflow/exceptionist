@@ -10,8 +10,12 @@ module Exceptionist
       redis.set_members('Exceptionist::UberExceptions').map { |id| new(id) }
     end
 
-    def self.find_all_sorted_by_time
-      redis.sort('Exceptionist::UberExceptions', :by => "Exceptionist::UberExceptions:ByTime:*", :order => 'DESC').map { |id| new(id) }
+    def self.find_all_sorted_by_time(page = 1)
+      offset = (page - 1) * 25
+      redis.sort('Exceptionist::UberExceptions',
+        :by => "Exceptionist::UberExceptions:ByTime:*",
+        :order => 'DESC',
+        :limit => [offset, 25]).map { |id| new(id) }
     end
 
     def self.find_all_sorted_by_count
@@ -32,6 +36,10 @@ module Exceptionist
 
     def title
       last_occurrence.title
+    end
+
+    def url
+      last_occurrence.url
     end
 
     def occurrences_count

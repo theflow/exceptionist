@@ -34,7 +34,8 @@ def redis
 end
 
 get '/' do
-  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time
+  @page = params[:page] ? params[:page].to_i : 1
+  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@page)
 
   @title = 'Dashboard'
   erb :dashboard
@@ -53,5 +54,10 @@ end
 helpers do
   def format_time(time)
     time.strftime('%b %d %H:%M')
+  end
+
+  def truncate(text, length)
+    return if text.nil?
+    (text.length > length ? text[0...length] + '...' : text).to_s
   end
 end
