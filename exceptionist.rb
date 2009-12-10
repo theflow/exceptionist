@@ -58,6 +58,8 @@ post '/notifier_api/v2/notices/' do
 end
 
 helpers do
+  include Rack::Utils
+
   def format_time(time)
     time.strftime('%b %d %H:%M')
   end
