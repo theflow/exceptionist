@@ -6,7 +6,11 @@
   <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %> &laquo;</div>
   <div class="span-18">
     <% @uber_exception.occurrences.each_with_index do |occurrence, id| %>
-      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_id=<%= occurrence.id %>"><%= id+1 %></a>
+      <% if @occurrence.id == occurrence.id %>
+        <%= id+1 %>
+      <% else %>
+        <a href="/exceptions/<%= @uber_exception.id %>?occurrence_id=<%= occurrence.id %>"><%= id+1 %></a>
+      <% end %>
     <% end %>
   </div>
   <div class="span-3 last">&raquo; <%= format_time(@uber_exception.last_occurrence.occurred_at) %></div>

@@ -42,7 +42,11 @@ end
 
 get '/exceptions/:id' do
   @uber_exception = Exceptionist::UberException.new(params[:id])
-  @occurrence = @uber_exception.last_occurrence
+  if params[:occurrence_id]
+    @occurrence = Exceptionist::Occurrence.find(params[:occurrence_id])
+  else
+    @occurrence = @uber_exception.last_occurrence
+  end
   erb :show
 end
 
