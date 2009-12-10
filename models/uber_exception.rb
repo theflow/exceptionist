@@ -22,6 +22,15 @@ module Exceptionist
       redis.sort('Exceptionist::UberExceptions', :by => "Exceptionist::UberExceptions:ByCount:*", :order => 'DESC').map { |id| new(id) }
     end
 
+    def self.occurred(occurence)
+      redis.push_tail("Exceptionist::UberException:#{occurence.uber_key}", occurence.id)
+      redis.set("Exceptionist::UberExceptions:ByTime:#{occurence.uber_key}", occurence.occurred_at.to_i)
+      redis.incr("Exceptionist::UberExceptions:ByCount:#{occurence.uber_key}")
+
+      # store a list of exceptions per project
+      redis.set_add('Exceptionist::UberExceptions', occurence.uber_key)
+    end
+
     def last_occurrence
       Occurrence.find(redis.list_range(key(id), -1, -1))
     end

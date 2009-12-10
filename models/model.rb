@@ -11,7 +11,7 @@ module Exceptionist
     end
 
     def self.find(id)
-      from_json redis.get(key(id))
+      from_json redis.get(key(:id, id))
     end
 
     def self.find_all(ids)
@@ -69,15 +69,12 @@ module Exceptionist
     def save
       if valid?
         @saved = true
+        self.id = generate_id unless @id
         self.class.indices.each do |index|
           redis.set(key(index, send(index)), to_json)
         end
       end
       self
-    end
-
-    def id
-      @id ||= generate_id
     end
 
     def generate_id

@@ -51,6 +51,12 @@ get '/exceptions/:id' do
   erb :show
 end
 
+post '/notifier_api/v2/notices/' do
+  occurrence = Exceptionist::Occurrence.from_xml(request.body.read)
+  occurrence.save
+  Exceptionist::UberException.occurred(occurrence)
+end
+
 helpers do
   def format_time(time)
     time.strftime('%b %d %H:%M')
