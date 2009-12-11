@@ -16,6 +16,8 @@ module Exceptionist
         :by => "Exceptionist::UberExceptions:ByTime:*",
         :order => 'DESC',
         :limit => [offset, 25]).map { |id| new(id) }
+    rescue RuntimeError
+      []
     end
 
     def self.find_all_sorted_by_count
@@ -32,15 +34,23 @@ module Exceptionist
     end
 
     def last_occurrence
-      Occurrence.find(redis.list_range(key(id), -1, -1))
+      @last_occurrence ||= Occurrence.find(redis.list_range(key(id), -1, -1))
     end
 
     def first_occurrence
-      Occurrence.find(redis.list_range(key(id), 0, 0))
+      @first_occurrence ||= Occurrence.find(redis.list_range(key(id), 0, 0))
     end
 
     def occurrences
       Exceptionist::Occurrence.find_all(redis.list_range(key(id), 0, -1))
+    end
+
+    def first_occurred_at
+      first_occurrence.occurred_at
+    end
+
+    def last_occurred_at
+      last_occurrence.occurred_at
     end
 
     def title
