@@ -40,7 +40,7 @@
     <dt>Environment:</dt>
     <dd>
       <div class="span-22 last">
-      <% @occurrence.environment.each do |key, value| %>
+      <% @occurrence.cgi_data.each do |key, value| %>
         <div class="span-6"><code><%= key %></code></div>
         <div class="span-16 last"><%= value == '' ? '&nbsp;' : value %></div>
       <% end %>

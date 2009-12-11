@@ -3,10 +3,10 @@ require 'nokogiri'
 
 module Exceptionist
   class Occurrence < Model
-    attr_accessor :exception_message, :session, :action_name,
-                  :parameters, :url, :occurred_at, :exception_backtrace,
-                  :controller_name, :environment, :exception_class,
-                  :framework, :language, :application_root, :id, :uber_key
+    attr_accessor :url, :controller_name, :action_name,
+                  :exception_class, :exception_message, :exception_backtrace,
+                  :parameters, :session, :cgi_data, :environment,
+                  :occurred_at, :id, :uber_key
 
     def title
       "#{exception_class} in #{controller_name}##{action_name}"
@@ -21,6 +21,7 @@ module Exceptionist
         :session             => session,
         :action_name         => action_name,
         :parameters          => parameters,
+        :cgi_data            => cgi_data,
         :url                 => url,
         :occurred_at         => occurred_at,
         :exception_backtrace => exception_backtrace,
@@ -32,12 +33,12 @@ module Exceptionist
     end
 
     def self.from_xml(xml_text)
-      hash = xml_to_hash(xml_text)
+      hash = parse_xml(xml_text)
       key = Digest::SHA1.hexdigest([:controller_name, :action_name, :exception_class].map { |k| hash[k] }.join(':'))
       new(hash.merge(:occurred_at => Time.now, :uber_key => key))
     end
 
-    def self.xml_to_hash(xml_text)
+    def self.parse_xml(xml_text)
       doc = Nokogiri::XML(xml_text) { |config| config.noblanks }
 
       hash = {}
@@ -45,18 +46,20 @@ module Exceptionist
       hash[:environment] = doc.xpath('/notice/server-environment/environment-name').first.content
 
       hash[:exception_class]     = doc.xpath('/notice/error/class').first.content
-      hash[:exception_message]   = doc.xpath('/notice/error/message').first.content
+      hash[:exception_message]   = parse_optional_element(doc, '/notice/error/message')
       hash[:exception_backtrace] = doc.xpath('/notice/error/backtrace').children.map do |child|
         "#{child['file']}:#{child['number']}:in `#{child['method']}'"
       end
 
-      hash[:url] = doc.xpath('/notice/request/url').first.content
-      hash[:controller_name] = doc.xpath('/notice/request/component').first.content
-      hash[:action_name] = doc.xpath('/notice/request/action').first.content
+      if request = doc.xpath('/notice/request').first
+        hash[:url]             = request.xpath('url').first.content
+        hash[:controller_name] = request.xpath('component').first.content
+        hash[:action_name]     = parse_optional_element(request, 'action')
 
-      hash[:parameters]  = parse_vars(doc.xpath('/notice/request/params'))
-      hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
-      hash[:environment] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_rack => true)
+        hash[:parameters]  = parse_vars(doc.xpath('/notice/request/params'))
+        hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
+        hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_rack => true)
+      end
 
       hash
     end
@@ -67,6 +70,11 @@ module Exceptionist
         hash[key] = child.content unless (options[:skip_rack] && key.include?('.'))
         hash
       end
+    end
+
+    def self.parse_optional_element(doc, xpath)
+      element = doc.xpath(xpath).first
+      element ? element.content : nil
     end
   end
 end
