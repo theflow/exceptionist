@@ -25,8 +25,12 @@ module Exceptionist
     end
 
     def self.occurred(occurence)
+      # every uber exception has a list of occurences
       redis.push_tail("Exceptionist::UberException:#{occurence.uber_key}", occurence.id)
+
+      # store the timestamp of the last occurrance to be able to sort by that
       redis.set("Exceptionist::UberExceptions:ByTime:#{occurence.uber_key}", occurence.occurred_at.to_i)
+      # store the occurrence count to be able to sort by that
       redis.incr("Exceptionist::UberExceptions:ByCount:#{occurence.uber_key}")
 
       # store a list of exceptions per project
