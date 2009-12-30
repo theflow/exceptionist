@@ -7,6 +7,7 @@ require 'zlib'
 require 'yajl'
 
 require 'models/model'
+require 'models/project'
 require 'models/uber_exception'
 require 'models/occurrence'
 
@@ -35,7 +36,6 @@ end
 
 get '/' do
   @page = params[:page] ? params[:page].to_i : 1
-  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@projects.first, @page)
 
   @title = 'All Projects'
   erb :dashboard
@@ -68,7 +68,7 @@ post '/notifier_api/v2/notices/' do
 end
 
 before do
-  @projects = redis.set_members('Exceptionist::Projects') if request.get?
+  @projects = Exceptionist::Project.all if request.get?
 end
 
 helpers do

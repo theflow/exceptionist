@@ -6,7 +6,6 @@ module Exceptionist
       @id = id
     end
 
-    # TODO: should move these to a Project class
     def self.count_all(project)
       redis.set_count("Exceptionist::UberExceptions:#{project}")
     end
