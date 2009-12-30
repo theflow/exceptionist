@@ -37,7 +37,7 @@ get '/' do
   @page = params[:page] ? params[:page].to_i : 1
   @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@projects.first, @page)
 
-  @title = 'Latest Exceptions'
+  @title = 'All Projects'
   erb :dashboard
 end
 
@@ -47,7 +47,7 @@ get '/projects/:project' do
   @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@current_project, @page)
 
   @title = "Latest Exceptions for #{@current_project}"
-  erb :dashboard
+  erb :index
 end
 
 get '/exceptions/:id' do
@@ -81,5 +81,12 @@ helpers do
   def truncate(text, length)
     return if text.nil?
     (text.length > length ? text[0...length] + '...' : text).to_s
+  end
+
+  def partial(template, local_vars = {})
+    @partial = true
+    erb("_#{template}".to_sym, {:layout => false}, local_vars)
+  ensure
+    @partial = false
   end
 end

@@ -6,16 +6,21 @@ module Exceptionist
       @id = id
     end
 
+    # TODO: should move these to a Project class
+    def self.count_all(project)
+      redis.set_count("Exceptionist::UberExceptions:#{project}")
+    end
+
     def self.find_all(project)
       redis.set_members("Exceptionist::UberExceptions:#{project}").map { |id| new(id) }
     end
 
-    def self.find_all_sorted_by_time(project, page = 1)
-      offset = (page - 1) * 25
+    def self.find_all_sorted_by_time(project, page = 1, per_page = 25)
+      offset = (page - 1) * per_page
       redis.sort("Exceptionist::UberExceptions:#{project}",
         :by => "Exceptionist::UberExceptions:ByTime:*",
         :order => 'DESC',
-        :limit => [offset, 25]).map { |id| new(id) }
+        :limit => [offset, per_page]).map { |id| new(id) }
     rescue RuntimeError
       []
     end
