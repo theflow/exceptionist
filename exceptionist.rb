@@ -61,6 +61,13 @@ get '/exceptions/:id' do
   erb :show
 end
 
+post '/occurrences/:id' do
+  @occurrence = Exceptionist::Occurrence.find(params[:id])
+  @occurrence.close!
+
+  redirect "/projects/#{@occurrence.project}"
+end
+
 post '/notifier_api/v2/notices/' do
   occurrence = Exceptionist::Occurrence.from_xml(request.body.read)
   occurrence.save

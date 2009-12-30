@@ -16,6 +16,11 @@ module Exceptionist
       @occurred_at.is_a?(String) ? DateTime.parse(@occurred_at) : @occurred_at
     end
 
+    def close!
+      # do this here, because the UberException does not know which project it's in
+      redis.set_delete("Exceptionist::UberExceptions:#{project}", uber_key)
+    end
+
     def to_hash
       { :exception_message   => exception_message,
         :session             => session,
