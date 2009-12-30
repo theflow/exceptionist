@@ -35,9 +35,18 @@ end
 
 get '/' do
   @page = params[:page] ? params[:page].to_i : 1
-  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@page)
+  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@projects.first, @page)
 
-  @title = 'Dashboard'
+  @title = 'Latest Exceptions'
+  erb :dashboard
+end
+
+get '/projects/:project' do
+  @page = params[:page] ? params[:page].to_i : 1
+  @current_project = params[:project]
+  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@current_project, @page)
+
+  @title = "Latest Exceptions for #{@current_project}"
   erb :dashboard
 end
 
@@ -48,6 +57,7 @@ get '/exceptions/:id' do
   else
     @occurrence = @uber_exception.last_occurrence
   end
+  @current_project = @occurrence.project
   erb :show
 end
 
@@ -55,6 +65,10 @@ post '/notifier_api/v2/notices/' do
   occurrence = Exceptionist::Occurrence.from_xml(request.body.read)
   occurrence.save
   Exceptionist::UberException.occurred(occurrence)
+end
+
+before do
+  @projects = redis.set_members('Exceptionist::Projects') if request.get?
 end
 
 helpers do

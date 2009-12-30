@@ -5,6 +5,11 @@
   <link type="text/css" href="/blueprint.css" rel="stylesheet" media="screen"/>
 
   <style>
+    #project_nav {
+      float: right;
+      font-weight: bold;
+    }
+
     div.head_box {
       padding: 5px;
       background-color: #eee;
@@ -40,6 +45,15 @@
 
 <body>
   <div class="container prepend-top">
+    <div id="project_nav">
+      <a href="/">Dashboard</a> |
+      <select onchange="window.location=this.options[this.selectedIndex].value">
+        <% for project in @projects %>
+          <option value="/">Dashboard</option>
+          <option value="/projects/<%= project %>" <%= 'selected="selected"' if @current_project == project %>><%= project %></option>
+        <% end %>
+      </select>
+    </div>
 
     <%= yield %>
   </div>

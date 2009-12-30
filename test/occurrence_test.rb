@@ -12,6 +12,7 @@ context "Parse Hoptoad XML" do
     assert_equal ["/testapp/app/models/user.rb:53:in `public'",
                   "/testapp/app/controllers/users_controller.rb:14:in `index'"], hash[:exception_backtrace]
     assert_equal 'production', hash[:environment]
+    assert_equal 'ExampleProject', hash[:project]
 
     assert_equal({ "SERVER_NAME"=>"example.org", "HTTP_USER_AGENT"=>"Mozilla" }, hash[:cgi_data])
     assert_equal({}, hash[:session])

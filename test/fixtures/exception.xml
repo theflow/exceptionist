@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <notice version="2.0.0">
-  <api-key>76fdb93ab2cf276ec080671a8b3d3866</api-key>
+  <api-key>ExampleProject</api-key>
   <notifier>
     <name>Hoptoad Notifier</name>
     <version>1.2.4</version>

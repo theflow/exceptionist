@@ -22,6 +22,9 @@ exceptions = File.readlines('exceptional.log').map do |line|
   end
 end
 
+project = 'Example'
+redis.set_add("Exceptionist::Projects", project)
+
 exceptions.compact.each do |e|
   next if e['exception_class'] == 'ActionController::UnknownAction'
   next if e['exception_class'] == 'ActionController::RoutingError'
@@ -29,6 +32,7 @@ exceptions.compact.each do |e|
   id = next_exception_id
   key = Digest::SHA1.hexdigest(['controller_name', 'action_name', 'exception_class'].map { |k| e[k] }.join(':'))
 
+  e['project']  = project
   e['cgi_data'] = e.delete('environment')
   e.delete('framework')
   e.delete('application_root')
@@ -43,5 +47,5 @@ exceptions.compact.each do |e|
   redis.incr("Exceptionist::UberExceptions:ByCount:#{key}")
 
   # store a list of exceptions per project
-  redis.set_add('Exceptionist::UberExceptions', key)
+  redis.set_add("Exceptionist::UberExceptions:#{project}", key)
 end

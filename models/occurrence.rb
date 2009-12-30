@@ -6,7 +6,7 @@ module Exceptionist
     attr_accessor :url, :controller_name, :action_name,
                   :exception_class, :exception_message, :exception_backtrace,
                   :parameters, :session, :cgi_data, :environment,
-                  :occurred_at, :id, :uber_key
+                  :project, :occurred_at, :id, :uber_key
 
     def title
       "#{exception_class} in #{controller_name}##{action_name}"
@@ -28,6 +28,7 @@ module Exceptionist
         :controller_name     => controller_name,
         :environment         => environment,
         :exception_class     => exception_class,
+        :project             => project,
         :id                  => id,
         :uber_key            => uber_key }
     end
@@ -42,7 +43,7 @@ module Exceptionist
       doc = Nokogiri::XML(xml_text) { |config| config.noblanks }
 
       hash = {}
-      api_key = doc.xpath('/notice/api-key')
+      hash[:project]     = doc.xpath('/notice/api-key').first.content
       hash[:environment] = doc.xpath('/notice/server-environment/environment-name').first.content
 
       hash[:exception_class]     = doc.xpath('/notice/error/class').first.content
