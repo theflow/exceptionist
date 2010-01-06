@@ -6,12 +6,12 @@
 
 <div class="span-3 prepend-1 append-17">
   <% if @start - 25 >= 0 %>
-  <strong><a href="/projects/<%= @current_project %>?start=<%= @start - 25 %>">&laquo; previous page</a></strong>
+  <strong><a href="/projects/<%= @current_project.name %>?start=<%= @start - 25 %>">&laquo; previous page</a></strong>
   <% end %>&nbsp;
 </div>
 <div class="span-2 append-1 last">
   <% if @start + 25 <= @current_project.exceptions_count %>
-  <strong><a href="/projects/<%= @current_project %>?start=<%= @start + 25 %>">next page &raquo;</a></strong>
+  <strong><a href="/projects/<%= @current_project.name %>?start=<%= @start + 25 %>">next page &raquo;</a></strong>
   <% end %>
 </div>
 

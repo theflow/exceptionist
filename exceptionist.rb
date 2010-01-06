@@ -63,7 +63,7 @@ post '/occurrences/:id' do
   @occurrence = Exceptionist::Occurrence.find(params[:id])
   @occurrence.close!
 
-  redirect "/projects/#{@occurrence.project}"
+  redirect "/projects/#{@occurrence.project_name}"
 end
 
 post '/notifier_api/v2/notices/' do

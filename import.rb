@@ -32,8 +32,8 @@ exceptions.compact.each do |e|
   id = next_exception_id
   key = Digest::SHA1.hexdigest(['controller_name', 'action_name', 'exception_class'].map { |k| e[k] }.join(':'))
 
-  e['project']  = project
-  e['cgi_data'] = e.delete('environment')
+  e['project_name'] = project
+  e['cgi_data']     = e.delete('environment')
   e.delete('framework')
   e.delete('application_root')
   e.delete('language')

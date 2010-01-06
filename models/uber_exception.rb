@@ -37,10 +37,10 @@ module Exceptionist
       redis.incr("Exceptionist::UberExceptions:ByCount:#{occurrence.uber_key}")
 
       # store a list of exceptions per project
-      redis.set_add("Exceptionist::UberExceptions:#{occurrence.project}", occurrence.uber_key)
+      redis.set_add("Exceptionist::UberExceptions:#{occurrence.project_name}", occurrence.uber_key)
 
       # store a top level set of projects
-      redis.set_add("Exceptionist::Projects", occurrence.project)
+      redis.set_add("Exceptionist::Projects", occurrence.project_name)
     end
 
     def last_occurrence
