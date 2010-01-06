@@ -35,16 +35,15 @@ def redis
 end
 
 get '/' do
-  @page = params[:page] ? params[:page].to_i : 1
-
   @title = 'All Projects'
   erb :dashboard
 end
 
 get '/projects/:project' do
-  @page = params[:page] ? params[:page].to_i : 1
+  @start = params[:start] ? params[:start].to_i : 0
   @current_project = params[:project]
-  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@current_project, @page)
+  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@current_project, @start)
+  @count           = Exceptionist::UberException.count_all(@current_project)
 
   @title = "Latest Exceptions for #{@current_project}"
   erb :index

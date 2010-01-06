@@ -11,7 +11,7 @@ module Exceptionist
     end
 
     def latest_exceptions
-      Exceptionist::UberException.find_all_sorted_by_time(name, 1, 3)
+      Exceptionist::UberException.find_all_sorted_by_time(name, 0, 3)
     end
 
     def self.all

@@ -14,12 +14,11 @@ module Exceptionist
       redis.set_members("Exceptionist::UberExceptions:#{project}").map { |id| new(id) }
     end
 
-    def self.find_all_sorted_by_time(project, page = 1, per_page = 25)
-      offset = (page - 1) * per_page
+    def self.find_all_sorted_by_time(project, start = 0, limit = 25)
       redis.sort("Exceptionist::UberExceptions:#{project}",
         :by => "Exceptionist::UberExceptions:ByTime:*",
         :order => 'DESC',
-        :limit => [offset, per_page]).map { |id| new(id) }
+        :limit => [start, limit]).map { |id| new(id) }
     rescue RuntimeError
       []
     end
