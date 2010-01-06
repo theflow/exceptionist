@@ -40,7 +40,7 @@ get '/' do
 end
 
 get '/projects/:project' do
-  @current_project = Exceptionist::Project.new(params[:project])
+  @current_project = Project.new(params[:project])
   @start = params[:start] ? params[:start].to_i : 0
   @uber_exceptions = @current_project.latest_exceptions(@start)
 
@@ -49,9 +49,9 @@ get '/projects/:project' do
 end
 
 get '/exceptions/:id' do
-  @uber_exception = Exceptionist::UberException.new(params[:id])
+  @uber_exception = UberException.new(params[:id])
   if params[:occurrence_id]
-    @occurrence = Exceptionist::Occurrence.find(params[:occurrence_id])
+    @occurrence = Occurrence.find(params[:occurrence_id])
   else
     @occurrence = @uber_exception.last_occurrence
   end
@@ -60,20 +60,20 @@ get '/exceptions/:id' do
 end
 
 post '/occurrences/:id' do
-  @occurrence = Exceptionist::Occurrence.find(params[:id])
+  @occurrence = Occurrence.find(params[:id])
   @occurrence.close!
 
   redirect "/projects/#{@occurrence.project_name}"
 end
 
 post '/notifier_api/v2/notices/' do
-  occurrence = Exceptionist::Occurrence.from_xml(request.body.read)
+  occurrence = Occurrence.from_xml(request.body.read)
   occurrence.save
-  Exceptionist::UberException.occurred(occurrence)
+  UberException.occurred(occurrence)
 end
 
 before do
-  @projects = Exceptionist::Project.all if request.get?
+  @projects = Project.all if request.get?
 end
 
 helpers do
