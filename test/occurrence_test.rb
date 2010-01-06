@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 context "Parse Hoptoad XML" do
   test 'should parse a exception' do
-    hash = Occurrence.parse_xml(File.read('fixtures/exception.xml'))
+    hash = Occurrence.parse_xml(read_fixtures_file('fixtures/exception.xml'))
 
     assert_equal 'http://example.com', hash[:url]
     assert_equal 'users', hash[:controller_name]
@@ -21,13 +21,13 @@ context "Parse Hoptoad XML" do
 
   test 'should parse a minimal exception' do
     assert_nothing_raised do
-      Occurrence.parse_xml(File.read('fixtures/minimal_exception.xml'))
+      Occurrence.parse_xml(read_fixtures_file('fixtures/minimal_exception.xml'))
     end
   end
 
   test 'should parse a full exception' do
     assert_nothing_raised do
-      Occurrence.parse_xml(File.read('fixtures/full_exception.xml'))
+      Occurrence.parse_xml(read_fixtures_file('fixtures/full_exception.xml'))
     end
   end
 end

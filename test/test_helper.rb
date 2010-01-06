@@ -5,6 +5,31 @@ require 'rubygems'
 
 require 'exceptionist'
 
+##
+# start our own redis when the tests start,
+# kill it when they end
+#
+at_exit do
+  next if $!
+
+  if defined?(MiniTest)
+    exit_code = MiniTest::Unit.new.run(ARGV)
+  else
+    exit_code = Test::Unit::AutoRunner.run
+  end
+
+  pid = `ps -e -o pid,command | grep [r]edis-test`.split(" ")[0]
+  puts "Killing test redis server..."
+  Process.kill("KILL", pid.to_i)
+  `rm -f /tmp/test_dump.rdb`
+  exit exit_code
+end
+
+test_dir = File.dirname(File.expand_path(__FILE__))
+puts 'Starting redis for testing at localhost:9736...'
+`redis-server #{test_dir}/redis-test.conf`
+Exceptionist.redis = Redis.new(:host => '127.0.0.1', :port => 9736)
+
 
 ##
 # test/spec/mini 3
@@ -24,4 +49,11 @@ def context(*args, &block)
   end
   (class << klass; self end).send(:define_method, :name) { name.gsub(/\W/,'_') }
   klass.class_eval &block
+end
+
+##
+# Exceptionist specific helpers
+# 
+def read_fixtures_file(path)
+  File.read File.join(File.dirname(__FILE__), path)
 end
