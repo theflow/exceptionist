@@ -14,7 +14,7 @@ module Exceptionist
       redis.set_members("Exceptionist::UberExceptions:#{project}").map { |id| new(id) }
     end
 
-    def self.find_all_sorted_by_time(project, start = 0, limit = 25)
+    def self.find_all_sorted_by_time(project, start, limit)
       redis.sort("Exceptionist::UberExceptions:#{project}",
         :by => "Exceptionist::UberExceptions:ByTime:*",
         :order => 'DESC',

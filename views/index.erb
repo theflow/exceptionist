@@ -10,7 +10,7 @@
   <% end %>&nbsp;
 </div>
 <div class="span-2 append-1 last">
-  <% if @start + 25 <= @count %>
+  <% if @start + 25 <= @current_project.exceptions_count %>
   <strong><a href="/projects/<%= @current_project %>?start=<%= @start + 25 %>">next page &raquo;</a></strong>
   <% end %>
 </div>

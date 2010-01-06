@@ -50,7 +50,7 @@
       <select onchange="window.location=this.options[this.selectedIndex].value">
         <% for project in @projects %>
           <option value="/">Dashboard</option>
-          <option value="/projects/<%= project.name %>" <%= 'selected="selected"' if @current_project == project.name %>><%= project.name %></option>
+          <option value="/projects/<%= project.name %>" <%= 'selected="selected"' if @current_project == project %>><%= project.name %></option>
         <% end %>
       </select>
     </div>

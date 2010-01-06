@@ -40,12 +40,11 @@ get '/' do
 end
 
 get '/projects/:project' do
+  @current_project = Exceptionist::Project.new(params[:project])
   @start = params[:start] ? params[:start].to_i : 0
-  @current_project = params[:project]
-  @uber_exceptions = Exceptionist::UberException.find_all_sorted_by_time(@current_project, @start)
-  @count           = Exceptionist::UberException.count_all(@current_project)
+  @uber_exceptions = @current_project.latest_exceptions(@start)
 
-  @title = "Latest Exceptions for #{@current_project}"
+  @title = "Latest Exceptions for #{@current_project.name}"
   erb :index
 end
 

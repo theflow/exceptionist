@@ -5,7 +5,7 @@
     <h3><a href="/projects/<%= project.name %>"><%= project.name %></a> (<%= project.exceptions_count %>)</h3>
 
     <div class="span-22 prepend-1 last">
-      <%= partial(:exceptions, :exceptions => project.latest_exceptions) %>
+      <%= partial(:exceptions, :exceptions => project.last_three_exceptions) %>
     </div>
   <% end %>
 </div>
