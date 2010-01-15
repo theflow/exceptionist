@@ -3,6 +3,7 @@
 <head>
   <title><%= @title || 'The Exceptionist' %></title>
   <link type="text/css" href="/blueprint.css" rel="stylesheet" media="screen"/>
+  <link type="text/css" href="/buttons.css" rel="stylesheet" media="screen"/>
 
   <style>
     #project_nav {
@@ -10,11 +11,31 @@
       font-weight: bold;
     }
 
+    a.silent_link {
+      text-decoration: none;
+      color: #222;
+    }
+
+    a.silent_link:hover {
+      text-decoration: underline;
+    }
+
+    button.close_button {
+      float: right;
+      margin: 0;
+    }
+
     div.head_box {
       padding: 5px;
-      background-color: #eee;
-      font-size: 1.5em;
+      background-color: #D3D3D7;
+      font-size: 1.3em;
       color: #111;
+    }
+
+    div.message_box {
+      padding: 5px;
+      font-size: 1.2em;
+      background-color: #E9E9EB;
     }
 
     dd.backtrace {
@@ -22,8 +43,12 @@
       color: #fff;
       white-space: pre;
       overflow: auto;
-      max-height: 250px;
-      padding: 5px 10px;
+      max-height: 280px;
+      padding: 8px 10px;
+    }
+
+    dd.nice_hash {
+      white-space: pre;
     }
 
     dd {
@@ -32,6 +57,10 @@
 
     .centered {
       text-align: center;
+    }
+
+    .right-aligned {
+      text-align: right;
     }
 
     span.occurrence_count {

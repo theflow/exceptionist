@@ -1,4 +1,6 @@
 require 'rubygems'
+require 'pp'
+require 'stringio'
 
 require 'sinatra'
 
@@ -60,6 +62,8 @@ get '/exceptions/:id' do
     @occurrence = @uber_exception.last_occurrence
   end
   @current_project = @occurrence.project
+
+  @title = "[#{@current_project.name}] #{@uber_exception.title}"
   erb :show
 end
 
@@ -90,6 +94,13 @@ helpers do
   def truncate(text, length)
     return if text.nil?
     (text.length > length ? text[0...length] + '...' : text).to_s
+  end
+
+  def pretty_hash(hash)
+    s = StringIO.new
+    PP.pp(hash, s)
+    s.rewind
+    s.read
   end
 
   def partial(template, local_vars = {})

@@ -11,6 +11,18 @@ class Occurrence < Exceptionist::Model
     "#{exception_class} in #{controller_name}##{action_name}"
   end
 
+  def http_method
+    cgi_data ? cgi_data['REQUEST_METHOD'] : nil
+  end
+
+  def referer
+    cgi_data ? cgi_data['HTTP_REFERER'] : nil
+  end
+
+  def user_agent
+    cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
+  end
+
   def occurred_at
     @occurred_at.is_a?(String) ? DateTime.parse(@occurred_at) : @occurred_at
   end

@@ -1,8 +1,11 @@
-<h2><%= @uber_exception.title %> (<%= @uber_exception.occurrences_count %>)</h2>
+
+<h2>
+  <a class="silent_link" href="<%= request.referrer %>"><%= @uber_exception.title %> (<%= @uber_exception.occurrences_count %>)</a>
+</h2>
 
 <hr />
 
-<div class="span-24 last append-bottom">
+<div class="span-24 last append-bottom" style="font-size:1.2em;">
   <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %> &laquo;</div>
   <div class="span-18 centered">
     <% @uber_exception.occurrences.each_with_index do |occurrence, id| %>
@@ -13,34 +16,49 @@
       <% end %>
     <% end %>
   </div>
-  <div class="span-3 last">&raquo; <%= format_time(@uber_exception.last_occurrence.occurred_at) %></div>
+  <div class="span-3 last right-aligned">&raquo; <%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
 </div>
 
 <hr />
 
-<div class="span-24 last append-bottom head_box">
-  <div class="span-19"><%= escape_html @occurrence.exception_message %></div>
-  <div class="span-3"><%= format_time(@occurrence.occurred_at) %></div>
-  <div class="span-2 centered last">
-    <form action="/occurrences/<%= @occurrence.id %>" method="post">
-      <input type="submit" value="Close" />
+<div class="span-24 last head_box">
+  <div class="span-18"><%= "#{@occurrence.http_method} #{@occurrence.url}" %></div>
+  <div class="span-3"></div>
+  <div class="span-6 last right-aligned">
+    <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
+    <form action="/occurrences/<%= @occurrence.id %>" method="post" style="display: inline">
+      <button type="submit" class="button positive close_button">
+        <img src="/tick.png" alt="Close"/> Close
+      </button>
     </form>
   </div>
 </div>
 
+<div class="span-24 last append-bottom message_box">
+  <%= escape_html @occurrence.exception_message %>
+</div>
+
 <div class="span-24 last append-bottom">
   <dl>
-    <dt>URL:</dt>
-    <dd><%= @occurrence.url %></dd>
-
-    <dt>Params:</dt>
-    <dd><%= @occurrence.parameters.inspect %></dd>
-
-    <dt>Session:</dt>
-    <dd><%= @occurrence.session.inspect %></dd>
-
     <dt>Backtrace:</dt>
     <dd class="backtrace"><code><%= @occurrence.exception_backtrace.join("\n") %></code><dd>
+
+    <dt>Params:</dt>
+    <dd class="nice_hash"><%= pretty_hash(@occurrence.parameters) %></dd>
+
+    <dt>Session:</dt>
+    <dd class="nice_hash"><%= pretty_hash(@occurrence.session) %></dd>
+
+    <dt>URL:</dt>
+    <dd><%= "#{@occurrence.http_method} #{@occurrence.url}" %></dd>
+
+    <% if @occurrence.referer %>
+    <dt>Referer:</dt>
+    <dd><%= @occurrence.referer %></dd>
+    <% end %>
+    
+    <dt>User Agent</dt>
+    <dd><%= @occurrence.user_agent %></dd>
 
     <dt>Environment:</dt>
     <dd>
