@@ -22,8 +22,13 @@ class UberException < Exceptionist::Model
     []
   end
 
-  def self.find_all_sorted_by_count(project)
-    redis.sort("Exceptionist::UberExceptions:#{project}", :by => "Exceptionist::UberExceptions:ByCount:*", :order => 'DESC').map { |id| new(id) }
+  def self.find_all_sorted_by_occurrence_count(project, start, limit)
+    redis.sort("Exceptionist::UberExceptions:#{project}",
+      :by => "Exceptionist::UberExceptions:ByCount:*",
+      :order => 'DESC',
+      :limit => [start, limit]).map { |id| new(id) }
+  rescue RuntimeError
+    []
   end
 
   def self.occurred(occurrence)

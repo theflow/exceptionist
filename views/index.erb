@@ -1,17 +1,26 @@
 <h2><%= @title %></h2>
 
+<div class="span-22 prepend-1 append-1 right-aligned">
+  <div class="sorting_links">
+    <a href="?sort_by=latest"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == '' || params[:sort_by] == 'latest' %>most recent</a> -
+    <a href="?sort_by=frequent"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
+  </div>
+</div>
+
+
 <div class="span-22 prepend-1 append-1">
+  <hr />
   <%= partial(:exceptions, :exceptions => @uber_exceptions) %>
 </div>
 
 <div class="span-3 prepend-1 append-17">
   <% if @start - 25 >= 0 %>
-  <strong><a href="/projects/<%= @current_project.name %>?start=<%= @start - 25 %>">&laquo; previous page</a></strong>
+  <strong><a href="/projects/<%= @current_project.name %>?sort_by=<%= params[:sort_by] %>&amp;start=<%= @start - 25 %>">&laquo; previous page</a></strong>
   <% end %>&nbsp;
 </div>
 <div class="span-2 append-1 last">
-  <% if @start + 25 <= @current_project.exceptions_count %>
-  <strong><a href="/projects/<%= @current_project.name %>?start=<%= @start + 25 %>">next page &raquo;</a></strong>
+  <% if @start + 15 <= @current_project.exceptions_count %>
+  <strong><a href="/projects/<%= @current_project.name %>?sort_by=<%= params[:sort_by] %>&amp;start=<%= @start + 25 %>">next page &raquo;</a></strong>
   <% end %>
 </div>
 

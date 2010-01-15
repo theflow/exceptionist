@@ -17,6 +17,10 @@ class Project
     UberException.find_all_sorted_by_time(name, start, limit)
   end
 
+  def most_frequest_exceptions(start, limit = 25)
+    UberException.find_all_sorted_by_occurrence_count(name, start, limit)
+  end
+
   def ==(other)
     name == other.name
   end
