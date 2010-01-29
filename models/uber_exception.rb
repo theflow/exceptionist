@@ -59,6 +59,10 @@ class UberException < Exceptionist::Model
     Occurrence.find_all(redis.list_range(key(id), 0, -1))
   end
 
+  def current_occurrence(position)
+    Occurrence.find(redis.list_index(key(id), position - 1))
+  end
+
   def first_occurred_at
     first_occurrence.occurred_at
   end
@@ -76,6 +80,6 @@ class UberException < Exceptionist::Model
   end
 
   def occurrences_count
-    redis.list_length(key(id))
+    @occurrences_count ||= redis.list_length(key(id))
   end
 end

@@ -60,11 +60,9 @@ end
 
 get '/exceptions/:id' do
   @uber_exception = UberException.new(params[:id])
-  if params[:occurrence_id]
-    @occurrence = Occurrence.find(params[:occurrence_id])
-  else
-    @occurrence = @uber_exception.last_occurrence
-  end
+  @occurrence_position = params[:occurrence_position] ? params[:occurrence_position].to_i : @uber_exception.occurrences_count
+  @occurrence = @uber_exception.current_occurrence(@occurrence_position)
+
   @current_project = @occurrence.project
 
   @title = "[#{@current_project.name}] #{@uber_exception.title}"

@@ -6,17 +6,24 @@
 <hr />
 
 <div class="span-24 last append-bottom" style="font-size:1.2em;">
-  <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %> &laquo;</div>
+  <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %></div>
   <div class="span-18 centered">
-    <% @uber_exception.occurrences.each_with_index do |occurrence, id| %>
-      <% if @occurrence.id == occurrence.id %>
-        <%= id+1 %>
-      <% else %>
-        <a href="/exceptions/<%= @uber_exception.id %>?occurrence_id=<%= occurrence.id %>"><%= id+1 %></a>
-      <% end %>
+
+    <% if @occurrence_position == 1 %>
+      <span class="quiet">&laquo; Older</span>
+    <% else %>
+      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position - 1 %>">&laquo; Older</a>
+    <% end %>
+
+    <span style="margin: 0 10px"><b><%= @occurrence_position %></b> of <b><%= @uber_exception.occurrences_count %></b></span>
+
+    <% if @occurrence_position == @uber_exception.occurrences_count %>
+      <span class="quiet">Newer &raquo;</span>
+    <% else %>
+      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position + 1 %>">Newer &raquo;</a>
     <% end %>
   </div>
-  <div class="span-3 last right-aligned">&raquo; <%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
+  <div class="span-3 last right-aligned"><%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
 </div>
 
 <hr />
