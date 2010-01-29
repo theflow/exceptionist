@@ -53,10 +53,28 @@ class Occurrence < Exceptionist::Model
       :uber_key            => uber_key }
   end
 
+  def initialize(attributes = {})
+    super
+    self.occurred_at = attributes['occurred_at'] ? Time.parse(attributes['occurred_at']) : Time.now
+    self.uber_key = generate_uber_key
+  end
+
+  def generate_uber_key
+    key = case exception_class
+      when 'Mysql::Error', 'RuntimeError'
+        "#{exception_class}:#{exception_message}"
+      when 'Timeout::Error'
+        first_non_lib_line = exception_backtrace.detect { |line| !(line =~ /ruby\/gems/ || line =~ /\/lib\/ruby\//) }
+        "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
+      else
+        "#{controller_name}:#{action_name}:#{exception_class}"
+    end
+
+    Digest::SHA1.hexdigest(key)
+  end
+
   def self.from_xml(xml_text)
-    hash = parse_xml(xml_text)
-    key = Digest::SHA1.hexdigest([:controller_name, :action_name, :exception_class].map { |k| hash[k] }.join(':'))
-    new(hash.merge(:occurred_at => Time.now, :uber_key => key))
+    new(parse_xml(xml_text))
   end
 
   def self.parse_xml(xml_text)
