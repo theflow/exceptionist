@@ -28,4 +28,3 @@ occurrences.each do |occurrence_hash|
 
   UberException.occurred(occurrence)
 end
-# 

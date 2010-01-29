@@ -1,4 +1,5 @@
 require 'digest'
+require 'time'
 require 'nokogiri'
 
 class Occurrence < Exceptionist::Model
@@ -24,7 +25,7 @@ class Occurrence < Exceptionist::Model
   end
 
   def occurred_at
-    @occurred_at.is_a?(String) ? DateTime.parse(@occurred_at) : @occurred_at
+    @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
   end
 
   def close!
@@ -55,8 +56,8 @@ class Occurrence < Exceptionist::Model
 
   def initialize(attributes = {})
     super
-    self.occurred_at = attributes['occurred_at'] ? Time.parse(attributes['occurred_at']) : Time.now
-    self.uber_key = generate_uber_key
+    self.occurred_at ||= attributes['occurred_at'] || Time.now
+    self.uber_key ||= generate_uber_key
   end
 
   def generate_uber_key
