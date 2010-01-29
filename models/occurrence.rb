@@ -10,7 +10,7 @@ class Occurrence < Exceptionist::Model
 
   def title
     case exception_class
-      when 'Mysql::Error', 'RuntimeError', 'Timeout::Error'
+      when 'Mysql::Error', 'RuntimeError', 'Timeout::Error', 'SystemExit'
         exception_message
       else
         "#{exception_class} in #{controller_name}##{action_name}"
@@ -67,7 +67,7 @@ class Occurrence < Exceptionist::Model
 
   def generate_uber_key
     key = case exception_class
-      when 'Mysql::Error', 'RuntimeError'
+      when 'Mysql::Error', 'RuntimeError', 'SystemExit'
         "#{exception_class}:#{exception_message}"
       when 'Timeout::Error'
         first_non_lib_line = exception_backtrace.detect { |line| !(line =~ /ruby\/gems/ || line =~ /\/lib\/ruby\//) }
