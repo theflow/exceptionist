@@ -4,7 +4,7 @@
     First: <%= format_time(uber_exc.first_occurred_at) %>
   </div>
   <div class="span-16">
-    <h6><a href="/exceptions/<%= uber_exc.id %>"><%= uber_exc.title %></a></h6>
+    <h6><a href="/exceptions/<%= uber_exc.id %>"><%= truncate(uber_exc.title, 100) %></a></h6>
     <%= truncate(uber_exc.url, 80) %>
   </div>
   <div class="span-2 last centered">

@@ -9,7 +9,12 @@ class Occurrence < Exceptionist::Model
                 :project_name, :occurred_at, :id, :uber_key
 
   def title
-    "#{exception_class} in #{controller_name}##{action_name}"
+    case exception_class
+      when 'Mysql::Error', 'RuntimeError', 'Timeout::Error'
+        exception_message
+      else
+        "#{exception_class} in #{controller_name}##{action_name}"
+    end
   end
 
   def http_method
