@@ -29,7 +29,25 @@ module Exceptionist
     end
   end
 
+  def self.filter
+    @filter ||= FilterStore.new
+  end
+
   def self.redis=(redis)
     @redis = redis
+  end
+
+  class FilterStore
+    def initialize
+      @filters = []
+    end
+
+    def add(name, &block)
+      @filters << [name, block]
+    end
+
+    def all
+      @filters
+    end
   end
 end

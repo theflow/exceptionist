@@ -47,8 +47,12 @@ class UberException < Exceptionist::Model
     # store a list of exceptions per project
     redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.uber_key)
 
-    # filter googlebot
-    redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:nonbot", occurrence.uber_key) if !occurrence.from_searchbot?
+    # Apply filters
+    Exceptionist.filter.all.each do |filter|
+      if filter.last.call(occurrence)
+        redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.uber_key)
+      end
+    end
 
     # store a list of exceptions per project per day
     redis.incr("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}")

@@ -62,6 +62,10 @@ OCCURRENCE = { :exception_class     => 'NameError',
                :url                 => 'http://example.com' }
 
 context 'Occurrence saving' do
+  setup do
+    Exceptionist.redis.flush_all
+  end
+
   test 'saving an occurrence should set the ID' do
     occurrence = Occurrence.new
     assert_nil occurrence.id
@@ -69,6 +73,34 @@ context 'Occurrence saving' do
     occurrence.save
 
     assert_not_nil occurrence.id
+  end
+
+  test 'an occurrence occurred' do
+    occurrence = Occurrence.new(OCCURRENCE).save
+    UberException.occurred(occurrence)
+
+    uber_exp = UberException.new(occurrence.uber_key)
+    assert_equal 1, uber_exp.occurrences_count
+    assert_equal 'NameError: undefined local variable or method dude', uber_exp.first_occurrence.exception_message
+  end
+
+  test 'an occurrence occurred and should be filtered' do
+    Exceptionist.filter.add :dotcom do |occurrence|
+      occurrence.url =~ /\.com/
+    end
+
+    occurrence1 = Occurrence.new(OCCURRENCE).save
+    UberException.occurred(occurrence1)
+    occurrence2 = Occurrence.new(OCCURRENCE.merge(:exception_class => 'DifferentError', :url => 'http://example.org')).save
+    UberException.occurred(occurrence2)
+
+    filtered_exceptions = UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
+    assert_equal 1, filtered_exceptions.size
+    assert_equal occurrence1.uber_key, filtered_exceptions.first.id
+
+    all_exceptions = UberException.find_all_sorted_by_time('ExampleProject', nil, 0, 25)
+    assert_equal 2, all_exceptions.size
+    assert_equal [occurrence2.uber_key, occurrence1.uber_key], all_exceptions.map(&:id)
   end
 end
 

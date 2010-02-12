@@ -63,6 +63,10 @@ class Occurrence < Exceptionist::Model
       :uber_key            => uber_key }
   end
 
+  def ==(other)
+    id == other.id
+  end
+
   def initialize(attributes = {})
     super
     self.occurred_at ||= attributes['occurred_at'] || Time.now
