@@ -29,10 +29,6 @@ class Occurrence < Exceptionist::Model
     cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
   end
 
-  def from_searchbot?
-    user_agent =~ /(Baidu|bot|Google|SiteUptime|Slurp|WordPress)/
-  end
-
   def occurred_at
     @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
   end
