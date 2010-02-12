@@ -70,7 +70,7 @@ class Occurrence < Exceptionist::Model
       when 'Mysql::Error', 'RuntimeError', 'SystemExit'
         "#{exception_class}:#{exception_message}"
       when 'Timeout::Error'
-        first_non_lib_line = exception_backtrace.detect { |line| !(line =~ /ruby\/gems/ || line =~ /\/lib\/ruby\//) }
+        first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
         "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
       else
         "#{controller_name}:#{action_name}:#{exception_class}"

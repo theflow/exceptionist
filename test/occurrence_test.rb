@@ -12,8 +12,8 @@ context "Parse Hoptoad XML" do
     assert_equal nil, hash[:action_name]
     assert_equal 'RuntimeError', hash[:exception_class]
     assert_equal 'RuntimeError: I have made a huge mistake', hash[:exception_message]
-    assert_equal ["/testapp/app/models/user.rb:53:in `public'",
-                  "/testapp/app/controllers/users_controller.rb:14:in `index'"], hash[:exception_backtrace]
+    assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
+                  "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], hash[:exception_backtrace]
     assert_equal 'production', hash[:environment]
     assert_equal 'ExampleProject', hash[:project_name]
 
@@ -42,8 +42,8 @@ context "Parse Hoptoad XML" do
     assert_equal nil, occurrence.action_name
     assert_equal 'RuntimeError', occurrence.exception_class
     assert_equal 'RuntimeError: I have made a huge mistake', occurrence.exception_message
-    assert_equal ["/testapp/app/models/user.rb:53:in `public'",
-                  "/testapp/app/controllers/users_controller.rb:14:in `index'"], occurrence.exception_backtrace
+    assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
+                  "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], occurrence.exception_backtrace
     assert_equal 'production', occurrence.environment
     assert_equal 'ExampleProject', occurrence.project_name
 
@@ -66,7 +66,7 @@ context "Parse Hoptoad XML" do
 
   OCCURRENCE = { :exception_class     => 'NameError',
                  :exception_message   => 'NameError: undefined local variable or method dude',
-                 :exception_backtrace => ["/testapp/app/models/user.rb:53:in `public'", "/testapp/app/controllers/users_controller.rb:14:in `show'"],
+                 :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
                  :controller_name     => 'users',
                  :action_name         => 'show',
                  :project_name        => 'ExampleProject',
@@ -91,7 +91,7 @@ context "Parse Hoptoad XML" do
   test 'should aggregate TimeoutErrors' do
     timeout_backtrace = [
       "/opt/ruby-enterprise/lib/ruby/1.8/net/protocol.rb:135:in `call'",
-      "/home/apps/project/releases/20100114145453/vendor/plugins/acts_as_solr/lib/solr/connection.rb:158:in `post'"
+      "[PROJECT_ROOT]/vendor/plugins/acts_as_solr/lib/solr/connection.rb:158:in `post'"
     ]
     timeout_exception = OCCURRENCE.merge(:exception_class => 'Timeout::Error', :exception_backtrace => timeout_backtrace)
 
@@ -102,7 +102,7 @@ context "Parse Hoptoad XML" do
     timeout_backtrace.insert(0, "/opt/ruby-enterprise/lib/ruby/gems/1.8/gems/system_timer-1.0/lib/system_timer.rb:42:in `install_ruby_sigalrm_handler'")
     assert_equal base_key, Occurrence.new(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
 
-    timeout_backtrace[2] = "/home/apps/project/releases/20100114145453/app/models/user.rb:158:in `post'"
+    timeout_backtrace[2] = "[PROJECT_ROOT]/app/models/user.rb:158:in `post'"
     assert_not_equal base_key, Occurrence.new(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
   end
 end

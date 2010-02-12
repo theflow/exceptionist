@@ -9,8 +9,8 @@
   <error>
     <class>RuntimeError</class>
     <backtrace>
-      <line method="public" file="/testapp/app/models/user.rb" number="53"/>
-      <line method="index" file="/testapp/app/controllers/users_controller.rb" number="14"/>
+      <line method="public" file="[PROJECT_ROOT]/app/models/user.rb" number="53"/>
+      <line method="index" file="[PROJECT_ROOT]/app/controllers/users_controller.rb" number="14"/>
     </backtrace>
   </error>
   <server-environment>
