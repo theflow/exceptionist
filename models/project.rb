@@ -22,7 +22,7 @@ class Project
   end
 
   def occurrence_count_on(date)
-    redis.list_length("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
+    redis.get("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}").to_i
   end
 
   def last_three_exceptions

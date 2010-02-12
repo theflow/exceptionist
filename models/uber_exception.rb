@@ -44,7 +44,7 @@ class UberException < Exceptionist::Model
     redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.uber_key)
 
     # store a list of exceptions per project per day
-    redis.push_tail("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
+    redis.incr("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}")
 
     # store a top level set of projects
     redis.set_add("Exceptionist::Projects", occurrence.project_name)
