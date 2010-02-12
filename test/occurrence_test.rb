@@ -1,9 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-context "Parse Hoptoad XML" do
-
-
-
+context 'Parse Hoptoad XML' do
   test 'should parse a exception' do
     hash = Occurrence.parse_xml(read_fixtures_file('fixtures/exception.xml'))
 
@@ -54,24 +51,28 @@ context "Parse Hoptoad XML" do
     assert_not_nil occurrence.occurred_at
     assert_not_nil occurrence.uber_key
   end
+end
 
+OCCURRENCE = { :exception_class     => 'NameError',
+               :exception_message   => 'NameError: undefined local variable or method dude',
+               :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
+               :controller_name     => 'users',
+               :action_name         => 'show',
+               :project_name        => 'ExampleProject',
+               :url                 => 'http://example.com' }
+
+context 'Occurrence saving' do
   test 'saving an occurrence should set the ID' do
-    occurrence = Occurrence.from_xml(read_fixtures_file('fixtures/exception.xml'))
+    occurrence = Occurrence.new
     assert_nil occurrence.id
 
     occurrence.save
 
     assert_not_nil occurrence.id
   end
+end
 
-  OCCURRENCE = { :exception_class     => 'NameError',
-                 :exception_message   => 'NameError: undefined local variable or method dude',
-                 :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
-                 :controller_name     => 'users',
-                 :action_name         => 'show',
-                 :project_name        => 'ExampleProject',
-                 :url                 => 'http://example.com' }
-
+context 'Occurrence aggregation' do
   test 'should generate uber key' do
     assert_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE).uber_key
     assert_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE.merge(:url => 'lala.com')).uber_key
