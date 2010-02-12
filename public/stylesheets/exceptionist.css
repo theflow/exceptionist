@@ -19,7 +19,7 @@ div.sorting_links {
 div.sorting_links a {
   text-decoration: none;
   font-weight: bold;
-  margin: 0 5px;
+  margin: 0 3px;
 }
 
 button.close_button {
