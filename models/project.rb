@@ -22,7 +22,7 @@ class Project
   end
 
   def occurrence_count_on(date)
-    Exceptionist.redis.get("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}").to_i
+    Exceptionist.redis.list_length("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
   end
 
   def last_three_exceptions
