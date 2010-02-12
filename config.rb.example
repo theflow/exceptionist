@@ -1,0 +1,12 @@
+# Exceptional configuration
+#
+
+
+# Filter config
+# =============
+#
+
+# An example which filters out exceptions triggered by common search bots
+# Exceptionist.filter.add :nonbot do |occurrence|
+#   occurrence.user_agent =~ /(Google|Slurp|bot)/
+# end
