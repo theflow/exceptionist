@@ -6,11 +6,13 @@ require 'pp'
 
 
 get '/' do
+  @projects = Project.all
   @title = 'All Projects'
   erb :dashboard
 end
 
 get '/projects/:project' do
+  @projects = Project.all
   @current_project = Project.new(params[:project])
   @start = params[:start] ? params[:start].to_i : 0
   if params[:sort_by] && params[:sort_by] == 'frequent'
@@ -24,6 +26,7 @@ get '/projects/:project' do
 end
 
 get '/exceptions/:id' do
+  @projects = Project.all
   @uber_exception = UberException.new(params[:id])
   @occurrence_position = params[:occurrence_position] ? params[:occurrence_position].to_i : @uber_exception.occurrences_count
   @occurrence = @uber_exception.current_occurrence(@occurrence_position)
@@ -45,10 +48,6 @@ post '/notifier_api/v2/notices/' do
   occurrence = Occurrence.from_xml(request.body.read)
   occurrence.save
   UberException.occurred(occurrence)
-end
-
-before do
-  @projects = Project.all if request.get?
 end
 
 helpers do
