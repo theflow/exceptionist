@@ -15,7 +15,7 @@ get '/projects/:project' do
   @projects = Project.all
   @current_project = Project.new(params[:project])
   @start = params[:start] ? params[:start].to_i : 0
-  @filter = params[:filter]
+  @filter = params[:filter] if params[:filter] != ''
   if params[:sort_by] && params[:sort_by] == 'frequent'
     @uber_exceptions = @current_project.most_frequest_exceptions(@filter, @start)
   else
@@ -68,6 +68,10 @@ helpers do
     PP.pp(hash, s)
     s.rewind
     s.read
+  end
+
+  def link_to_unless(name, url, condition)
+    condition ? "<b>#{name}</b>" : "<a href=\"#{url}\">#{name}</a>"
   end
 
   def partial(template, local_vars = {})
