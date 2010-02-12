@@ -5,6 +5,16 @@ namespace :redis do
   end
 end
 
+task :export do
+  require 'tools'
+  Exceptionist::Exporter.run
+end
+
+task :import do
+  require 'tools'
+  Exceptionist::Importer.run
+end
+
 desc "Run tests"
 task :test do
   # Don't use the rake/testtask because it loads a new
