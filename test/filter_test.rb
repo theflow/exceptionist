@@ -1,6 +1,10 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 context "Add filters" do
+  setup do
+    Exceptionist.filter.clear
+  end
+
   test 'should be able to add filter' do
     Exceptionist.filter.add(:nonbot) { |occurrence| occurrence.nil? }
 

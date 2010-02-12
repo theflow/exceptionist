@@ -44,6 +44,10 @@ module Exceptionist
       @filters << [name, block]
     end
 
+    def clear
+      @filters = []
+    end
+
     def all
       @filters
     end
