@@ -2,8 +2,13 @@
 
 <div class="span-22 prepend-1 append-1">
   <div class="span-11 sorting_links">
-    Show: &nbsp; <%= link_to_unless('All', '?', params[:filter].nil? || params[:filter] == '') %> <span class="divider">&middot;</spa>
-    <%= link_to_unless('Only non-bot requests', '?filter=nonbot', params[:filter] == 'nonbot') %>
+    <% unless Exceptionist.filter.all.empty? %>
+      Show: &nbsp; <%= link_to_unless('All', '?', params[:filter].nil? || params[:filter] == '') %>
+      <% for filter in Exceptionist.filter.all.each %>
+        <span class="divider">&middot;</spa>
+        <%= link_to_unless(filter.first, "?filter=#{filter.first}", params[:filter] == filter.first.to_s) %>
+      <% end %>
+    <% end %>
   </div>
   <div class="span-11 sorting_links right-aligned last">
     <a href="?sort_by=latest"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == '' || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
