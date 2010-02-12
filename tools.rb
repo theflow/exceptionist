@@ -30,6 +30,13 @@ module Exceptionist
     end
   end
 
+  class Reseter
+    def self.run
+      all_keys = Exceptionist.redis.keys("Exceptionist::*")
+      all_keys.each { |key| Exceptionist.redis.delete(key) }
+    end
+  end
+
   class Migrator
   end
 end
