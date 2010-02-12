@@ -22,7 +22,7 @@ class Project
   end
 
   def occurrence_count_on(date)
-    redis.get("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}").to_i
+    Exceptionist.redis.get("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}").to_i
   end
 
   def last_three_exceptions
@@ -42,6 +42,6 @@ class Project
   end
 
   def self.all
-    redis.set_members('Exceptionist::Projects').map { |name| Project.new(name) }
+    Exceptionist.redis.set_members('Exceptionist::Projects').map { |name| Project.new(name) }
   end
 end
