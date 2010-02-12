@@ -16,8 +16,17 @@ module Exceptionist
   end
 
   def self.redis
-    return @redis if @redis
-    @redis = Redis.new(:host => '127.0.0.1', :port => 6379, :thread_safe => true)
+    @redis ||= initialize_redis
+  end
+
+  def self.initialize_redis
+    config = YAML.load_file(File.join(File.dirname(__FILE__), 'redis.yml'))
+    if config.is_a?(String)
+      host, port = config.split(':')
+      Redis.new(:host => host, :port => port, :thread_safe => true)
+    else
+      raise 'Valid redis.yml missing'
+    end
   end
 
   def self.redis=(redis)
