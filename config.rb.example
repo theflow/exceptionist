@@ -10,3 +10,15 @@ Exceptionist.redis = 'localhost:6379'
 # Exceptionist.filter.add :nonbot do |occurrence|
 #   occurrence.user_agent =~ /(Google|Slurp|bot)/
 # end
+
+# Aggregator config
+# =============
+#
+# Exceptionist.aggregators.add ['Mysql::Error', 'RuntimeError', 'SystemExit'] do |occurrence|
+#   "#{occurrence.exception_class}:#{occurrence.exception_message}"
+# end
+#
+# Exceptionist.aggregators.add 'Timeout::Error' do |occurrence|
+#   first_non_lib_line = occurrence.exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
+#   "#{occurrence.exception_class}:#{occurrence.exception_message}:#{first_non_lib_line}"
+# end
