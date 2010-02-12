@@ -1,5 +1,5 @@
-# Exceptional configuration
-#
+# Configure your Redis server and port
+Exceptionist.redis = 'localhost:6379'
 
 
 # Filter config

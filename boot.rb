@@ -16,25 +16,23 @@ module Exceptionist
   end
 
   def self.redis
-    @redis ||= initialize_redis
+    @redis ||= Redis.new(:host => host, :port => port, :thread_safe => true)
   end
 
-  def self.initialize_redis
-    config = YAML.load_file(File.join(File.dirname(__FILE__), 'redis.yml'))
-    if config.is_a?(String)
-      host, port = config.split(':')
-      Redis.new(:host => host, :port => port, :thread_safe => true)
+  def self.redis=(server)
+    case server
+    when String
+      host, port = server.split(':')
+      @redis = Redis.new(:host => host, :port => port, :thread_safe => true)
+    when Redis
+      @redis = server
     else
-      raise 'Valid redis.yml missing'
+      raise "I don't know what to do with #{server.inspect}"
     end
   end
 
   def self.filter
     @filter ||= FilterStore.new
-  end
-
-  def self.redis=(redis)
-    @redis = redis
   end
 
   class FilterStore
