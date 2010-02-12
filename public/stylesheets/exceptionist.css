@@ -1,3 +1,78 @@
+#project_nav {
+  float: right;
+  font-weight: bold;
+}
+
+a.silent_link {
+  text-decoration: none;
+  color: #222;
+}
+
+a.silent_link:hover {
+  text-decoration: underline;
+}
+
+div.sorting_links {
+  margin-bottom: 7px;
+}
+
+div.sorting_links a {
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
+button.close_button {
+  float: right;
+  margin: 0;
+}
+
+div.head_box {
+  padding: 5px;
+  background-color: #D3D3D7;
+  font-size: 1.3em;
+  color: #111;
+}
+
+div.message_box {
+  padding: 5px;
+  font-size: 1.2em;
+  background-color: #E9E9EB;
+}
+
+dd.backtrace {
+  background-color: #0B0F21;
+  color: #fff;
+  white-space: pre;
+  overflow: auto;
+  max-height: 280px;
+  padding: 8px 10px;
+}
+
+dd.nice_hash {
+  white-space: pre;
+}
+
+dd {
+  margin-bottom: 10px;
+}
+
+.centered {
+  text-align: center;
+}
+
+.right-aligned {
+  text-align: right;
+}
+
+span.occurrence_count {
+  background-color: #eee;
+  font-size: 1.2em;
+  padding: 8px;
+  color: #666;
+}
+
+
 /* -------------------------------------------------------------- 
   
    buttons.css
@@ -49,7 +124,6 @@ button img, a.button img{
   height:16px;
   float:none;
 }
-
 
 /* Button colors
 -------------------------------------------------------------- */
