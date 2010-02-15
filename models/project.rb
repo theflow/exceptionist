@@ -10,15 +10,19 @@ class Project
   end
 
   def last_thirty_days
-    today = Time.now
-    start = today - (3600 * 24 * 29) # 29 days ago
+    last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
+  end
 
-    thirty_days = []
+  def last_n_days(days)
+    today = Time.now
+    start = today - (3600 * 24 * (days - 1)) # `days` days ago
+
+    n_days = []
     begin
-      thirty_days << [start, occurrence_count_on(start)]
+      n_days << start
     end while (start += 86400) <= today
 
-    thirty_days
+    n_days
   end
 
   def occurrence_count_on(date)

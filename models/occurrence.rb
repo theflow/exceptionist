@@ -63,6 +63,10 @@ class Occurrence < Exceptionist::Model
     id == other.id
   end
 
+  def inspect
+    "(Occurrence: id: #{id}, title: '#{title}')"
+  end
+
   def initialize(attributes = {})
     super
     self.occurred_at ||= attributes['occurred_at'] || Time.now
@@ -81,6 +85,12 @@ class Occurrence < Exceptionist::Model
     end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
+  end
+
+  def self.find_new_in_last_n_days(project, days_ago)
+    project.last_n_days(days_ago).map { |day|
+      find_all(redis.list_range("Exceptionist::Project:#{project.name}:OnDay:#{day.strftime('%Y-%m-%d')}", 0, -1))
+    }.flatten
   end
 
   def self.from_xml(xml_text)

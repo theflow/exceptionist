@@ -23,6 +23,10 @@ module Exceptionist
       self.class.key(*parts)
     end
 
+    def self.create(attributes = {})
+      new(attributes).save
+    end
+
     def self.key(*parts)
       "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
     end
