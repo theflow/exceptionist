@@ -80,7 +80,7 @@ class Occurrence < Exceptionist::Model
         "#{controller_name}:#{action_name}:#{exception_class}"
     end
 
-    Digest::SHA1.hexdigest(key)
+    Digest::SHA1.hexdigest("#{project_name}:#{key}")
   end
 
   def self.from_xml(xml_text)

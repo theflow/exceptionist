@@ -100,17 +100,25 @@ context 'Occurrence saving' do
 
     all_exceptions = UberException.find_all_sorted_by_time('ExampleProject', nil, 0, 25)
     assert_equal 2, all_exceptions.size
-    assert_equal [occurrence2.uber_key, occurrence1.uber_key], all_exceptions.map(&:id)
+    assert all_exceptions.map(&:id).include?(occurrence1.uber_key)
+    assert all_exceptions.map(&:id).include?(occurrence2.uber_key)
   end
 end
 
 context 'Occurrence aggregation' do
   test 'should generate uber key' do
-    assert_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE).uber_key
-    assert_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE.merge(:url => 'lala.com')).uber_key
-    assert_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE.merge(:session => {:user_id => 17})).uber_key
+    base_key = Occurrence.new(OCCURRENCE).uber_key
+    assert_equal base_key, Occurrence.new(OCCURRENCE.merge(:url => 'lala.com')).uber_key
+    assert_equal base_key, Occurrence.new(OCCURRENCE.merge(:session => {:user_id => 17})).uber_key
 
-    assert_not_equal '0e783598eacef69332e0ea5cb3c38ea52bf3b3b1', Occurrence.new(OCCURRENCE.merge(:exception_class => 'NoMethodError')).uber_key
+    assert_not_equal base_key, Occurrence.new(OCCURRENCE.merge(:exception_class => 'NoMethodError')).uber_key
+  end
+
+  test 'should generate uber key for occurrences in different projects' do
+    project1_key = Occurrence.new(OCCURRENCE.merge(:project_name => 'project1')).uber_key
+    project2_key = Occurrence.new(OCCURRENCE.merge(:project_name => 'project2')).uber_key
+
+    assert_not_equal project1_key, project2_key
   end
 
   test 'should aggregate RuntimeErrors' do
