@@ -53,14 +53,6 @@ context 'Parse Hoptoad XML' do
   end
 end
 
-OCCURRENCE = { :exception_class     => 'NameError',
-               :exception_message   => 'NameError: undefined local variable or method dude',
-               :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
-               :controller_name     => 'users',
-               :action_name         => 'show',
-               :project_name        => 'ExampleProject',
-               :url                 => 'http://example.com' }
-
 context 'Occurrence saving' do
   setup do
     Exceptionist.redis.flush_all
@@ -76,10 +68,10 @@ context 'Occurrence saving' do
   end
 
   test 'an occurrence occurred' do
-    occurrence = Occurrence.new(OCCURRENCE).save
+    occurrence = create_occurrence
     UberException.occurred(occurrence)
 
-    uber_exp = UberException.new(occurrence.uber_key)
+    uber_exp = occurrence.uber_exception
     assert_equal 1, uber_exp.occurrences_count
     assert_equal 'NameError: undefined local variable or method dude', uber_exp.first_occurrence.exception_message
   end
@@ -89,9 +81,9 @@ context 'Occurrence saving' do
       occurrence.url =~ /\.com/
     end
 
-    occurrence1 = Occurrence.new(OCCURRENCE).save
+    occurrence1 = create_occurrence
     UberException.occurred(occurrence1)
-    occurrence2 = Occurrence.new(OCCURRENCE.merge(:exception_class => 'DifferentError', :url => 'http://example.org')).save
+    occurrence2 = create_occurrence(:exception_class => 'DifferentError', :url => 'http://example.org')
     UberException.occurred(occurrence2)
 
     filtered_exceptions = UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
@@ -107,26 +99,26 @@ end
 
 context 'Occurrence aggregation' do
   test 'should generate uber key' do
-    base_key = Occurrence.new(OCCURRENCE).uber_key
-    assert_equal base_key, Occurrence.new(OCCURRENCE.merge(:url => 'lala.com')).uber_key
-    assert_equal base_key, Occurrence.new(OCCURRENCE.merge(:session => {:user_id => 17})).uber_key
+    base_key = build_occurrence.uber_key
+    assert_equal base_key, build_occurrence(:url => 'lala.com').uber_key
+    assert_equal base_key, build_occurrence(:session => {:user_id => 17}).uber_key
 
-    assert_not_equal base_key, Occurrence.new(OCCURRENCE.merge(:exception_class => 'NoMethodError')).uber_key
+    assert_not_equal base_key, build_occurrence(:exception_class => 'NoMethodError').uber_key
   end
 
   test 'should generate uber key for occurrences in different projects' do
-    project1_key = Occurrence.new(OCCURRENCE.merge(:project_name => 'project1')).uber_key
-    project2_key = Occurrence.new(OCCURRENCE.merge(:project_name => 'project2')).uber_key
+    project1_key = build_occurrence(:project_name => 'project1').uber_key
+    project2_key = build_occurrence(:project_name => 'project2').uber_key
 
     assert_not_equal project1_key, project2_key
   end
 
   test 'should aggregate RuntimeErrors' do
-    runtime_exception = OCCURRENCE.merge(:exception_class => 'RuntimeError')
+    runtime_exception = { :exception_class => 'RuntimeError' }
 
-    base_key = Occurrence.new(runtime_exception).uber_key
-    assert_equal base_key, Occurrence.new(runtime_exception.merge(:controller_name => 'projects')).uber_key
-    assert_equal base_key, Occurrence.new(runtime_exception.merge(:action_name => 'index')).uber_key
+    base_key = build_occurrence(runtime_exception).uber_key
+    assert_equal base_key, build_occurrence(runtime_exception.merge(:controller_name => 'projects')).uber_key
+    assert_equal base_key, build_occurrence(runtime_exception.merge(:action_name => 'index')).uber_key
   end
 
   test 'should aggregate TimeoutErrors' do
@@ -134,16 +126,16 @@ context 'Occurrence aggregation' do
       "/opt/ruby-enterprise/lib/ruby/1.8/net/protocol.rb:135:in `call'",
       "[PROJECT_ROOT]/vendor/plugins/acts_as_solr/lib/solr/connection.rb:158:in `post'"
     ]
-    timeout_exception = OCCURRENCE.merge(:exception_class => 'Timeout::Error', :exception_backtrace => timeout_backtrace)
+    timeout_exception = { :exception_class => 'Timeout::Error', :exception_backtrace => timeout_backtrace }
 
-    base_key = Occurrence.new(timeout_exception).uber_key
-    assert_equal base_key, Occurrence.new(timeout_exception.merge(:controller_name => 'projects')).uber_key
-    assert_equal base_key, Occurrence.new(timeout_exception.merge(:action_name => 'index')).uber_key
+    base_key = build_occurrence(timeout_exception).uber_key
+    assert_equal base_key, build_occurrence(timeout_exception.merge(:controller_name => 'projects')).uber_key
+    assert_equal base_key, build_occurrence(timeout_exception.merge(:action_name => 'index')).uber_key
 
     timeout_backtrace.insert(0, "/opt/ruby-enterprise/lib/ruby/gems/1.8/gems/system_timer-1.0/lib/system_timer.rb:42:in `install_ruby_sigalrm_handler'")
-    assert_equal base_key, Occurrence.new(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
+    assert_equal base_key, build_occurrence(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
 
     timeout_backtrace[2] = "[PROJECT_ROOT]/app/models/user.rb:158:in `post'"
-    assert_not_equal base_key, Occurrence.new(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
+    assert_not_equal base_key, build_occurrence(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
   end
 end

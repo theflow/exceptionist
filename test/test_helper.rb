@@ -57,3 +57,21 @@ end
 def read_fixtures_file(path)
   File.read File.join(File.dirname(__FILE__), path)
 end
+
+def build_occurrence(attributes = {})
+  default_attributes = {
+    :exception_class     => 'NameError',
+    :exception_message   => 'NameError: undefined local variable or method dude',
+    :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
+    :controller_name     => 'users',
+    :action_name         => 'show',
+    :project_name        => 'ExampleProject',
+    :url                 => 'http://example.com'
+  }
+  Occurrence.new(default_attributes.merge(attributes))
+end
+
+def create_occurrence(attributes = {})
+  build_occurrence(attributes).save
+end
+
