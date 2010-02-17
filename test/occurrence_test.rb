@@ -147,24 +147,3 @@ context 'Occurrence aggregation' do
     assert_not_equal base_key, Occurrence.new(timeout_exception.merge(:exception_backtrace => timeout_backtrace)).uber_key
   end
 end
-
-context 'Finding occurrences' do
-  setup do
-    Exceptionist.redis.flush_all
-  end
-
-  test 'should find new occurrences since' do
-    project = Project.new('ExampleProject')
-    old_ocr       = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now - (84600 * 4)))
-    yesterday_ocr = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now - (84600 * 1)))
-    today_ocr     = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now))
-
-    UberException.occurred(old_ocr)
-    UberException.occurred(yesterday_ocr)
-    UberException.occurred(today_ocr)
-
-    occurrences = Occurrence.find_new_in_last_n_days(project, 2)
-    assert_equal 2, occurrences.size
-    assert_equal [yesterday_ocr, today_ocr], occurrences
-  end
-end

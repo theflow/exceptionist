@@ -35,6 +35,10 @@ class UberException < Exceptionist::Model
     []
   end
 
+  def self.find_new_since(project, date)
+    find_all(project).select { |uber_exp| uber_exp.first_occurred_at >= date }
+  end
+
   def self.occurred(occurrence)
     # every uber exception has a list of occurrences
     redis.push_tail("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.id)
@@ -95,6 +99,14 @@ class UberException < Exceptionist::Model
 
   def occurrences_count
     @occurrences_count ||= redis.list_length(key(id, 'Occurrences'))
+  end
+
+  def ==(other)
+    id == other.id
+  end
+
+  def inspect
+    "(UberException: id: #{id})"
   end
 
 private

@@ -42,6 +42,10 @@ class Occurrence < Exceptionist::Model
     Project.new(project_name)
   end
 
+  def uber_exception
+    UberException.new(uber_key)
+  end
+
   def to_hash
     { :exception_message   => exception_message,
       :session             => session,
