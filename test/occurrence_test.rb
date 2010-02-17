@@ -155,9 +155,9 @@ context 'Finding occurrences' do
 
   test 'should find new occurrences since' do
     project = Project.new('ExampleProject')
-    old_ocr       = Occurrence.create(OCCURRENCE.merge(:occurred_at => '2010-02-10'))
-    yesterday_ocr = Occurrence.create(OCCURRENCE.merge(:occurred_at => '2010-02-14'))
-    today_ocr     = Occurrence.create(OCCURRENCE.merge(:occurred_at => '2010-02-15'))
+    old_ocr       = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now - (84600 * 4)))
+    yesterday_ocr = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now - (84600 * 1)))
+    today_ocr     = Occurrence.create(OCCURRENCE.merge(:occurred_at => Time.now))
 
     UberException.occurred(old_ocr)
     UberException.occurred(yesterday_ocr)
