@@ -1,4 +1,14 @@
+require 'rake/testtask'
 require 'tools'
+
+task :default => :test
+
+desc 'Run tests'
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'lib'
+  t.pattern = 'test/**/*_test.rb'
+  t.verbose = true
+end
 
 namespace :redis do
   desc "Start Redis for development"
@@ -27,14 +37,4 @@ task :reimport do
   Exceptionist::Exporter.run
   Exceptionist::Reseter.run
   Exceptionist::Importer.run
-end
-
-desc "Run tests"
-task :test do
-  # Don't use the rake/testtask because it loads a new
-  # Ruby interpreter - we want to run tests with the current
-  # `rake` so our library manager still works
-  Dir['test/*_test.rb'].each do |f|
-    require f
-  end
 end
