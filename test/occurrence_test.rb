@@ -113,6 +113,26 @@ context 'Occurrence aggregation' do
     assert_not_equal project1_key, project2_key
   end
 
+  test 'should generate uber key for the same NoMethodError' do
+    key1 = build_occurrence(:exception_class => 'NoMethodError',
+      :exception_message => "NoMethodError: undefined method `service' for #<Post:0x14490624>").uber_key
+    key2 = build_occurrence(:exception_class => 'NoMethodError',
+      :exception_message => "NoMethodError: undefined method `service' for #<Post:0x176841f8>").uber_key
+
+    assert_equal key1, key2
+  end
+
+  test 'should generate different uber keys for different NoMethodErrors' do
+    key1 = build_occurrence(:exception_class => 'NoMethodError',
+      :exception_message => "NoMethodError: undefined method `service' for #<Post:0x14490624>",
+      :exception_backtrace => ["[GEM_ROOT]/gems/activerecord-2.3.4/lib/active_record/attribute_methods.rb:260:in `method_missing'"]).uber_key
+    key2 = build_occurrence(:exception_class => 'NoMethodError',
+      :exception_message => "NoMethodError: undefined method `name' for nil:NilClass",
+      :exception_backtrace => ["[PROJECT_ROOT]/app/models/post.rb:184:in `name'"]).uber_key
+
+    assert_not_equal key1, key2
+  end
+
   test 'should aggregate RuntimeErrors' do
     runtime_exception = { :exception_class => 'RuntimeError' }
 

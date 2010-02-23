@@ -85,7 +85,8 @@ class Occurrence < Exceptionist::Model
         first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
         "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
       else
-        "#{controller_name}:#{action_name}:#{exception_class}"
+        backtrace = exception_backtrace ? exception_backtrace.first : ''
+        "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
     end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
