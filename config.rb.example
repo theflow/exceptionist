@@ -1,6 +1,15 @@
 # Configure your Redis server and port
 Exceptionist.redis = 'localhost:6379'
 
+# Configure your mail server for daily reports
+# Exceptionist.smtp_settings = {
+#   :host => 'mail.example.org',
+#   :port => 25,
+#   :user => 'example_user',
+#   :pass => 'example_password',
+#   :auth => :login
+# }
+
 
 # Filter config
 # =============
