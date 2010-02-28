@@ -1,6 +1,7 @@
 require 'boot'
 
 require 'sinatra'
+require 'net/smtp'
 require 'stringio'
 require 'pp'
 
@@ -24,6 +25,31 @@ get '/projects/:project' do
 
   @title = "Latest Exceptions for #{@current_project.name}"
   erb :index
+end
+
+get '/projects/:project/new' do
+  @projects = Project.all
+  @current_project = Project.new(params[:project])
+
+  @uber_exceptions = @current_project.new_exceptions
+
+  message_body = erb(:new_exceptions, :layout => false)
+
+  body = <<MESSAGE_END
+From: The Exceptionst <the@exceptionist.com>
+To: The Exceptionst <the@exceptionist.com>
+MIME-Version: 1.0
+Content-type: text/html
+Subject: [Exceptionist][#{@current_project.name}] Summary for 
+
+#{message_body}
+MESSAGE_END
+
+  Net::SMTP.start(Exceptionist.smtp_settings[:host], Exceptionist.smtp_settings[:port], 'localhost', Exceptionist.smtp_settings[:user], Exceptionist.smtp_settings[:pass], Exceptionist.smtp_settings[:auth]) do |smtp|
+    smtp.send_message(body, 'the@exceptionist.com', 'surf@theflow.de')
+  end
+
+  message_body
 end
 
 get '/exceptions/:id' do

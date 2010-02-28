@@ -92,10 +92,8 @@ class Occurrence < Exceptionist::Model
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
   end
 
-  def self.find_new_in_last_n_days(project, days_ago)
-    project.last_n_days(days_ago).map { |day|
-      find_all(redis.list_range("Exceptionist::Project:#{project.name}:OnDay:#{day.strftime('%Y-%m-%d')}", 0, -1))
-    }.flatten
+  def self.count_new_on(project, date)
+    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{date.strftime('%Y-%m-%d')}")
   end
 
   def self.from_xml(xml_text)

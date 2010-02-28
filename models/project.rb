@@ -41,6 +41,14 @@ class Project
     UberException.find_all_sorted_by_occurrence_count(name, filter, start, limit)
   end
 
+  def new_exceptions
+    UberException.find_new_since(name, Time.now - 86400)
+  end
+
+  def total_count_yesterday
+    Occurrence.count_new_on(name, Time.now - 86400)
+  end
+
   def ==(other)
     name == other.name
   end

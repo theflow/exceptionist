@@ -31,6 +31,14 @@ module Exceptionist
     end
   end
 
+  def self.smtp_settings
+    @smtp_settings
+  end
+
+  def self.smtp_settings=(settings)
+    @smtp_settings = settings
+  end
+
   def self.filter
     @filter ||= FilterStore.new
   end
