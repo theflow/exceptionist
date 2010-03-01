@@ -10,6 +10,8 @@ module Exceptionist
         Occurrence.find(id)
       end
 
+      occurrences = occurrences.sort_by(&:occurred_at)
+
       File.open('occurrences_export.json', 'w') do |file|
         file.write(Yajl::Encoder.encode(occurrences))
       end
