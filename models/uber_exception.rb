@@ -35,12 +35,13 @@ class UberException < Exceptionist::Model
     []
   end
 
-  def self.find_new_since(project, date)
+  def self.find_new_on(project, day)
     all = redis.sort("Exceptionist::Project:#{project}:UberExceptions",
             :by => "Exceptionist::UberException:*:OccurrenceCount",
             :order => 'DESC').map { |id| new(id) }
 
-    all.select { |uber_exp| uber_exp.first_occurred_at >= date }
+    next_day = day + 86400
+    all.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
   end
 
   def self.occurred(occurrence)

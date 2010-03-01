@@ -1,7 +1,8 @@
 require 'rubygems'
 
-require 'redis'
+require 'time'
 require 'zlib'
+require 'redis'
 require 'yajl'
 
 require 'models/model'

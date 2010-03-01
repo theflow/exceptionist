@@ -27,11 +27,10 @@ get '/projects/:project' do
   erb :index
 end
 
-get '/projects/:project/new' do
-  @projects = Project.all
+get '/projects/:project/new_on/:day' do
+  @day = Time.parse(params[:day])
   @current_project = Project.new(params[:project])
-
-  @uber_exceptions = @current_project.new_exceptions
+  @uber_exceptions = @current_project.new_exceptions_on(@day)
 
   message_body = erb(:new_exceptions, :layout => false)
 
@@ -40,7 +39,7 @@ From: The Exceptionst <the@exceptionist.com>
 To: The Exceptionst <the@exceptionist.com>
 MIME-Version: 1.0
 Content-type: text/html
-Subject: [Exceptionist][#{@current_project.name}] Summary for 
+Subject: [Exceptionist][#{@current_project.name}] Summary for #{@day}
 
 #{message_body}
 MESSAGE_END

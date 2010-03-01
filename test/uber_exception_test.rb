@@ -18,8 +18,8 @@ context 'Finding UberExceptions' do
     UberException.occurred(yesterday_ocr2)
     UberException.occurred(today_ocr)
 
-    exceptions = UberException.find_new_since(project.name, Time.now - (84600 * 2))
-    assert_equal 2, exceptions.size
-    assert_equal [yesterday_ocr1.uber_exception, today_ocr.uber_exception], exceptions
+    exceptions = UberException.find_new_on(project.name, Time.now - (84600 * 2))
+    assert_equal 1, exceptions.size
+    assert_equal [yesterday_ocr1.uber_exception], exceptions
   end
 end

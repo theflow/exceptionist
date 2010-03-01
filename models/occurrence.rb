@@ -1,5 +1,4 @@
 require 'digest'
-require 'time'
 require 'nokogiri'
 
 class Occurrence < Exceptionist::Model
@@ -92,8 +91,8 @@ class Occurrence < Exceptionist::Model
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
   end
 
-  def self.count_new_on(project, date)
-    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{date.strftime('%Y-%m-%d')}")
+  def self.count_new_on(project, day)
+    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
   end
 
   def self.from_xml(xml_text)
