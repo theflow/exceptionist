@@ -44,7 +44,8 @@ Subject: [Exceptionist][#{@current_project.name}] Summary for #{params[:day]}
 #{message_body}
 MESSAGE_END
 
-  Net::SMTP.start(Exceptionist.smtp_settings[:host], Exceptionist.smtp_settings[:port], 'localhost', Exceptionist.smtp_settings[:user], Exceptionist.smtp_settings[:pass], Exceptionist.smtp_settings[:auth]) do |smtp|
+  account = Exceptionist.config[:smtp_settings]
+  Net::SMTP.start(account[:host], account[:port], 'localhost', account[:user], account[:pass], account[:auth]) do |smtp|
     smtp.send_message(body, 'the@exceptionist.com', 'surf@theflow.de')
   end
 

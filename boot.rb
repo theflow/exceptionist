@@ -32,12 +32,8 @@ module Exceptionist
     end
   end
 
-  def self.smtp_settings
-    @smtp_settings
-  end
-
-  def self.smtp_settings=(settings)
-    @smtp_settings = settings
+  def self.config
+    @config ||= {}
   end
 
   def self.filter
