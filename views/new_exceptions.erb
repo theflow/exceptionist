@@ -16,7 +16,7 @@
   <ul>
   <% for uber_exc in @uber_exceptions %>
   <li>
-      <h4><a href="/exceptions/<%= uber_exc.id %>"><%= truncate(uber_exc.title, 100) %></a> (<%= uber_exc.occurrences_count %>)</h4>
+      <h4><a href="<%= Exceptionist.config[:base_url] %>/exceptions/<%= uber_exc.id %>"><%= truncate(uber_exc.title, 100) %></a> (<%= uber_exc.occurrences_count %>)</h4>
       <p><%= truncate(uber_exc.url, 80) %></p>
   </li>
   <% end %>
