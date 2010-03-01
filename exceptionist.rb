@@ -39,7 +39,7 @@ From: The Exceptionst <the@exceptionist.com>
 To: The Exceptionst <the@exceptionist.com>
 MIME-Version: 1.0
 Content-type: text/html
-Subject: [Exceptionist][#{@current_project.name}] Summary for #{@day}
+Subject: [Exceptionist][#{@current_project.name}] Summary for #{params[:day]}
 
 #{message_body}
 MESSAGE_END
