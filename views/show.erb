@@ -68,6 +68,7 @@
     <dt>User Agent</dt>
     <dd><%= @occurrence.user_agent %></dd>
 
+    <% if @occurrence.cgi_data %>
     <dt>Environment:</dt>
     <dd>
       <div class="span-22 last">
@@ -77,5 +78,6 @@
       <% end %>
       </div>
     </dd>
+    <% end %>
   </dl>
 </div>

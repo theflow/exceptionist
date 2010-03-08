@@ -17,7 +17,7 @@ class Occurrence < Exceptionist::Model
   end
 
   def http_method
-    cgi_data ? cgi_data['REQUEST_METHOD'] : nil
+    cgi_data ? cgi_data['REQUEST_METHOD'] : 'GET'
   end
 
   def referer
@@ -34,7 +34,7 @@ class Occurrence < Exceptionist::Model
 
   def close!
     # do this here, because the UberException does not know which project it's in
-    redis.set_delete("Exceptionist::UberExceptions:#{project_name}", uber_key)
+    redis.set_delete("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
   end
 
   def project
