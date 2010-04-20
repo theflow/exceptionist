@@ -44,6 +44,7 @@
     <div class="span-6 last right-aligned">
       <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
       <form action="/occurrences/<%= @occurrence.id %>" method="post" style="display: inline">
+        <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
         <button type="submit" class="button positive close_button">
           <img src="/tick.png" alt="Close"/> Close
         </button>

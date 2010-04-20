@@ -69,7 +69,7 @@ post '/occurrences/:id' do
   @occurrence = Occurrence.find(params[:id])
   @occurrence.close!
 
-  redirect "/projects/#{@occurrence.project_name}"
+  redirect "/projects/#{@occurrence.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
 end
 
 post '/notifier_api/v2/notices/' do
