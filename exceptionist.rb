@@ -61,7 +61,7 @@ get '/exceptions/:id' do
   @current_project = @occurrence.project
 
   @title = "[#{@current_project.name}] #{@uber_exception.title}"
-  erb :show
+  erb :show, :layout => !request.xhr?
 end
 
 post '/occurrences/:id' do

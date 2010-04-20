@@ -1,83 +1,94 @@
+<script type="text/javascript">
+  var fetchOccurrence = function(link) {
+    $.get($(link).attr('href'), function(data) {
+      $('#occurrence').html(data);
+    });
+    return false;
+  }
+</script>
 
-<h2>
-  <a class="silent_link" href="/projects/<%= @current_project.name %>">[<%= @current_project.name %>]</a>
-  <%= truncate(@uber_exception.title, 40) %> (<%= @uber_exception.occurrences_count %>)
-</h2>
+<div id="occurrence">
+  <h2>
+    <a class="silent_link" href="/projects/<%= @current_project.name %>">[<%= @current_project.name %>]</a>
+    <%= truncate(@uber_exception.title, 40) %> (<%= @uber_exception.occurrences_count %>)
+  </h2>
 
-<hr />
+  <hr />
 
-<div class="span-24 last append-bottom" style="font-size:1.2em;">
-  <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %></div>
-  <div class="span-18 centered">
-
-    <% if @occurrence_position == 1 %>
-      <span class="quiet">&laquo; Older</span>
-    <% else %>
-      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position - 1 %>">&laquo; Older</a>
-    <% end %>
-
-    <span style="margin: 0 10px"><b><%= @occurrence_position %></b> of <b><%= @uber_exception.occurrences_count %></b></span>
-
-    <% if @occurrence_position == @uber_exception.occurrences_count %>
-      <span class="quiet">Newer &raquo;</span>
-    <% else %>
-      <a href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position + 1 %>">Newer &raquo;</a>
-    <% end %>
-  </div>
-  <div class="span-3 last right-aligned"><%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
-</div>
-
-<hr />
-
-<div class="span-24 last head_box">
-  <div class="span-18"><%= "#{@occurrence.http_method} #{@occurrence.url}" %></div>
-  <div class="span-3"></div>
-  <div class="span-6 last right-aligned">
-    <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
-    <form action="/occurrences/<%= @occurrence.id %>" method="post" style="display: inline">
-      <button type="submit" class="button positive close_button">
-        <img src="/tick.png" alt="Close"/> Close
-      </button>
-    </form>
-  </div>
-</div>
-
-<div class="span-24 last append-bottom message_box">
-  <%= escape_html @occurrence.exception_message %>
-</div>
-
-<div class="span-24 last append-bottom">
-  <dl>
-    <dt>Backtrace:</dt>
-    <dd class="backtrace"><code><%= @occurrence.exception_backtrace.join("\n") %></code><dd>
-
-    <dt>Params:</dt>
-    <dd class="nice_hash"><%= pretty_hash(@occurrence.parameters) %></dd>
-
-    <dt>Session:</dt>
-    <dd class="nice_hash"><%= pretty_hash(@occurrence.session) %></dd>
-
-    <dt>URL:</dt>
-    <dd><%= "#{@occurrence.http_method} #{@occurrence.url}" %></dd>
-
-    <% if @occurrence.referer %>
-    <dt>Referer:</dt>
-    <dd><%= @occurrence.referer %></dd>
-    <% end %>
-    
-    <dt>User Agent</dt>
-    <dd><%= @occurrence.user_agent %></dd>
-
-    <% if @occurrence.cgi_data %>
-    <dt>Environment:</dt>
-    <dd>
-      <div class="span-22 last">
-      <% @occurrence.cgi_data.each do |key, value| %>
-        <div class="span-6"><code><%= key %></code></div>
-        <div class="span-16 last"><%= value == '' ? '&nbsp;' : value %></div>
+  <!-- occurrence navigation -->
+  <div class="span-24 last append-bottom" style="font-size:1.2em;">
+    <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %></div>
+    <div class="span-18 centered">
+      <% if @occurrence_position == 1 %>
+        <span class="quiet">&laquo; Older</span>
+      <% else %>
+        <a onclick="fetchOccurrence(this); return false;" href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position - 1 %>">&laquo; Older</a>
       <% end %>
-      </div>
-    </dd>
-    <% end %>
-  </dl>
+
+      <span style="margin: 0 10px"><b><%= @occurrence_position %></b> of <b><%= @uber_exception.occurrences_count %></b></span>
+
+      <% if @occurrence_position == @uber_exception.occurrences_count %>
+        <span class="quiet">Newer &raquo;</span>
+      <% else %>
+        <a onclick="fetchOccurrence(this); return false;" href="/exceptions/<%= @uber_exception.id %>?occurrence_position=<%= @occurrence_position + 1 %>">Newer &raquo;</a>
+      <% end %>
+    </div>
+    <div class="span-3 last right-aligned"><%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
+  </div>
+
+  <hr />
+
+  <div class="span-24 last head_box">
+    <div class="span-18"><%= "#{@occurrence.http_method} #{@occurrence.url}" %></div>
+    <div class="span-3"></div>
+    <div class="span-6 last right-aligned">
+      <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
+      <form action="/occurrences/<%= @occurrence.id %>" method="post" style="display: inline">
+        <button type="submit" class="button positive close_button">
+          <img src="/tick.png" alt="Close"/> Close
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="span-24 last append-bottom message_box">
+    <%= escape_html @occurrence.exception_message %>
+  </div>
+
+  <div class="span-24 last append-bottom">
+    <dl>
+      <dt>Backtrace:</dt>
+      <dd class="backtrace"><code><%= @occurrence.exception_backtrace.join("\n") %></code><dd>
+
+      <dt>Params:</dt>
+      <dd class="nice_hash"><%= pretty_hash(@occurrence.parameters) %></dd>
+
+      <dt>Session:</dt>
+      <dd class="nice_hash"><%= pretty_hash(@occurrence.session) %></dd>
+
+      <dt>URL:</dt>
+      <dd><%= "#{@occurrence.http_method} #{@occurrence.url}" %></dd>
+
+      <% if @occurrence.referer %>
+      <dt>Referer:</dt>
+      <dd><%= @occurrence.referer %></dd>
+      <% end %>
+    
+      <dt>User Agent</dt>
+      <dd><%= @occurrence.user_agent %></dd>
+
+      <% if @occurrence.cgi_data %>
+      <dt>Environment:</dt>
+      <dd>
+        <div class="span-22 last">
+        <% @occurrence.cgi_data.each do |key, value| %>
+          <div class="span-6"><code><%= key %></code></div>
+          <div class="span-16 last"><%= value == '' ? '&nbsp;' : value %></div>
+        <% end %>
+        </div>
+      </dd>
+      <% end %>
+    </dl>
+  </div>
 </div>
+
