@@ -12,13 +12,10 @@
 <body>
   <div class="container prepend-top">
     <div id="project_nav">
-      <a href="/">Dashboard</a> |
-      <select onchange="window.location=this.options[this.selectedIndex].value">
-        <% for project in @projects %>
-          <option value="/">Dashboard</option>
-          <option value="/projects/<%= project.name %>" <%= 'selected="selected"' if @current_project == project %>><%= project.name %></option>
-        <% end %>
-      </select>
+      <% if @backlink %>
+      <a href="javascript:history.go(-1)">&uarr; Back</a> |
+      <% end %>
+      <a href="/">Dashboard</a>
     </div>
 
     <%= yield %>

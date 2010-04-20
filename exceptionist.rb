@@ -59,6 +59,7 @@ get '/exceptions/:id' do
   @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
   @current_project = @occurrence.project
+  @backlink = true
 
   @title = "[#{@current_project.name}] #{@uber_exception.title}"
   erb :show, :layout => !request.xhr?

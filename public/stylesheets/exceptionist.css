@@ -1,6 +1,12 @@
 #project_nav {
-  float: right;
+  margin-top: 12px;
   font-weight: bold;
+  float: right;
+  font-size:1.1em;
+}
+
+#project_nav a {
+  text-decoration: none;
 }
 
 a.silent_link {
