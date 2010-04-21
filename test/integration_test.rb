@@ -139,7 +139,7 @@ context 'IntegrationTest' do
 
       click_button 'Close'
       # redirects back to project page
-      assert_equal '/projects/ExampleProject', current_url
+      assert_equal '/projects/ExampleProject?', current_url
       assert_not_contain 'NameError in users#show'
       assert_contain 'NameError in users#index'
     end
