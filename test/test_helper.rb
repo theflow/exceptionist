@@ -3,7 +3,7 @@ $: << File.join(File.dirname(__FILE__), '..')
 require 'test/unit'
 require 'rubygems'
 
-require 'exceptionist'
+require 'app'
 
 ##
 # start our own redis when the tests start,

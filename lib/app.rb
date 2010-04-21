@@ -6,7 +6,9 @@ require 'stringio'
 require 'pp'
 
 class ExceptionistApp < Sinatra::Base
-  set :app_file, __FILE__
+  dir = File.join(File.dirname(__FILE__), '..')
+  set :views,  "#{dir}/views"
+  set :public, "#{dir}/public"
 
   get '/' do
     @projects = Project.all

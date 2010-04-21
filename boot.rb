@@ -5,11 +5,11 @@ require 'zlib'
 require 'redis'
 require 'yajl'
 
-require 'models/project'
-require 'models/uber_exception'
-require 'models/occurrence'
+require 'lib/models/project'
+require 'lib/models/uber_exception'
+require 'lib/models/occurrence'
 
-require 'models/exceptionist'
+require 'lib/exceptionist'
 
 
 begin
