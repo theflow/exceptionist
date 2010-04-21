@@ -1,11 +1,29 @@
 require 'digest'
 require 'nokogiri'
 
-class Occurrence < Model
+class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
                 :project_name, :occurred_at, :id, :uber_key
+
+
+  def initialize(attributes = {})
+    attributes.each do |key, value|
+      send "#{key}=", value
+    end
+
+    self.occurred_at ||= attributes['occurred_at'] || Time.now
+    self.uber_key ||= generate_uber_key
+  end
+
+  def inspect
+    "(Occurrence: id: #{id}, title: '#{title}')"
+  end
+
+  def ==(other)
+    id == other.id
+  end
 
   def title
     case exception_class
@@ -32,17 +50,44 @@ class Occurrence < Model
     @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
   end
 
-  def close!
-    # do this here, because the UberException does not know which project it's in
-    redis.set_delete("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
-  end
-
   def project
     Project.new(project_name)
   end
 
   def uber_exception
     UberException.new(uber_key)
+  end
+
+  def close!
+    # do this here, because the UberException does not know which project it's in
+    redis.set_delete("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
+  end
+
+  def self.find(id)
+    from_json redis.get(key(:id, id))
+  end
+
+  def self.find_all(ids)
+    ids.map { |id| find(id) }
+  end
+
+  def self.count_new_on(project, day)
+    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
+  end
+
+  #
+  # serialization
+  #
+
+  def save
+    self.id = generate_id unless @id
+    redis.set(key(:id, send(:id)), to_json)
+
+    self
+  end
+
+  def self.create(attributes = {})
+    new(attributes).save
   end
 
   def to_hash
@@ -62,37 +107,12 @@ class Occurrence < Model
       :uber_key            => uber_key }
   end
 
-  def ==(other)
-    id == other.id
+  def to_json
+    Yajl::Encoder.encode(to_hash)
   end
 
-  def inspect
-    "(Occurrence: id: #{id}, title: '#{title}')"
-  end
-
-  def initialize(attributes = {})
-    super
-    self.occurred_at ||= attributes['occurred_at'] || Time.now
-    self.uber_key ||= generate_uber_key
-  end
-
-  def generate_uber_key
-    key = case exception_class
-      when 'Mysql::Error', 'RuntimeError', 'SystemExit'
-        "#{exception_class}:#{exception_message}"
-      when 'Timeout::Error'
-        first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
-        "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
-      else
-        backtrace = exception_backtrace ? exception_backtrace.first : ''
-        "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
-    end
-
-    Digest::SHA1.hexdigest("#{project_name}:#{key}")
-  end
-
-  def self.count_new_on(project, day)
-    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
+  def self.from_json(json)
+    new(Yajl::Parser.parse(json))
   end
 
   def self.from_xml(xml_text)
@@ -136,5 +156,42 @@ class Occurrence < Model
   def self.parse_optional_element(doc, xpath)
     element = doc.xpath(xpath).first
     element ? element.content : nil
+  end
+
+private
+
+  def generate_id
+    redis.incr key(:id)
+  end
+
+  def generate_uber_key
+    key = case exception_class
+      when 'Mysql::Error', 'RuntimeError', 'SystemExit'
+        "#{exception_class}:#{exception_message}"
+      when 'Timeout::Error'
+        first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
+        "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
+      else
+        backtrace = exception_backtrace ? exception_backtrace.first : ''
+        "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
+    end
+
+    Digest::SHA1.hexdigest("#{project_name}:#{key}")
+  end
+
+  def key(*parts)
+    self.class.key(*parts)
+  end
+
+  def self.key(*parts)
+    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
+  end
+
+  def redis
+    Exceptionist.redis
+  end
+
+  def self.redis
+    Exceptionist.redis
   end
 end
