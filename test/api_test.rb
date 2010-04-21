@@ -6,7 +6,7 @@ context 'ApiTest' do
   include Rack::Test::Methods
 
   def app
-    Sinatra::Application
+    ExceptionistApp
   end
 
   setup do

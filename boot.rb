@@ -5,7 +5,6 @@ require 'zlib'
 require 'redis'
 require 'yajl'
 
-require 'models/model'
 require 'models/project'
 require 'models/uber_exception'
 require 'models/occurrence'

@@ -13,7 +13,7 @@ context 'IntegrationTest' do
   include Webrat::Matchers
 
   def app
-    Sinatra::Application
+    ExceptionistApp
   end
 
   setup do
