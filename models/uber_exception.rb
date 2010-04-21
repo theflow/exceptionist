@@ -1,4 +1,4 @@
-class UberException < Exceptionist::Model
+class UberException
   attr_accessor :id
 
   def initialize(id)
@@ -115,6 +115,22 @@ class UberException < Exceptionist::Model
   end
 
 private
+
+  def self.redis
+    Exceptionist.redis
+  end
+
+  def redis
+    Exceptionist.redis
+  end
+
+  def self.key(*parts)
+    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
+  end
+
+  def key(*parts)
+    self.class.key(*parts)
+  end
 
   def occurrences_list(start_position, end_position)
     redis.list_range(key(id, 'Occurrences'), start_position, end_position)
