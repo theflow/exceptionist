@@ -1,0 +1,3 @@
+require 'exceptionist'
+
+run ExceptionistApp
