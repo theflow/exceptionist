@@ -1,7 +1,7 @@
 require 'digest'
 require 'nokogiri'
 
-class Occurrence < Exceptionist::Model
+class Occurrence < Model
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
