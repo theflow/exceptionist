@@ -4,11 +4,11 @@ require 'config'
 module Exceptionist
   class Exporter
     def self.run
-      # occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:id:*")
+      occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:id:*")
 
-      # only the last 2000
-      last_id = Exceptionist.redis.get('Exceptionist::Occurrence:id').to_i
-      occurrence_keys = ((last_id - 2000)..last_id).to_a.map { |id| "Exceptionist::Occurrence:id:#{id}" }
+      # # only the last 2000
+      # last_id = Exceptionist.redis.get('Exceptionist::Occurrence:id').to_i
+      # occurrence_keys = ((last_id - 2000)..last_id).to_a.map { |id| "Exceptionist::Occurrence:id:#{id}" }
 
       occurrences = occurrence_keys.map do |key|
         id = key.split(':').last
