@@ -11,8 +11,8 @@
     <% end %>
   </div>
   <div class="span-11 sorting_links right-aligned last">
-    <a href="?sort_by=latest"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == '' || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
-    <a href="?sort_by=frequent"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
+    <a href="?sort_by=latest&filter=<%= params[:filter] %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == '' || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
+    <a href="?sort_by=frequent&filter=<%= params[:filter] %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
   </div>
 </div>
 
