@@ -1,3 +1,16 @@
+# Setting up the loadpath
+# =======================
+#
+$LOAD_PATH << File.join(File.dirname(__FILE__), 'lib')
+
+require 'rubygems'
+require 'app'
+
+
+# Exceptionist configuration
+# ==========================
+#
+
 # Configure your Redis server and port
 Exceptionist.redis = 'localhost:6379'
 
@@ -22,6 +35,7 @@ Exceptionist.redis = 'localhost:6379'
 # Exceptionist.filter.add :nonbot do |occurrence|
 #   occurrence.user_agent =~ /(Google|Slurp|bot)/
 # end
+
 
 # Aggregator config
 # =============
