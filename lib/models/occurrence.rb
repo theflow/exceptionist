@@ -108,11 +108,11 @@ class Occurrence
   end
 
   def to_json
-    Yajl::Encoder.encode(to_hash)
+    Zlib::Deflate.deflate(Yajl::Encoder.encode(to_hash))
   end
 
   def self.from_json(json)
-    new(Yajl::Parser.parse(json))
+    new(Yajl::Parser.parse(Zlib::Inflate.inflate(json)))
   end
 
   def self.from_xml(xml_text)
