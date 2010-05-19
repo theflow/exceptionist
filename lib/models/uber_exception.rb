@@ -113,7 +113,7 @@ class UberException
 
   def occurrences_count(filter = nil)
     count_key = "Exceptionist::UberException:#{id}:OccurrenceCount"
-    count_key << ":Filter:#{filter}" if filter != ''
+    count_key << ":Filter:#{filter}" if filter && filter != ''
 
     @occurrences_count ||= redis.get(count_key).to_i
   end
