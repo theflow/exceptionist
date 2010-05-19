@@ -1,5 +1,5 @@
 require 'rake/testtask'
-require 'tools'
+require 'lib/tools'
 
 task :default => :test
 
