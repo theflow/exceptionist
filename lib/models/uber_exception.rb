@@ -6,11 +6,11 @@ class UberException
   end
 
   def self.count_all(project)
-    redis.scard("Exceptionist::Project:#{project}:UberExceptions")
+    redis.zcard("Exceptionist::Project:#{project}:UberExceptions")
   end
 
   def self.find_all(project)
-    uber_exceptions = redis.smembers("Exceptionist::Project:#{project}:UberExceptions") || []
+    uber_exceptions = redis.zrange("Exceptionist::Project:#{project}:UberExceptions", 0, -1) || []
     uber_exceptions.map { |id| new(id) }
   end
 
@@ -18,10 +18,8 @@ class UberException
     set_key = "Exceptionist::Project:#{project}:UberExceptions"
     set_key << ":Filter:#{filter}" if filter
 
-    sort_key = "Exceptionist::UberException:*:LastOccurredAt"
-    sort_key << ":Filter:#{filter}" if filter
-
-    redis.sort(set_key, :by => sort_key, :order => 'DESC', :limit => [start, limit]).map { |id| new(id) }
+    uber_exceptions = redis.zrevrange(set_key, start, start + limit - 1) || []
+    uber_exceptions.map { |id| new(id) }
   rescue RuntimeError
     []
   end
@@ -48,28 +46,23 @@ class UberException
   end
 
   def self.occurred(occurrence)
-    # every uber exception has a list of occurrences
+    # every uber exception has a sorted set of occurrences
     redis.zadd("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.occurred_at.to_i, occurrence.id)
 
-    # store the timestamp of the last occurrance to be able to sort by that
-    redis.set("Exceptionist::UberException:#{occurrence.uber_key}:LastOccurredAt", occurrence.occurred_at.to_i)
     # store the occurrence count to be able to sort by that
     redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount")
 
-    # store a list of exceptions per project
-    redis.sadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.uber_key)
+    # store a sorted set of exceptions per project
+    redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
 
     # Apply filters
     Exceptionist.filter.all.each do |filter|
       if filter.last.call(occurrence)
-        # store the timestamp of the last occurrance to be able to sort by that
-        redis.set("Exceptionist::UberException:#{occurrence.uber_key}:LastOccurredAt:Filter:#{filter.first}", occurrence.occurred_at.to_i)
-
         # store the occurrence count to be able to sort by that
         redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount:Filter:#{filter.first}")
 
-        # store a list of exceptions per project
-        redis.sadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.uber_key)
+        # store a stored set of exceptions per project
+        redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.occurred_at.to_i, occurrence.uber_key)
       end
     end
 
