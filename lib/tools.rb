@@ -6,24 +6,26 @@ module Exceptionist
     def self.run
       occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:id:*")
 
-      # # only the last 2000
+      # # only the last 2000, for testing
       # last_id = Exceptionist.redis.get('Exceptionist::Occurrence:id').to_i
       # occurrence_keys = ((last_id - 2000)..last_id).to_a.map { |id| "Exceptionist::Occurrence:id:#{id}" }
 
-      occurrences = occurrence_keys.map do |key|
-        id = key.split(':').last
-        Occurrence.find(id)
-      end
-      occurrences = occurrences.sort_by(&:occurred_at)
-
       key_groups = []
-      occurrences.each_slice(10000) { |group| key_groups << group }
+      occurrence_keys.each_slice(10000) { |group| key_groups << group }
+
       key_groups.each_with_index do |keys, i|
-        puts "exporting #{i}"
+        puts "exporting #{i} of #{key_groups.size - 1}"
+
+        occurrences = keys.map do |key|
+          id = key.split(':').last
+          Occurrence.find(id)
+        end
 
         File.open("occurrences_export_#{i}.json", 'w') do |file|
-          file.write(Yajl::Encoder.encode(keys))
+          file.write(Yajl::Encoder.encode(occurrences))
         end
+
+        occurrences = nil
       end
     end
   end
