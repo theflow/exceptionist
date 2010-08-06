@@ -49,7 +49,7 @@ class UberException
 
   def self.occurred(occurrence)
     # every uber exception has a list of occurrences
-    redis.rpush("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.id)
+    redis.zadd("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.occurred_at.to_i, occurrence.id)
 
     # store the timestamp of the last occurrance to be able to sort by that
     redis.set("Exceptionist::UberException:#{occurrence.uber_key}:LastOccurredAt", occurrence.occurred_at.to_i)
@@ -93,7 +93,7 @@ class UberException
   end
 
   def current_occurrence(position)
-    Occurrence.find(redis.lindex(key(id, 'Occurrences'), position - 1))
+    Occurrence.find(redis.zrange(key(id, 'Occurrences'), position - 1, position - 1))
   end
 
   def first_occurred_at
@@ -146,6 +146,6 @@ private
   end
 
   def occurrences_list(start_position, end_position)
-    redis.lrange(key(id, 'Occurrences'), start_position, end_position)
+    redis.zrange(key(id, 'Occurrences'), start_position, end_position)
   end
 end
