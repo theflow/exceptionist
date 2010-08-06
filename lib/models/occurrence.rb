@@ -64,7 +64,7 @@ class Occurrence
   end
 
   def self.find(id)
-    from_json redis.get(key(:id, id))
+    unserialize redis.get(key(:id, id))
   end
 
   def self.find_all(ids)
@@ -81,7 +81,7 @@ class Occurrence
 
   def save
     self.id = generate_id unless @id
-    redis.set(key(:id, send(:id)), to_json)
+    redis.set(key(:id, send(:id)), serialize)
 
     self
   end
@@ -107,12 +107,20 @@ class Occurrence
       :uber_key            => uber_key }
   end
 
+  def serialize
+    Zlib::Deflate.deflate(to_json)
+  end
+
   def to_json
-    Zlib::Deflate.deflate(Yajl::Encoder.encode(to_hash))
+    Yajl::Encoder.encode(to_hash)
+  end
+
+  def self.unserialize(data)
+    from_json(Zlib::Inflate.inflate(data))
   end
 
   def self.from_json(json)
-    new(Yajl::Parser.parse(Zlib::Inflate.inflate(json)))
+    new(Yajl::Parser.parse(json))
   end
 
   def self.from_xml(xml_text)
