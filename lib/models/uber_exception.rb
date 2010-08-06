@@ -6,11 +6,12 @@ class UberException
   end
 
   def self.count_all(project)
-    redis.set_count("Exceptionist::Project:#{project}:UberExceptions")
+    redis.scard("Exceptionist::Project:#{project}:UberExceptions")
   end
 
   def self.find_all(project)
-    redis.set_members("Exceptionist::Project:#{project}:UberExceptions").map { |id| new(id) }
+    uber_exceptions = redis.smembers("Exceptionist::Project:#{project}:UberExceptions") || []
+    uber_exceptions.map { |id| new(id) }
   end
 
   def self.find_all_sorted_by_time(project, filter, start, limit)
@@ -48,7 +49,7 @@ class UberException
 
   def self.occurred(occurrence)
     # every uber exception has a list of occurrences
-    redis.push_tail("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.id)
+    redis.rpush("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.id)
 
     # store the timestamp of the last occurrance to be able to sort by that
     redis.set("Exceptionist::UberException:#{occurrence.uber_key}:LastOccurredAt", occurrence.occurred_at.to_i)
@@ -56,7 +57,7 @@ class UberException
     redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount")
 
     # store a list of exceptions per project
-    redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.uber_key)
+    redis.sadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.uber_key)
 
     # Apply filters
     Exceptionist.filter.all.each do |filter|
@@ -68,15 +69,15 @@ class UberException
         redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount:Filter:#{filter.first}")
 
         # store a list of exceptions per project
-        redis.set_add("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.uber_key)
+        redis.sadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.uber_key)
       end
     end
 
     # store a list of exceptions per project per day
-    redis.push_tail("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
+    redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
 
     # store a top level set of projects
-    redis.set_add("Exceptionist::Projects", occurrence.project_name)
+    redis.sadd("Exceptionist::Projects", occurrence.project_name)
   end
 
   def last_occurrence
@@ -92,7 +93,7 @@ class UberException
   end
 
   def current_occurrence(position)
-    Occurrence.find(redis.list_index(key(id, 'Occurrences'), position - 1))
+    Occurrence.find(redis.lindex(key(id, 'Occurrences'), position - 1))
   end
 
   def first_occurred_at
@@ -145,6 +146,6 @@ private
   end
 
   def occurrences_list(start_position, end_position)
-    redis.list_range(key(id, 'Occurrences'), start_position, end_position)
+    redis.lrange(key(id, 'Occurrences'), start_position, end_position)
   end
 end

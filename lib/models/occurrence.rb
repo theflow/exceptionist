@@ -60,7 +60,7 @@ class Occurrence
 
   def close!
     # do this here, because the UberException does not know which project it's in
-    redis.set_delete("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
+    redis.srem("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
   end
 
   def self.find(id)
@@ -72,7 +72,7 @@ class Occurrence
   end
 
   def self.count_new_on(project, day)
-    redis.list_length("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
+    redis.llen("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
   end
 
   #

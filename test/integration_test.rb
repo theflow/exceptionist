@@ -17,7 +17,7 @@ context 'IntegrationTest' do
   end
 
   setup do
-    Exceptionist.redis.flush_all
+    Exceptionist.redis.flushall
   end
 
   context 'the Dashboard' do

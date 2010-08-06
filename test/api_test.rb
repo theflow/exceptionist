@@ -11,7 +11,7 @@ context 'ApiTest' do
 
   setup do
     @project = 'ExampleProject'
-    Exceptionist.redis.flush_all
+    Exceptionist.redis.flushall
   end
 
   test 'should create the first UberException' do

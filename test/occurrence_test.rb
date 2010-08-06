@@ -55,7 +55,7 @@ end
 
 context 'Occurrence saving' do
   setup do
-    Exceptionist.redis.flush_all
+    Exceptionist.redis.flushall
   end
 
   test 'saving an occurrence should set the ID' do

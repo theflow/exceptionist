@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/test_helper'
 
 context 'Finding UberExceptions' do
   setup do
-    Exceptionist.redis.flush_all
+    Exceptionist.redis.flushall
   end
 
   test 'should find all occurrences since' do

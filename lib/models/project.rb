@@ -26,7 +26,7 @@ class Project
   end
 
   def occurrence_count_on(date)
-    Exceptionist.redis.list_length("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
+    Exceptionist.redis.llen("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
   end
 
   def last_three_exceptions
@@ -54,6 +54,7 @@ class Project
   end
 
   def self.all
-    Exceptionist.redis.set_members('Exceptionist::Projects').map { |name| Project.new(name) }
+    projects = Exceptionist.redis.smembers('Exceptionist::Projects') || []
+    projects.map { |name| Project.new(name) }
   end
 end
