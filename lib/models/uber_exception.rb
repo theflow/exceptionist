@@ -61,12 +61,12 @@ class UberException
         # store the occurrence count to be able to sort by that
         redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount:Filter:#{filter.first}")
 
-        # store a stored set of exceptions per project
+        # store a sorted set of exceptions per project
         redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.occurred_at.to_i, occurrence.uber_key)
       end
     end
 
-    # store a list of exceptions per project per day
+    # store a list of occurrences per project per day
     redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
 
     # store a top level set of projects
