@@ -78,6 +78,7 @@ class UberException
 
   def self.forget_old_exceptions(project, days)
     since_date = Time.now - (84600 * days)
+    deleted = 0
 
     uber_exceptions = redis.zrange("Exceptionist::Project:#{project}:UberExceptions", 0, -1, :with_scores => true) || []
     while uber_exceptions.any?
@@ -88,8 +89,11 @@ class UberException
         UberException.new(id).forget
         redis.zrem("Exceptionist::Project:#{project}:UberExceptions", id)
         redis.del("Exceptionist::Project:#{project}:OnDay:#{exception_date.strftime('%Y-%m-%d')}")
+        deleted += 1
       end
     end
+
+    deleted
   end
 
   def forget
@@ -169,6 +173,6 @@ private
   end
 
   def occurrences_list(start_position, end_position)
-    redis.zrange(key(id, 'Occurrences'), start_position, end_position)
+    redis.zrange(key(id, 'Occurrences'), start_position, end_position) || []
   end
 end

@@ -56,6 +56,12 @@ MESSAGE_END
     message_body
   end
 
+  get '/projects/:project/forget_exceptions/:days' do
+    deleted = UberException.forget_old_exceptions(params[:project], params[:days].to_i)
+
+    "Deleted exceptions: #{deleted}"
+  end
+
   get '/exceptions/:id' do
     @projects = Project.all
     @uber_exception = UberException.new(params[:id])
