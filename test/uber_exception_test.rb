@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-context 'Finding UberExceptions' do
+context 'UberExceptionTest' do
   setup do
     Exceptionist.redis.flushall
   end
