@@ -166,6 +166,10 @@ class Occurrence
     element ? element.content : nil
   end
 
+  def self.key(*parts)
+    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
+  end
+
 private
 
   def generate_id
@@ -189,10 +193,6 @@ private
 
   def key(*parts)
     self.class.key(*parts)
-  end
-
-  def self.key(*parts)
-    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
   end
 
   def redis

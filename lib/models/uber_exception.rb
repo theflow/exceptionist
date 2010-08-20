@@ -71,6 +71,36 @@ class UberException
 
     # store a top level set of projects
     redis.sadd("Exceptionist::Projects", occurrence.project_name)
+
+    # return the UberException
+    new(occurrence.uber_key)
+  end
+
+  def self.forget_old_exceptions(project, days)
+    since_date = Time.now - (84600 * days)
+
+    uber_exceptions = redis.zrange("Exceptionist::Project:#{project}:UberExceptions", 0, -1, :with_scores => true) || []
+    while uber_exceptions.any?
+      id, score = uber_exceptions.pop(2)
+      exception_date = Time.at(score.to_i)
+
+      if exception_date < since_date
+        UberException.new(id).forget
+        redis.zrem("Exceptionist::Project:#{project}:UberExceptions", id)
+        redis.del("Exceptionist::Project:#{project}:OnDay:#{exception_date.strftime('%Y-%m-%d')}")
+      end
+    end
+  end
+
+  def forget
+    occurrence_keys = occurrences_list(0, -1).map { |id| Occurrence.key(id) }
+
+    # delete all occurrences
+    occurrence_keys.each { |key| redis.del(key) }
+
+    # delete all the stuff from #occurred
+    redis.del("Exceptionist::UberException:#{id}:Occurrences")
+    redis.del("Exceptionist::UberException:#{id}:OccurrenceCount")
   end
 
   def last_occurrence
