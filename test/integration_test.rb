@@ -86,7 +86,7 @@ context 'IntegrationTest' do
       assert_contain 'NameError in users#show'
     end
 
-    test 'should email new exceptions' do
+    test 'should show new exceptions' do
       UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-07-01'))
       UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2010-08-01'))
 
@@ -94,6 +94,15 @@ context 'IntegrationTest' do
 
       assert_contain 'NameError in users#show'
       assert_not_contain 'NameError in users#index'
+    end
+
+    test 'should forget old exceptions' do
+      UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => Time.now - (84600 * 50)))
+      UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => Time.now))
+
+      visit '/projects/ExampleProject/forget_exceptions', :post
+
+      assert_contain 'Deleted exceptions: 1'
     end
   end
 

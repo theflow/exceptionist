@@ -57,8 +57,9 @@ MESSAGE_END
     message_body
   end
 
-  get '/projects/:project/forget_exceptions/:days' do
-    deleted = UberException.forget_old_exceptions(params[:project], params[:days].to_i)
+  post '/projects/:project/forget_exceptions' do
+    days = params[:days] ? params[:days].to_i : 31
+    deleted = UberException.forget_old_exceptions(params[:project], days)
 
     "Deleted exceptions: #{deleted}"
   end
