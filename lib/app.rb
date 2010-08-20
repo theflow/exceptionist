@@ -38,20 +38,8 @@ class ExceptionistApp < Sinatra::Base
 
     message_body = erb(:new_exceptions, :layout => false)
 
-    body = <<MESSAGE_END
-From: Exceptionst <the@exceptionist.org>
-To: Exceptionst <the@exceptionist.org>
-MIME-Version: 1.0
-Content-type: text/html
-Subject: [Exceptionist][#{@current_project.name}] Summary for #{params[:day]}
-
-#{message_body}
-MESSAGE_END
-
-    if params[:mail_to] && account = Exceptionist.config[:smtp_settings]
-      Net::SMTP.start(account[:host], account[:port], 'localhost', account[:user], account[:pass], account[:auth]) do |smtp|
-        smtp.send_message(body, 'the@exceptionist.org', params[:mail_to])
-      end
+    if params[:mail_to]
+      Mailer.deliver_new_exceptions(@current_project, @day, params[:mail_to], message_body)
     end
 
     message_body
