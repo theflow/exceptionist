@@ -85,6 +85,16 @@ context 'IntegrationTest' do
       assert_contain 'NameError in users#index'
       assert_contain 'NameError in users#show'
     end
+
+    test 'should email new exceptions' do
+      UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-07-01'))
+      UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2010-08-01'))
+
+      visit '/projects/ExampleProject/new_on/2010-07-01?mail_to=the@dude.org'
+
+      assert_contain 'NameError in users#show'
+      assert_not_contain 'NameError in users#index'
+    end
   end
 
   context 'a single exception' do
