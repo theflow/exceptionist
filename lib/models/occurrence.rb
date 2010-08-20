@@ -173,7 +173,7 @@ class Occurrence
 private
 
   def generate_id
-    redis.incr("Exceptionist::Occurrence:id_generator")
+    redis.incr("Exceptionist::OccurrenceIdGenerator")
   end
 
   def generate_uber_key
