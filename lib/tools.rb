@@ -4,7 +4,7 @@ require 'config'
 module Exceptionist
   class Exporter
     def self.run
-      occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:id:*")
+      occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:*")
 
       # # only the last 2000, for testing
       # last_id = Exceptionist.redis.get('Exceptionist::Occurrence:id').to_i
