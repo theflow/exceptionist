@@ -64,7 +64,7 @@ class Occurrence
   end
 
   def self.find(id)
-    unserialize redis.get(key(:id, id))
+    unserialize redis.get(key(id))
   end
 
   def self.find_all(ids)
@@ -80,8 +80,8 @@ class Occurrence
   #
 
   def save
-    self.id = generate_id unless @id
-    redis.set(key(:id, send(:id)), serialize)
+    self.id = generate_id
+    redis.set(key(self.id), serialize)
 
     self
   end
@@ -173,7 +173,7 @@ class Occurrence
 private
 
   def generate_id
-    redis.incr key(:id)
+    redis.incr("Exceptionist::Occurrence:id_generator")
   end
 
   def generate_uber_key
