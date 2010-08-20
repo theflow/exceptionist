@@ -1,4 +1,4 @@
-$: << File.join(File.dirname(__FILE__), '..')
+$LOAD_PATH.unshift File.dirname(File.expand_path(__FILE__)) + '/../lib'
 
 require 'test/unit'
 require 'rubygems'

@@ -1,5 +1,5 @@
-require 'rake/testtask'
-require 'lib/tools'
+$LOAD_PATH.unshift 'lib'
+require 'tools'
 
 task :default => :test
 
