@@ -52,7 +52,7 @@ module Exceptionist
   class Reseter
     def self.run
       all_keys = Exceptionist.redis.keys("Exceptionist::*")
-      all_keys.each { |key| Exceptionist.redis.delete(key) }
+      all_keys.each { |key| Exceptionist.redis.del(key) }
     end
   end
 
