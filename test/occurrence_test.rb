@@ -81,19 +81,15 @@ context 'Occurrence saving' do
       occurrence.url =~ /\.com/
     end
 
-    occurrence1 = create_occurrence
-    UberException.occurred(occurrence1)
-    occurrence2 = create_occurrence(:exception_class => 'DifferentError', :url => 'http://example.org')
-    UberException.occurred(occurrence2)
+    com_exception = UberException.occurred(create_occurrence(:url => 'http://example.com'))
+    org_exception = UberException.occurred(create_occurrence(:exception_class => 'DifferentError', :url => 'http://example.org'))
 
-    filtered_exceptions = UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
-    assert_equal 1, filtered_exceptions.size
-    assert_equal occurrence1.uber_key, filtered_exceptions.first.id
+    assert_equal [com_exception], UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
 
     all_exceptions = UberException.find_all_sorted_by_time('ExampleProject', nil, 0, 25)
     assert_equal 2, all_exceptions.size
-    assert all_exceptions.map(&:id).include?(occurrence1.uber_key)
-    assert all_exceptions.map(&:id).include?(occurrence2.uber_key)
+    assert all_exceptions.include?(com_exception)
+    assert all_exceptions.include?(org_exception)
   end
 end
 
