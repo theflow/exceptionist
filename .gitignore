@@ -1,2 +1,4 @@
 config.rb
 dump.rdb
+webrat.log
+*.json
