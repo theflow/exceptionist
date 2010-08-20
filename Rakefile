@@ -3,11 +3,11 @@ require 'tools'
 
 task :default => :test
 
-desc 'Run tests'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+desc "Run the test suite"
+task :test do
+  Dir['test/**/*_test.rb'].each do |f|
+    ruby(f)
+  end
 end
 
 namespace :redis do
