@@ -14,6 +14,9 @@ require 'app'
 # Configure your Redis server and port
 Exceptionist.redis = 'localhost:6379'
 
+# Configure your base url for the report mails
+# Exceptionist.config[:base_url] = 'http://www.example.org'
+
 # Configure your mail server for daily reports
 # Exceptionist.config[:smtp_settings] = {
 #   :host => 'mail.example.org',
