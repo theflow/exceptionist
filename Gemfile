@@ -1,5 +1,8 @@
 source 'http://rubygems.org'
 
+# deploy with unicorn by default
+gem 'unicorn'
+
 gem 'redis'
 gem 'sinatra'
 gem 'nokogiri'
