@@ -1,0 +1,26 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    nokogiri (1.4.3.1)
+    rack (1.2.1)
+    rack-test (0.5.4)
+      rack (>= 1.0)
+    redis (2.0.8)
+    sinatra (1.0)
+      rack (>= 1.0)
+    webrat (0.7.1)
+      nokogiri (>= 1.2.0)
+      rack (>= 1.0)
+      rack-test (>= 0.5.3)
+    yajl-ruby (0.7.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  nokogiri
+  rack-test
+  redis
+  sinatra
+  webrat
+  yajl-ruby

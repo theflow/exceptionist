@@ -1,7 +1,10 @@
 require 'time'
+require 'zlib'
+require 'digest'
+
 require 'redis'
 require 'yajl'
-require 'zlib'
+require 'nokogiri'
 
 require 'models/project'
 require 'models/uber_exception'

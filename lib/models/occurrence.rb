@@ -1,6 +1,3 @@
-require 'digest'
-require 'nokogiri'
-
 class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
