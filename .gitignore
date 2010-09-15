@@ -2,3 +2,5 @@ config.rb
 dump.rdb
 webrat.log
 *.json
+vendor/bundle
+.bundle
