@@ -7,8 +7,8 @@ module Exceptionist
       occurrence_keys = Exceptionist.redis.keys("Exceptionist::Occurrence:*")
 
       # # only the last 2000, for testing
-      # last_id = Exceptionist.redis.get('Exceptionist::Occurrence:id').to_i
-      # occurrence_keys = ((last_id - 2000)..last_id).to_a.map { |id| "Exceptionist::Occurrence:id:#{id}" }
+      # last_id = Exceptionist.redis.get('Exceptionist::OccurrenceIdGenerator').to_i
+      # occurrence_keys = ((last_id - 2000)..last_id).to_a.map { |id| "Exceptionist::Occurrence:#{id}" }
 
       key_groups = []
       occurrence_keys.each_slice(10000) { |group| key_groups << group }
