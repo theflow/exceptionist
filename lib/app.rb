@@ -97,6 +97,10 @@ class ExceptionistApp < Sinatra::Base
       s.read
     end
 
+    def build_query_args(args = {})
+      build_query(request.params.merge(args))
+    end
+
     def link_to_unless(name, url, condition)
       condition ? "<b>#{name}</b>" : "<a href=\"#{url}\">#{name}</a>"
     end
