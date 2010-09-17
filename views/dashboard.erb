@@ -1,5 +1,4 @@
-<script src="/javascripts/analytics.js" type="text/javascript" charset="utf-8"></script>
-
+<script src="/javascripts/jquery.flot.min.js" type="text/javascript" charset="utf-8"></script>
 
 <h2><%= @title %></h2>
 
@@ -9,13 +8,26 @@
 
     <div class="span-22 prepend-1 last">
       <% holder_div_id = "holder_#{project.name}" %>
-      <div id="<%= holder_div_id %>"></div>
+      <div id="<%= holder_div_id %>" style="width:870px; height: 220px"></div>
       <script type="text/javascript" charset="utf-8">
         <% last_thirty_days = project.last_thirty_days %>
-        var labels = [<%= last_thirty_days.map { |day| day.first.day }.join(",") %>];
-        var data = [<%= last_thirty_days.map { |day| day.last }.join(",") %>];
+        var data = [<%= last_thirty_days.map { |day| "[#{day.first.to_i * 1000}, #{day.last}]" }.join(",") %>];
 
-        $(document).ready(drawMonthChart('<%= holder_div_id %>', labels, data))
+        var options = {
+          series: {
+            points: { show: true },
+            lines: { show: true, fill: true },
+            color: "#000099",
+          },
+          grid: {
+            color: "#666",
+            borderColor: "#cccccc",
+            borderWidth: 1
+          },
+          xaxis: { mode: "time" }
+        }
+
+        $.plot($("#<%= holder_div_id %>"), [data], options);
       </script>
     </div>
   </div>
