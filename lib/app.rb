@@ -72,7 +72,7 @@ class ExceptionistApp < Sinatra::Base
     redirect "/projects/#{@occurrence.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
   end
 
-  post '/notifier_api/v2/notices/' do
+  post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(request.body.read)
     occurrence.save
     UberException.occurred(occurrence)
