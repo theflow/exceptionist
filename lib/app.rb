@@ -73,7 +73,7 @@ class ExceptionistApp < Sinatra::Base
   end
 
   post '/notifier_api/v2/notices/?' do
-    occurrence = Occurrence.from_xml(request.body.read)
+    occurrence = Occurrence.from_xml(params[:data] || request.body.read)
     occurrence.save
     UberException.occurred(occurrence)
   end
