@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 # deploy with unicorn by default
 gem 'unicorn'
 
+gem 'rake'
 gem 'redis'
 gem 'sinatra'
 gem 'nokogiri'
