@@ -146,6 +146,13 @@ class UberException
     @occurrences_count ||= redis.get(count_key).to_i
   end
 
+  def last_thirty_days
+    thirty_days_ago = Time.now - (60 * 60 * 24 * 30)
+    groups = occurrences.select { |o| o.occurred_at >= thirty_days_ago }.group_by { |o| Time.mktime(o.occurred_at.year, o.occurred_at.month, o.occurred_at.day) }
+    groups = groups.map { |group| [group[0], group[1].size] }
+    groups.sort_by { |g| g.first }
+  end
+
   def ==(other)
     id == other.id
   end
