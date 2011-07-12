@@ -65,7 +65,9 @@ class Occurrence
   end
 
   def self.find_all(ids)
-    ids.map { |id| find(id) }
+    ids = ids.map { |id| key(id) }
+    keys = redis.mget(*ids)
+    keys.map { |key| unserialize(key) }
   end
 
   def self.count_new_on(project, day)
