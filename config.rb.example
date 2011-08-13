@@ -12,8 +12,8 @@ require 'app'
 # ==========================
 #
 
-# Configure your Redis server and port
-Exceptionist.redis = 'localhost:6379'
+# Configure your MongoDB server and port
+Exceptionist.mongo = 'localhost:27017'
 
 # Configure your base url for the report mails
 # Exceptionist.config[:base_url] = 'http://www.example.org'

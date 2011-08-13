@@ -38,22 +38,13 @@ class UberException
   end
 
   def self.occurred(occurrence)
-    # TODO: first and last occurrence, occurrence count?
+    # TODO: first and last occurrence?
     uber_exception = {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at }
     Exceptionist.mongo['exceptions'].update(
       {:_id => occurrence.uber_key},
       {"$set" => uber_exception, "$inc" => {:occurrence_count => 1}},
       :upsert => true, :safe => true
     )
-
-    # # store a sorted set of exceptions per project
-    # redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
-
-    # # store a list of occurrences per project per day
-    # redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
-
-    # # store a top level set of projects
-    # redis.sadd("Exceptionist::Projects", occurrence.project_name)
 
     # return the UberException
     new(occurrence.uber_key)
@@ -127,27 +118,5 @@ class UberException
 
   def inspect
     "(UberException: id: #{id})"
-  end
-
-private
-
-  def self.redis
-    Exceptionist.redis
-  end
-
-  def redis
-    Exceptionist.redis
-  end
-
-  def self.key(*parts)
-    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
-  end
-
-  def key(*parts)
-    self.class.key(*parts)
-  end
-
-  def occurrences_list(start_position, end_position)
-    redis.zrange(key(id, 'Occurrences'), start_position, end_position) || []
   end
 end

@@ -35,10 +35,6 @@ class Project
     Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
   end
 
-  def last_three_exceptions
-    latest_exceptions(0, 3)
-  end
-
   def latest_exceptions(start, limit = 25)
     UberException.find_all_sorted_by_time(name, start, limit)
   end
@@ -60,7 +56,6 @@ class Project
   end
 
   def self.all
-    projects = Exceptionist.mongo['exceptions'].distinct(:project_name) || []
-    projects.map { |name| Project.new(name) }
+    Exceptionist.mongo['exceptions'].distinct(:project_name).map { |name| Project.new(name) }
   end
 end

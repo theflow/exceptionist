@@ -55,16 +55,6 @@ class Occurrence
     UberException.new(uber_key)
   end
 
-  def self.find(id)
-    unserialize redis.get(key(id))
-  end
-
-  def self.find_all(ids)
-    ids = ids.map { |id| key(id) }
-    keys = redis.mget(*ids)
-    keys.map { |key| unserialize(key) }
-  end
-
   def self.delete_all_for(uber_key)
     Exceptionist.mongo['occurrences'].remove({:uber_key => uber_key}, :safe => true)
   end
@@ -112,14 +102,6 @@ class Occurrence
       :uber_key            => uber_key }
   end
 
-  def self.unserialize(data)
-    from_json(data)
-  end
-
-  def self.from_json(json)
-    new(Yajl::Parser.parse(json))
-  end
-
   def self.from_xml(xml_text)
     new(parse_xml(xml_text))
   end
@@ -163,10 +145,6 @@ class Occurrence
     element ? element.content : nil
   end
 
-  def self.key(*parts)
-    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
-  end
-
 private
 
   def generate_uber_key
@@ -182,17 +160,5 @@ private
     end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
-  end
-
-  def key(*parts)
-    self.class.key(*parts)
-  end
-
-  def redis
-    Exceptionist.redis
-  end
-
-  def self.redis
-    Exceptionist.redis
   end
 end
