@@ -1,8 +1,8 @@
 class UberException
   attr_accessor :id
 
-  def initialize(id)
-    @id = id
+  def initialize(attributes={})
+    @id = attributes['_id']
   end
 
   def self.count_all(project)
@@ -43,20 +43,22 @@ class UberException
   end
 
   def self.occurred(occurrence)
-    # every uber exception has a sorted set of occurrences
-    redis.zadd("Exceptionist::UberException:#{occurrence.uber_key}:Occurrences", occurrence.occurred_at.to_i, occurrence.id)
+    # TODO: first and last occurrence, occurrence count?
+    uber_exception = {
+      :_id => occurrence.uber_key,
+      :project_name => occurrence.project_name,
+      :occurred_at => occurrence.occurred_at
+    }
+    Exceptionist.mongo['exceptions'].update({:_id => occurrence.uber_key}, uber_exception, :upsert => true, :safe => true)
 
-    # store the occurrence count to be able to sort by that
-    redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount")
+    # # store a sorted set of exceptions per project
+    # redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
 
-    # store a sorted set of exceptions per project
-    redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
+    # # store a list of occurrences per project per day
+    # redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
 
-    # store a list of occurrences per project per day
-    redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
-
-    # store a top level set of projects
-    redis.sadd("Exceptionist::Projects", occurrence.project_name)
+    # # store a top level set of projects
+    # redis.sadd("Exceptionist::Projects", occurrence.project_name)
 
     # return the UberException
     new(occurrence.uber_key)

@@ -2,12 +2,12 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :id, :uber_key
+                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key
 
 
-  def initialize(attributes = {})
+  def initialize(attributes={})
     attributes.each do |key, value|
-      send "#{key}=", value
+      send("#{key}=", value)
     end
 
     self.occurred_at ||= attributes['occurred_at'] || Time.now
@@ -79,8 +79,7 @@ class Occurrence
   #
 
   def save
-    self.id = generate_id
-    redis.set(key(self.id), serialize)
+    Exceptionist.mongo['occurrences'].insert(to_hash)
 
     self
   end
@@ -97,25 +96,17 @@ class Occurrence
       :cgi_data            => cgi_data,
       :url                 => url,
       :occurred_at         => occurred_at,
+      :occurred_at_day     => occurred_at.strftime('%Y-%m-%d'),
       :exception_backtrace => exception_backtrace,
       :controller_name     => controller_name,
       :environment         => environment,
       :exception_class     => exception_class,
       :project_name        => project_name,
-      :id                  => id,
       :uber_key            => uber_key }
   end
 
-  def serialize
-    Zlib::Deflate.deflate(to_json)
-  end
-
-  def to_json
-    Yajl::Encoder.encode(to_hash)
-  end
-
   def self.unserialize(data)
-    from_json(Zlib::Inflate.inflate(data))
+    from_json(data)
   end
 
   def self.from_json(json)
@@ -170,10 +161,6 @@ class Occurrence
   end
 
 private
-
-  def generate_id
-    redis.incr("Exceptionist::OccurrenceIdGenerator")
-  end
 
   def generate_uber_key
     key = case exception_class
