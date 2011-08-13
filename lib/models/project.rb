@@ -26,7 +26,13 @@ class Project
   end
 
   def occurrence_count_on(date)
-    Exceptionist.redis.llen("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
+    # Exceptionist.mongo['occurrences'].group({
+    #   :keyf => "function() { Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate()) }"
+    #   :cond => {:project_name => name}
+    #   :initial => {:count => 0},
+    #   :reduce => "function(obj, prev) { prev.csum += 1; }",
+    # })
+    Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
   end
 
   def last_three_exceptions
@@ -54,7 +60,7 @@ class Project
   end
 
   def self.all
-    projects = Exceptionist.redis.smembers('Exceptionist::Projects') || []
+    projects = Exceptionist.mongo['exceptions'].distinct(:project_name) || []
     projects.map { |name| Project.new(name) }
   end
 end
