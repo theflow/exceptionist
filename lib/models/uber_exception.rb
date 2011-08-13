@@ -15,25 +15,18 @@ class UberException
   end
 
   def self.find_all(project)
-    uber_exceptions = redis.zrange("Exceptionist::Project:#{project}:UberExceptions", 0, -1) || []
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}})
     uber_exceptions.map { |id| new(id) }
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
     uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
     uber_exceptions.map { |doc| new(doc) }
-  rescue RuntimeError
-    []
   end
 
   def self.find_all_sorted_by_occurrence_count(project, start, limit)
-    set_key = "Exceptionist::Project:#{project}:UberExceptions"
-
-    sort_key = "Exceptionist::UberException:*:OccurrenceCount"
-
-    redis.sort(set_key, :by => sort_key, :order => 'DESC', :limit => [start, limit]).map { |id| new(id) }
-  rescue RuntimeError
-    []
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}, :skip => start, :limit => limit, :sort => [:occurrence_count, :desc])
+    uber_exceptions.map { |doc| new(doc) }
   end
 
   def self.find_new_on(project, day)
@@ -47,12 +40,12 @@ class UberException
 
   def self.occurred(occurrence)
     # TODO: first and last occurrence, occurrence count?
-    uber_exception = {
-      :_id => occurrence.uber_key,
-      :project_name => occurrence.project_name,
-      :occurred_at => occurrence.occurred_at
-    }
-    Exceptionist.mongo['exceptions'].update({:_id => occurrence.uber_key}, uber_exception, :upsert => true, :safe => true)
+    uber_exception = {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at }
+    Exceptionist.mongo['exceptions'].update(
+      {:_id => occurrence.uber_key},
+      {"$set" => uber_exception, "$inc" => {:occurrence_count => 1}},
+      :upsert => true, :safe => true
+    )
 
     # # store a sorted set of exceptions per project
     # redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
