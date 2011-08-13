@@ -14,9 +14,8 @@ class UberException
     uber_exceptions.map { |id| new(id) }
   end
 
-  def self.find_all_sorted_by_time(project, filter, start, limit)
+  def self.find_all_sorted_by_time(project, start, limit)
     set_key = "Exceptionist::Project:#{project}:UberExceptions"
-    set_key << ":Filter:#{filter}" if filter
 
     uber_exceptions = redis.zrevrange(set_key, start, start + limit - 1) || []
     uber_exceptions.map { |id| new(id) }
@@ -24,12 +23,10 @@ class UberException
     []
   end
 
-  def self.find_all_sorted_by_occurrence_count(project, filter, start, limit)
+  def self.find_all_sorted_by_occurrence_count(project, start, limit)
     set_key = "Exceptionist::Project:#{project}:UberExceptions"
-    set_key << ":Filter:#{filter}" if filter
 
     sort_key = "Exceptionist::UberException:*:OccurrenceCount"
-    sort_key << ":Filter:#{filter}" if filter
 
     redis.sort(set_key, :by => sort_key, :order => 'DESC', :limit => [start, limit]).map { |id| new(id) }
   rescue RuntimeError
@@ -54,17 +51,6 @@ class UberException
 
     # store a sorted set of exceptions per project
     redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions", occurrence.occurred_at.to_i, occurrence.uber_key)
-
-    # Apply filters
-    Exceptionist.filter.all.each do |filter|
-      if filter.last.call(occurrence)
-        # store the occurrence count to be able to sort by that
-        redis.incr("Exceptionist::UberException:#{occurrence.uber_key}:OccurrenceCount:Filter:#{filter.first}")
-
-        # store a sorted set of exceptions per project
-        redis.zadd("Exceptionist::Project:#{occurrence.project_name}:UberExceptions:Filter:#{filter.first}", occurrence.occurred_at.to_i, occurrence.uber_key)
-      end
-    end
 
     # store a list of occurrences per project per day
     redis.rpush("Exceptionist::Project:#{occurrence.project_name}:OnDay:#{occurrence.occurred_at.strftime('%Y-%m-%d')}", occurrence.id)
@@ -139,9 +125,8 @@ class UberException
     last_occurrence.url
   end
 
-  def occurrences_count(filter = nil)
+  def occurrences_count()
     count_key = "Exceptionist::UberException:#{id}:OccurrenceCount"
-    count_key << ":Filter:#{filter}" if filter && filter != ''
 
     @occurrences_count ||= redis.get(count_key).to_i
   end

@@ -22,26 +22,4 @@ module Exceptionist
   def self.config
     @config ||= {}
   end
-
-  def self.filter
-    @filter ||= FilterStore.new
-  end
-
-  class FilterStore
-    def initialize
-      @filters = []
-    end
-
-    def add(name, &block)
-      @filters << [name, block]
-    end
-
-    def clear
-      @filters = []
-    end
-
-    def all
-      @filters
-    end
-  end
 end

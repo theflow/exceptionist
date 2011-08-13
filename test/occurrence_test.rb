@@ -77,22 +77,6 @@ context 'OccurrenceTest' do
       assert_equal 1, uber_exp.occurrences_count
       assert_equal 'NameError: undefined local variable or method dude', uber_exp.first_occurrence.exception_message
     end
-
-    test 'an occurrence occurred and should be filtered' do
-      Exceptionist.filter.add :dotcom do |occurrence|
-        occurrence.url =~ /\.com/
-      end
-
-      com_exception = UberException.occurred(create_occurrence(:url => 'http://example.com'))
-      org_exception = UberException.occurred(create_occurrence(:exception_class => 'DifferentError', :url => 'http://example.org'))
-
-      assert_equal [com_exception], UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
-
-      all_exceptions = UberException.find_all_sorted_by_time('ExampleProject', nil, 0, 25)
-      assert_equal 2, all_exceptions.size
-      assert all_exceptions.include?(com_exception)
-      assert all_exceptions.include?(org_exception)
-    end
   end
 
   context 'Occurrence aggregation' do

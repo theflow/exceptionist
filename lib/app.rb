@@ -20,11 +20,10 @@ class ExceptionistApp < Sinatra::Base
     @projects = Project.all
     @current_project = Project.new(params[:project])
     @start = params[:start] ? params[:start].to_i : 0
-    @filter = params[:filter] if params[:filter] != ''
     if params[:sort_by] && params[:sort_by] == 'frequent'
-      @uber_exceptions = @current_project.most_frequest_exceptions(@filter, @start)
+      @uber_exceptions = @current_project.most_frequest_exceptions(@start)
     else
-      @uber_exceptions = @current_project.latest_exceptions(@filter, @start)
+      @uber_exceptions = @current_project.latest_exceptions(@start)
     end
 
     @title = "Latest Exceptions for #{@current_project.name}"

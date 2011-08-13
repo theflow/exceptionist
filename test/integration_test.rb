@@ -75,7 +75,7 @@ context 'IntegrationTest' do
       assert_contain 'previous page'
     end
 
-    test 'should be filtered by most recent' do
+    test 'should be sorted by most recent' do
       UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-03-01'))
       UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2009-02-01'))
 
