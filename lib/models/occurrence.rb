@@ -65,8 +65,8 @@ class Occurrence
     keys.map { |key| unserialize(key) }
   end
 
-  def self.find_all_for(uber_key)
-    Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc])
+  def self.delete_all_for(uber_key)
+    Exceptionist.mongo['occurrences'].remove({:uber_key => uber_key}, :safe => true)
   end
 
   def self.find_first_for(uber_key)

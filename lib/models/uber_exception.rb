@@ -69,33 +69,18 @@ class UberException
 
   def self.forget_old_exceptions(project, days)
     since_date = Time.now - (84600 * days)
-    deleted = 0
 
-    uber_exceptions = redis.zrange("Exceptionist::Project:#{project}:UberExceptions", 0, -1, :with_scores => true) || []
-    while uber_exceptions.any?
-      id, score = uber_exceptions.pop(2)
-      exception_date = Time.at(score.to_i)
-
-      if exception_date < since_date
-        UberException.new(id).forget
-        redis.zrem("Exceptionist::Project:#{project}:UberExceptions", id)
-        redis.del("Exceptionist::Project:#{project}:OnDay:#{exception_date.strftime('%Y-%m-%d')}")
-        deleted += 1
-      end
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:occurred_at => {'$gte' => since_date}})
+    uber_exceptions.each do |doc|
+      UberException.new(doc).forget!
     end
 
-    deleted
+    uber_exceptions.size
   end
 
-  def forget
-    occurrence_keys = occurrences_list(0, -1).map { |id| Occurrence.key(id) }
-
-    # delete all occurrences
-    occurrence_keys.each { |key| redis.del(key) }
-
-    # delete all the stuff from #occurred
-    redis.del("Exceptionist::UberException:#{id}:Occurrences")
-    redis.del("Exceptionist::UberException:#{id}:OccurrenceCount")
+  def forget!
+    Occurrence.delete_all_for(id)
+    Exceptionist.mongo['exceptions'].remove({:_id => id}, :safe => true)
   end
 
   def close!
@@ -108,10 +93,6 @@ class UberException
 
   def first_occurrence
     @first_occurrence ||= Occurrence.find_first_for(id)
-  end
-
-  def occurrences
-    Occurrence.find_all_for(id)
   end
 
   def current_occurrence(position)
