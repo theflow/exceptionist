@@ -15,11 +15,11 @@ class Occurrence
   end
 
   def inspect
-    "(Occurrence: id: #{id}, title: '#{title}')"
+    "(Occurrence: id: #{_id}, title: '#{title}')"
   end
 
   def ==(other)
-    id == other.id
+    _id == other._id
   end
 
   def title
@@ -52,7 +52,7 @@ class Occurrence
   end
 
   def uber_exception
-    UberException.new(uber_key)
+    UberException.new('_id' => uber_key)
   end
 
   def self.delete_all_for(uber_key)

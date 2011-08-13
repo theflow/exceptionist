@@ -11,7 +11,7 @@ context 'ApiTest' do
 
   setup do
     @project = 'ExampleProject'
-    Exceptionist.redis.flushall
+    clear_collections
   end
 
   test 'should create the first UberException' do
@@ -22,7 +22,7 @@ context 'ApiTest' do
 
     uber_exceptions = UberException.find_all(@project)
     assert_equal 1, uber_exceptions.count
-    assert_equal 1, uber_exceptions.first.occurrences.count
+    assert_equal 1, uber_exceptions.first.occurrences_count
   end
 
   test 'should add occurrences if it is the same exception' do
@@ -36,6 +36,6 @@ context 'ApiTest' do
 
     uber_exceptions = UberException.find_all(@project)
     assert_equal 1, uber_exceptions.count
-    assert_equal 2, uber_exceptions.first.occurrences.count
+    assert_equal 2, uber_exceptions.first.occurrences_count
   end
 end

@@ -57,16 +57,7 @@ context 'OccurrenceTest' do
 
   context 'Occurrence saving' do
     setup do
-      Exceptionist.redis.flushall
-    end
-
-    test 'saving an occurrence should set the ID' do
-      occurrence = Occurrence.new
-      assert_nil occurrence.id
-
-      occurrence.save
-
-      assert_not_nil occurrence.id
+      clear_collections
     end
 
     test 'an occurrence occurred' do

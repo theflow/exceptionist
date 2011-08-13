@@ -47,18 +47,20 @@ class UberException
     )
 
     # return the UberException
-    new(occurrence.uber_key)
+    new('_id' => occurrence.uber_key)
   end
 
   def self.forget_old_exceptions(project, days)
     since_date = Time.now - (84600 * days)
+    deleted = 0
 
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:occurred_at => {'$gte' => since_date}})
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:occurred_at => {'$lt' => since_date}})
     uber_exceptions.each do |doc|
       UberException.new(doc).forget!
+      deleted += 1
     end
 
-    uber_exceptions.size
+    deleted
   end
 
   def forget!

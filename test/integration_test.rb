@@ -12,12 +12,15 @@ context 'IntegrationTest' do
   include Webrat::Methods
   include Webrat::Matchers
 
+  # make webrat follow redirects
+  Rack::Test::DEFAULT_HOST = 'example.com'
+
   def app
     ExceptionistApp
   end
 
   setup do
-    Exceptionist.redis.flushall
+    clear_collections
   end
 
   context 'the Dashboard' do
@@ -50,9 +53,8 @@ context 'IntegrationTest' do
 
   context 'the exception list' do
     test 'with one exception' do
-      occurrence = create_occurrence
-      UberException.occurred(occurrence)
-      UberException.occurred(occurrence)
+      UberException.occurred(create_occurrence)
+      UberException.occurred(create_occurrence)
 
       visit '/projects/ExampleProject'
 
@@ -158,7 +160,7 @@ context 'IntegrationTest' do
 
       click_button 'Close'
       # redirects back to project page
-      assert_equal '/projects/ExampleProject?', current_url
+      assert_equal 'http://example.com/projects/ExampleProject?', current_url
       assert_not_contain 'NameError in users#show'
       assert_contain 'NameError in users#index'
     end
