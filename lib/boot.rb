@@ -3,6 +3,7 @@ require 'zlib'
 require 'digest'
 
 require 'redis'
+require 'mongo'
 require 'yajl'
 require 'nokogiri'
 
