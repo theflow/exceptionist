@@ -53,7 +53,7 @@ class ExceptionistApp < Sinatra::Base
 
   get '/exceptions/:id' do
     @projects = Project.all
-    @uber_exception = UberException.new(params[:id])
+    @uber_exception = UberException.find(params[:id])
     @occurrence_position = params[:occurrence_position] ? params[:occurrence_position].to_i : @uber_exception.occurrences_count
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
@@ -64,11 +64,11 @@ class ExceptionistApp < Sinatra::Base
     erb :show, :layout => !request.xhr?
   end
 
-  post '/occurrences/:id' do
-    @occurrence = Occurrence.find(params[:id])
-    @occurrence.close!
+  post '/exceptions/:id/close' do
+    @uber_exceptions = UberException.find(params[:id])
+    @uber_exceptions.close!
 
-    redirect "/projects/#{@occurrence.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
+    redirect "/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
   end
 
   post '/notifier_api/v2/notices/?' do

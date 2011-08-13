@@ -1,12 +1,17 @@
 class UberException
-  attr_accessor :id
+  attr_accessor :id, :project_name
 
-  def initialize(uber_key)
-    @id = uber_key
+  def initialize(attributes)
+    @id = attributes['_id']
+    @project_name = attributes['project_name']
   end
 
   def self.count_all(project)
-    Exceptionist.mongo['exceptions'].find({:project_name => project}).count
+    Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}).count
+  end
+
+  def self.find(uber_key)
+    new(Exceptionist.mongo['exceptions'].find_one({:_id => uber_key}))
   end
 
   def self.find_all(project)
@@ -15,8 +20,8 @@ class UberException
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
-    uber_exceptions.map { |doc| new(doc['_id']) }
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
+    uber_exceptions.map { |doc| new(doc) }
   rescue RuntimeError
     []
   end
@@ -91,6 +96,10 @@ class UberException
     # delete all the stuff from #occurred
     redis.del("Exceptionist::UberException:#{id}:Occurrences")
     redis.del("Exceptionist::UberException:#{id}:OccurrenceCount")
+  end
+
+  def close!
+    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'closed' => true}})
   end
 
   def last_occurrence

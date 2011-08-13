@@ -55,11 +55,6 @@ class Occurrence
     UberException.new(uber_key)
   end
 
-  def close!
-    # do this here, because the UberException does not know which project it's in
-    redis.zrem("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
-  end
-
   def self.find(id)
     unserialize redis.get(key(id))
   end
