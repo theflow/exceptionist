@@ -77,8 +77,8 @@ class Occurrence
     new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc], :limit => 1).first)
   end
 
-  def self.count_new_on(project, day)
-    redis.llen("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
+  def self.count_all_on(project, day)
+    Exceptionist.mongo['occurrences'].find({:project_name => project, :occurred_at_day => day.strftime('%Y-%m-%d')}).count
   end
 
   #

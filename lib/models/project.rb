@@ -51,8 +51,8 @@ class Project
     UberException.find_new_on(name, day)
   end
 
-  def total_count_yesterday
-    Occurrence.count_new_on(name, Time.now - 86400)
+  def total_count_on(day)
+    Occurrence.count_all_on(name, day)
   end
 
   def ==(other)

@@ -30,12 +30,11 @@ class UberException
   end
 
   def self.find_new_on(project, day)
-    all = redis.sort("Exceptionist::Project:#{project}:UberExceptions",
-            :by => "Exceptionist::UberException:*:OccurrenceCount",
-            :order => 'DESC').map { |id| new(id) }
-
     next_day = day + 86400
-    all.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
+    uber_keys = Exceptionist.mongo['occurrences'].distinct(:uber_key, {:occurred_at_day => day.strftime('%Y-%m-%d')})
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:_id => {'$in' => uber_keys}}).map { |doc| new(doc) }
+
+    uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
   end
 
   def self.occurred(occurrence)
