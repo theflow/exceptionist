@@ -70,6 +70,18 @@ class Occurrence
     keys.map { |key| unserialize(key) }
   end
 
+  def self.find_all_for(uber_key)
+    Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc])
+  end
+
+  def self.find_first_for(uber_key)
+    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :asc], :limit => 1).first)
+  end
+
+  def self.find_last_for(uber_key)
+    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc], :limit => 1).first)
+  end
+
   def self.count_new_on(project, day)
     redis.llen("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
   end

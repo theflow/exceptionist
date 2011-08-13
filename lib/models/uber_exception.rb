@@ -6,7 +6,7 @@ class UberException
   end
 
   def self.count_all(project)
-    redis.zcard("Exceptionist::Project:#{project}:UberExceptions")
+    Exceptionist.mongo['exceptions'].find({:project_name => project}).count
   end
 
   def self.find_all(project)
@@ -15,10 +15,8 @@ class UberException
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
-    set_key = "Exceptionist::Project:#{project}:UberExceptions"
-
-    uber_exceptions = redis.zrevrange(set_key, start, start + limit - 1) || []
-    uber_exceptions.map { |id| new(id) }
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
+    uber_exceptions.map { |doc| new(doc) }
   rescue RuntimeError
     []
   end
@@ -96,15 +94,15 @@ class UberException
   end
 
   def last_occurrence
-    @last_occurrence ||= Occurrence.find(occurrences_list(-1, -1))
+    @last_occurrence ||= Occurrence.find_last_for(id)
   end
 
   def first_occurrence
-    @first_occurrence ||= Occurrence.find(occurrences_list(0, 0))
+    @first_occurrence ||= Occurrence.find_first_for(id)
   end
 
   def occurrences
-    Occurrence.find_all(occurrences_list(0, -1))
+    Occurrence.find_all_for(id)
   end
 
   def current_occurrence(position)
