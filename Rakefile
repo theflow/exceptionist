@@ -3,11 +3,10 @@ require 'tools'
 
 task :default => :test
 
-desc "Run the test suite"
-task :test do
-  Dir['test/**/*_test.rb'].each do |f|
-    ruby(f)
-  end
+require 'rake/testtask'
+Rake::TestTask.new do |test|
+  test.libs << "test"
+  test.test_files = FileList['test/**/*_test.rb']
 end
 
 namespace :redis do
