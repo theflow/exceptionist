@@ -15,6 +15,9 @@ require 'app'
 # Configure your MongoDB server and port
 Exceptionist.mongo = 'localhost:27017'
 
+# Credentials for accessing the web app, remove if you do auth in another way
+Exceptionist.enable_authentication('username', 'password')
+
 # Configure your base url for the report mails
 # Exceptionist.config[:base_url] = 'http://www.example.org'
 
@@ -27,9 +30,19 @@ Exceptionist.mongo = 'localhost:27017'
 #   :auth => :login
 # }
 
+# Project list
+# ============
+#
+
+# The list of all the projects you want to have in Exceptionist
+#
+#   * the name needs to be a valid URL slug
+#   * the key needs to be unique in this list
+
+Exceptionist.add_project 'project-name', 'UNIQUE_API_KEY'
 
 # Aggregator config
-# =============
+# =================
 #
 # Exceptionist.aggregators.add ['Mysql::Error', 'RuntimeError', 'SystemExit'] do |occurrence|
 #   "#{occurrence.exception_class}:#{occurrence.exception_message}"
