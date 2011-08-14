@@ -16,26 +16,7 @@
 
 <!-- occurrence graph -->
 <div class="span-22 prepend-1 last">
-  <div id="occurrence_graph" style="width:870px; height: 220px"></div>
-  <script type="text/javascript" charset="utf-8">
-    <% last_thirty_days = @uber_exception.last_thirty_days %>
-    var data = [<%= last_thirty_days.map { |day, count| "[#{day.to_i * 1000}, #{count}]" }.join(",") %>];
-
-    var options = {
-      series: {
-        bars: { show: true, fill: 1, fillColor: "#8486CE", barWidth: 20 * 60 * 60 * 1000, align: "center" },
-        color: "#8486CE",
-      },
-      grid: {
-        color: "#666",
-        borderColor: "#cccccc",
-        borderWidth: 1
-      },
-      xaxis: { mode: "time" }
-    }
-
-    $.plot($("#occurrence_graph"), [data], options);
-  </script>
+  <%= partial(:thirty_day_graph, :holder_div_id => 'occurrence_graph', :data => @uber_exception.last_thirty_days) %>
 </div>
 
 <div id="occurrence">
