@@ -81,8 +81,16 @@ class ExceptionistApp < Sinatra::Base
 
   post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(params[:data] || request.body.read)
-    occurrence.save
-    UberException.occurred(occurrence)
+
+    project = Project.find_by_key(occurrence.api_key)
+    if project
+      occurrence.project_name = project.name
+      occurrence.save
+      UberException.occurred(occurrence)
+    else
+      status 401
+      'Invalid API Key'
+    end
   end
 
   helpers do

@@ -38,4 +38,12 @@ context 'ApiTest' do
     assert_equal 1, uber_exceptions.count
     assert_equal 2, uber_exceptions.first.occurrences_count
   end
+
+  test 'should check if api key is valid' do
+    post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/unauth_exception.xml')
+
+    assert_equal 'Invalid API Key', last_response.body
+    assert_equal 401, last_response.status
+    assert_equal [], UberException.find_all(@project)
+  end
 end

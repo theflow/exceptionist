@@ -39,15 +39,15 @@ context 'IntegrationTest' do
     end
 
     test 'should show the dashboard with two projects' do
-      occurrence1 = create_occurrence(:project_name => 'Project1')
+      occurrence1 = create_occurrence(:project_name => 'ExampleProject')
       UberException.occurred(occurrence1)
 
-      occurrence2 = create_occurrence(:project_name => 'Project2')
+      occurrence2 = create_occurrence(:project_name => 'ExampleProject2')
       UberException.occurred(occurrence2)
 
       visit '/'
-      assert_contain 'Project1'
-      assert_contain 'Project2'
+      assert_contain 'ExampleProject'
+      assert_contain 'ExampleProject2'
     end
   end
 

@@ -32,7 +32,10 @@ test_dir = File.dirname(File.expand_path(__FILE__))
 `mongod run --fork --logpath /dev/null --config #{test_dir}/mongod-test.conf`
 sleep 1
 
+# Configure
 Exceptionist.mongo = 'localhost:9736'
+Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
+Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
 
 
 ##

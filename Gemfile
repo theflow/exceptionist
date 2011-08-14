@@ -9,6 +9,7 @@ gem 'bson_ext'
 gem 'sinatra', '~> 1.0'
 gem 'nokogiri'
 gem 'yajl-ruby'
+gem 'activesupport'
 
 group :development do
   gem 'rack-test'

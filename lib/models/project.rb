@@ -49,7 +49,12 @@ class Project
     name == other.name
   end
 
+  def self.find_by_key(api_key)
+    project = Exceptionist.projects.find { |name, project_key| project_key == api_key }
+    project ? Project.new(project.first) : nil
+  end
+
   def self.all
-    Exceptionist.mongo['exceptions'].distinct(:project_name).map { |name| Project.new(name) }
+    Exceptionist.projects.map { |name, api_key| Project.new(name) }
   end
 end

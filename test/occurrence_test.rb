@@ -14,7 +14,7 @@ context 'OccurrenceTest' do
       assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
                     "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], hash[:exception_backtrace]
       assert_equal 'production', hash[:environment]
-      assert_equal 'ExampleProject', hash[:project_name]
+      assert_equal 'SECRET_API_KEY', hash[:api_key]
 
       assert_equal({ "SERVER_NAME"=>"example.org", "HTTP_USER_AGENT"=>"Mozilla" }, hash[:cgi_data])
       assert_equal({}, hash[:session])
@@ -36,6 +36,8 @@ context 'OccurrenceTest' do
     test 'should create a model from xml' do
       occurrence = Occurrence.from_xml(read_fixtures_file('fixtures/exception.xml'))
 
+      assert_nil occurrence.project_name
+
       assert_equal 'http://example.com', occurrence.url
       assert_equal 'users', occurrence.controller_name
       assert_equal nil, occurrence.action_name
@@ -44,7 +46,7 @@ context 'OccurrenceTest' do
       assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
                     "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], occurrence.exception_backtrace
       assert_equal 'production', occurrence.environment
-      assert_equal 'ExampleProject', occurrence.project_name
+      assert_equal 'SECRET_API_KEY', occurrence.api_key
 
       assert_equal({ "SERVER_NAME"=>"example.org", "HTTP_USER_AGENT"=>"Mozilla" }, occurrence.cgi_data)
       assert_equal({}, occurrence.session)

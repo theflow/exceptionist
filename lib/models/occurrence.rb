@@ -2,7 +2,7 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key
+                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key, :api_key
 
 
   def initialize(attributes={})
@@ -52,7 +52,7 @@ class Occurrence
   end
 
   def uber_exception
-    UberException.new('_id' => uber_key)
+    UberException.find(uber_key)
   end
 
   def self.delete_all_for(uber_key)
@@ -110,8 +110,8 @@ class Occurrence
     doc = Nokogiri::XML(xml_text) { |config| config.noblanks }
 
     hash = {}
-    hash[:project_name] = doc.xpath('/notice/api-key').first.content
-    hash[:environment]  = doc.xpath('/notice/server-environment/environment-name').first.content
+    hash[:api_key]     = doc.xpath('/notice/api-key').first.content
+    hash[:environment] = doc.xpath('/notice/server-environment/environment-name').first.content
 
     hash[:exception_class]     = doc.xpath('/notice/error/class').first.content
     hash[:exception_message]   = parse_optional_element(doc, '/notice/error/message')

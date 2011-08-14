@@ -10,4 +10,12 @@ module Exceptionist
   def self.config
     @config ||= {}
   end
+
+  def self.projects
+    @projects ||= ActiveSupport::OrderedHash.new
+  end
+
+  def self.add_project(name, api_key)
+    projects[name] = api_key
+  end
 end
