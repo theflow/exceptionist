@@ -10,10 +10,29 @@ class Project
   end
 
   def last_thirty_days
-    last_n_days(30).map { |day| [Time.utc(day.year, day.month, day.day), occurrence_count_on(day)] }
+    Project.last_n_days(30).map { |day| [Time.utc(day.year, day.month, day.day), occurrence_count_on(day)] }
+
+    # counts_on_day = {}
+    #
+    # thirty_days_ago = Time.now - (3600 * 24 * 31)
+    # groups = Exceptionist.mongo['occurrences'].group({
+    #   :key => :occurred_at_day,
+    #   :cond => {:project_name => 'podio-api', :occurred_at_day => {'$gte' => thirty_days_ago.strftime('%Y-%m-%d')}},
+    #   :initial => {:count => 0},
+    #   :reduce => "function(obj, prev) { prev.count += 1; }"
+    # })
+    #
+    # groups.each do |group|
+    #   counts_on_day[Time.utc(*group['occurred_at_day'].split('-'))] = group['count'].to_i
+    # end
+    #
+    # last_n_days(30).map do |day|
+    #   day_as_time = Time.utc(day.year, day.month, day.day)
+    #   [day_as_time, counts_on_day[day_as_time]]
+    # end
   end
 
-  def last_n_days(days)
+  def self.last_n_days(days)
     today = Time.now
     start = today - (3600 * 24 * (days - 1)) # `days` days ago
 
@@ -26,12 +45,6 @@ class Project
   end
 
   def occurrence_count_on(date)
-    # Exceptionist.mongo['occurrences'].group({
-    #   :keyf => "function() { Date.UTC(this.date.getFullYear(), this.date.getMonth(), this.date.getDate()) }"
-    #   :cond => {:project_name => name}
-    #   :initial => {:count => 0},
-    #   :reduce => "function(obj, prev) { prev.csum += 1; }",
-    # })
     Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
   end
 

@@ -1,9 +1,10 @@
 class UberException
-  attr_accessor :id, :project_name
+  attr_accessor :id, :project_name, :occurrences_count
 
   def initialize(attributes)
     @id = attributes['_id']
     @project_name = attributes['project_name']
+    @occurrences_count = attributes['occurrence_count']
   end
 
   def self.count_all(project)
@@ -16,7 +17,7 @@ class UberException
 
   def self.find_all(project)
     uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}})
-    uber_exceptions.map { |id| new(id) }
+    uber_exceptions.map { |doc| new(doc) }
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
@@ -38,7 +39,6 @@ class UberException
   end
 
   def self.occurred(occurrence)
-    # TODO: first and last occurrence?
     uber_exception = {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at }
     Exceptionist.mongo['exceptions'].update(
       {:_id => occurrence.uber_key},
@@ -100,18 +100,12 @@ class UberException
     last_occurrence.url
   end
 
-  def occurrences_count
-    @occurrences_count ||= Exceptionist.mongo['occurrences'].find({:uber_key => id}).count
+  def occurrence_count_on(date)
+    Exceptionist.mongo['occurrences'].find({:uber_key => id, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
   end
 
   def last_thirty_days
-    # thirty_days_ago = Time.now - (60 * 60 * 24 * 30)
-    # groups = occurrences.select { |o| o.occurred_at >= thirty_days_ago }.group_by { |o| Time.mktime(o.occurred_at.year, o.occurred_at.month, o.occurred_at.day) }
-    # groups = groups.map { |group| [group[0], group[1].size] }
-    # groups.sort_by { |g| g.first }
-
-    # TODO
-    []
+    Project.last_n_days(30).map { |day| [Time.utc(day.year, day.month, day.day), occurrence_count_on(day)] }
   end
 
   def ==(other)
