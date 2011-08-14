@@ -4,8 +4,8 @@ source 'http://rubygems.org'
 gem 'unicorn'
 
 gem 'rake'
-gem 'redis'
-gem 'sinatra'
+gem 'redis', '~> 2.0'
+gem 'sinatra', '~> 1.0'
 gem 'nokogiri'
 gem 'yajl-ruby'
 
