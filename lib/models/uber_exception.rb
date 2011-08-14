@@ -39,10 +39,13 @@ class UberException
   end
 
   def self.occurred(occurrence)
-    uber_exception = {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at }
+    # upsert the UberException
     Exceptionist.mongo['exceptions'].update(
       {:_id => occurrence.uber_key},
-      {"$set" => uber_exception, "$inc" => {:occurrence_count => 1}},
+      {
+        "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at},
+        "$inc" => {:occurrence_count => 1}
+      },
       :upsert => true, :safe => true
     )
 
@@ -105,7 +108,7 @@ class UberException
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [Time.utc(day.year, day.month, day.day), occurrence_count_on(day)] }
+    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
   end
 
   def ==(other)
