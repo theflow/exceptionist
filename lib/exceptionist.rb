@@ -11,6 +11,14 @@ module Exceptionist
     @config ||= {}
   end
 
+  def self.credentials
+    @credentials
+  end
+
+  def self.enable_authentication(username, password)
+    @credentials = [username, password]
+  end
+
   def self.projects
     @projects ||= ActiveSupport::OrderedHash.new
   end

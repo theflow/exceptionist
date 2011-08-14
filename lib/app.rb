@@ -10,6 +10,10 @@ class ExceptionistApp < Sinatra::Base
   set :views,  "#{dir}/views"
   set :public, "#{dir}/public"
 
+  before do
+    protected! if request.path_info !~ /^\/notifier_api\/v2/
+  end
+
   get '/' do
     @projects = Project.all
     @title = 'All Projects'
@@ -95,6 +99,20 @@ class ExceptionistApp < Sinatra::Base
 
   helpers do
     include Rack::Utils
+
+    def protected!
+      return if authorized?
+
+      response['WWW-Authenticate'] = %(Basic realm="Exceptionist")
+      throw(:halt, [401, "Not authorized\n"])
+    end
+
+    def authorized?
+      return true if Exceptionist.credentials.nil?
+
+      @auth ||= Rack::Auth::Basic::Request.new(request.env)
+      @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == Exceptionist.credentials
+    end
 
     def format_time(time)
       time.strftime('%b %d %H:%M')
