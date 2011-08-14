@@ -1,10 +1,8 @@
 <h2><%= @title %></h2>
 
-<div class="span-22 prepend-1 append-1">
-  <div class="span-11 sorting_links right-aligned last">
-    <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
-    <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
-  </div>
+<div class="span-22 prepend-1 append-1 sorting_links right-aligned">
+  <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
+  <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
 </div>
 
 
