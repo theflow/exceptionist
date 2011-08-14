@@ -54,14 +54,22 @@ class ExceptionistApp < Sinatra::Base
   get '/exceptions/:id' do
     @projects = Project.all
     @uber_exception = UberException.find(params[:id])
-    @occurrence_position = params[:occurrence_position] ? params[:occurrence_position].to_i : @uber_exception.occurrences_count
+    @occurrence_position = @uber_exception.occurrences_count
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
     @current_project = @occurrence.project
     @backlink = true
 
     @title = "[#{@current_project.name}] #{@uber_exception.title}"
-    erb :show, :layout => !request.xhr?
+    erb :show
+  end
+
+  get '/exceptions/:id/occurrences/:occurrence_position' do
+    @uber_exception = UberException.find(params[:id])
+    @occurrence_position = params[:occurrence_position].to_i
+    @occurrence = @uber_exception.current_occurrence(@occurrence_position)
+
+    erb :_occurrence, :layout => false
   end
 
   post '/exceptions/:id/close' do
