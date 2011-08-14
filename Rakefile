@@ -38,3 +38,8 @@ task :reimport do
   Exceptionist::Reseter.run
   Exceptionist::Importer.run
 end
+
+desc "Create MongoDB indexes"
+task :create_indexes do
+  Exceptionist::IndexCreator.run
+end

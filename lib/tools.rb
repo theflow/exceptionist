@@ -58,4 +58,11 @@ module Exceptionist
 
   class Migrator
   end
+
+  class IndexCreator
+    def self.run
+      Exceptionist.mongo['occurrences'].ensure_index([[:occurred_at_day, Mongo::ASCENDING], [:project_name, Mongo::ASCENDING]])
+      Exceptionist.mongo['occurrences'].ensure_index(:uber_key)
+    end
+  end
 end
