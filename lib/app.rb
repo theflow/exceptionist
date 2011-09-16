@@ -115,7 +115,7 @@ class ExceptionistApp < Sinatra::Base
     end
 
     def format_time(time)
-      time.strftime('%b %d %H:%M')
+      time.localtime.strftime('%b %d %H:%M')
     end
 
     def truncate(text, length)
