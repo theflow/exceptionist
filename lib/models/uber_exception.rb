@@ -8,7 +8,7 @@ class UberException
   end
 
   def self.count_all(project)
-    Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}).count
+    Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}).count
   end
 
   def self.find(uber_key)
@@ -16,17 +16,17 @@ class UberException
   end
 
   def self.find_all(project)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}})
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false})
     uber_exceptions.map { |doc| new(doc) }
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
     uber_exceptions.map { |doc| new(doc) }
   end
 
   def self.find_all_sorted_by_occurrence_count(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => {'$exists' => false}}, :skip => start, :limit => limit, :sort => [:occurrence_count, :desc])
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurrence_count, :desc])
     uber_exceptions.map { |doc| new(doc) }
   end
 
@@ -43,7 +43,7 @@ class UberException
     Exceptionist.mongo['exceptions'].update(
       {:_id => occurrence.uber_key},
       {
-        "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at},
+        "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at, :closed => false},
         "$inc" => {:occurrence_count => 1}
       },
       :upsert => true, :safe => true
