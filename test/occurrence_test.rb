@@ -53,6 +53,16 @@ context 'OccurrenceTest' do
       assert_not_nil occurrence.occurred_at
       assert_not_nil occurrence.uber_key
     end
+
+    test 'should parse an exception with hash in params' do
+      occurrence = Occurrence.from_xml(read_fixtures_file('fixtures/exception_with_hash_in_params.xml'))
+
+      hash_in_params = { "parent" => { "key_1" => "value_1",
+                                       "key_2" => "value_2",
+                                       "key_3" => { "key_4" => "value_3" } } }
+
+      assert_equal(hash_in_params, occurrence.parameters)
+    end
   end
 
   context 'Occurrence saving' do
