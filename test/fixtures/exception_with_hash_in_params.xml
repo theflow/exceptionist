@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notice version="2.0.0">
+  <api-key>ExampleProject</api-key>
+  <notifier>
+    <name>Hoptoad Notifier</name>
+    <version>1.2.4</version>
+    <url>http://hoptoadapp.com</url>
+  </notifier>
+  <error>
+    <class>RuntimeError</class>
+    <backtrace>
+      <line method="public" file="[PROJECT_ROOT]/app/models/user.rb" number="53"/>
+      <line method="index" file="[PROJECT_ROOT]/app/controllers/users_controller.rb" number="14"/>
+    </backtrace>
+  </error>
+  <request>
+    <url>http://www.myqype.com:3000/login?referal=11</url>
+    <component>session</component>
+    <action>new</action>
+    <params>
+      <var key="parent">
+        <var key="key_1">value_1</var>
+        <var key="key_2">value_2</var>
+        <var key="key_3">
+          <var key="key_4">value_3</var>
+        </var>
+      </var>
+    </params>
+    <session>
+      <var key="_csrf_token">rdJcfh6a36P5Ior2LGOKc15z3DrGhCputMeGiTpW7t8=</var>
+      <var key="landing_page_url">http://www.myqype.com/</var>
+      <var key="registration_referal">11</var>
+      <var key="last_uri">/login?referal=11</var>
+      <var key="return_to">/mypage</var>
+      <var key="flash"/>
+    </session>
+      <cgi-data>
+        <var key="SERVER_NAME">example.org</var>
+        <var key="HTTP_USER_AGENT">Mozilla</var>
+      </cgi-data>
+  </request>
+  <server-environment>
+    <project-root>/testapp</project-root>
+    <environment-name>production</environment-name>
+  </server-environment>
+</notice>
