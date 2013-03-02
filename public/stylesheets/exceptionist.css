@@ -75,9 +75,10 @@ dd {
 }
 
 span.occurrence_count {
+  float: right;
   background-color: #eee;
   font-size: 1.2em;
-  padding: 8px;
+  padding: 6px 8px;
   color: #666;
 }
 

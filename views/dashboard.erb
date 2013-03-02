@@ -1,7 +1,7 @@
 <h2><%= @title %></h2>
 
 <% for project in @projects %>
-  <div class="span-24 append-1 prepend-top">
+  <div class="span-24 prepend-top">
     <h3><a href="/projects/<%= project.name %>"><%= project.name %></a> (<%= project.exceptions_count %>)</h3>
 
     <div class="span-22 prepend-1 last">

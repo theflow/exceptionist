@@ -3,7 +3,7 @@
     Last: <%= format_time(uber_exc.last_occurred_at) %><br />
     First: <%= format_time(uber_exc.first_occurred_at) %>
   </div>
-  <div class="span-16">
+  <div class="span-18">
     <h6><a href="/exceptions/<%= uber_exc.id %>?backparams=<%= escape(request.query_string) %>"><%= truncate(uber_exc.title, 100) %></a></h6>
     <%= truncate(uber_exc.url, 80) %>
   </div>
