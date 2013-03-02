@@ -17,7 +17,15 @@ class ExceptionistApp < Sinatra::Base
   get '/' do
     @projects = Project.all
     @title = 'All Projects'
+    @is_dashboard = true
     erb :dashboard
+  end
+
+  get '/river' do
+    @occurrences = Occurrence.find_all
+
+    @title = "River"
+    erb :river
   end
 
   get '/projects/:project' do
@@ -32,6 +40,14 @@ class ExceptionistApp < Sinatra::Base
 
     @title = "Latest Exceptions for #{@current_project.name}"
     erb :index
+  end
+
+  get '/projects/:project/river' do
+    @current_project = Project.new(params[:project])
+    @occurrences = Occurrence.find_all(@current_project.name)
+
+    @title = "Latest Occurrences for #{@current_project.name}"
+    erb :river
   end
 
   get '/projects/:project/new_on/:day' do

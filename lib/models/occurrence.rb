@@ -71,6 +71,14 @@ class Occurrence
     Exceptionist.mongo['occurrences'].find({:project_name => project, :occurred_at_day => day.strftime('%Y-%m-%d')}).count
   end
 
+  def self.find_all(project=nil, limit=50)
+    find_options = {}
+    find_options[:project_name] = project if project
+
+    occurrences = Exceptionist.mongo['occurrences'].find(find_options, :sort => [:occurred_at, :desc], :limit => limit)
+    occurrences.map { |doc| new(doc) }
+  end
+
   #
   # serialization
   #

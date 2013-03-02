@@ -81,6 +81,17 @@ span.occurrence_count {
   color: #666;
 }
 
+.project-label {
+  background: #666;
+  color: white;
+  padding: 1px 6px;
+  margin-right: 3px;
+}
+
+.append-tiny-bottom {
+  margin-bottom:0.5em;
+}
+
 
 /* -------------------------------------------------------------- 
   

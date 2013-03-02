@@ -15,10 +15,16 @@
       <% if @backlink %>
       <a href="javascript:history.go(-1)">&uarr; Back</a> |
       <% end %>
+      <% if @is_dashboard %>
+      <a href="/river">River</a>
+      <% else %>
       <a href="/">Dashboard</a>
+      <% end %>
     </div>
 
     <%= yield %>
+
+    <hr class="space">
   </div>
 </body>
 </html>

@@ -1,0 +1,15 @@
+<h2><%= @title %></h2>
+<hr />
+
+<% for occurrence in @occurrences %>
+  <div class="span-24 append-tiny-bottom">
+    <div class="span-21">
+      <span class="project-label"><%= occurrence.project_name %></span>
+      <a href="/exceptions/<%= occurrence.uber_key %>"><b><%= truncate(occurrence.title, 100) %></b></a>
+      <span class="quiet"><%= truncate(occurrence.url, 80) %></span>
+    </div>
+    <div class="span-3 last right-aligned quiet">
+      <%= format_time(occurrence.occurred_at) %>
+    </div>
+  </div>
+<% end %>
