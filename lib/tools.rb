@@ -1,5 +1,5 @@
 require 'boot'
-require 'config'
+require './config'
 
 module Exceptionist
   class Exporter
