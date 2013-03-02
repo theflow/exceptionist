@@ -155,8 +155,22 @@ class Occurrence
   def self.parse_vars(node, options = {})
     node.children.inject({}) do |hash, child|
       key = child['key']
-      hash[key] = child.content unless (options[:skip_rack] && key.include?('.'))
+      hash[key] = self.node_to_hash(child, options)
       hash
+    end
+  end
+
+  def self.node_to_hash(node, options = {})
+    if node.children.size > 1
+      node.children.inject({}) do |hash, child|
+        key = child['key']
+        hash[key] = self.node_to_hash(child, options)
+        hash
+      end
+    elsif node.children.size == 1 && node.children.first.keys.include?("key")
+      { node.children.first["key"] => node.content }
+    else
+      node.content unless (options[:skip_rack] && key.include?('.'))
     end
   end
 
