@@ -149,9 +149,9 @@ private
 
   def generate_uber_key
     key = case exception_class
-      when 'Mysql::Error', 'RuntimeError', 'SystemExit'
+      when *Exceptionist.global_exception_classes
         "#{exception_class}:#{exception_message}"
-      when 'Timeout::Error'
+      when *Exceptionist.timeout_exception_classes
         first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
         "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
       else

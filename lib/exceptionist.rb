@@ -26,4 +26,12 @@ module Exceptionist
   def self.add_project(name, api_key)
     projects[name] = api_key
   end
+
+  def self.global_exception_classes
+    ['Mysql::Error', 'RuntimeError', 'SystemExit']
+  end
+
+  def self.timeout_exception_classes
+    ['Timeout::Error']
+  end
 end
