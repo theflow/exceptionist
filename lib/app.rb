@@ -8,7 +8,7 @@ require 'pp'
 class ExceptionistApp < Sinatra::Base
   dir = File.join(File.dirname(__FILE__), '..')
   set :views,  "#{dir}/views"
-  set :public, "#{dir}/public"
+  set :public_folder, "#{dir}/public"
 
   before do
     protected! if request.path_info !~ /^\/notifier_api\/v2/

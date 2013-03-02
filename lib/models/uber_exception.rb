@@ -46,7 +46,7 @@ class UberException
         "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at, :closed => false},
         "$inc" => {:occurrence_count => 1}
       },
-      :upsert => true, :safe => true
+      :upsert => true, :w => 1
     )
 
     # return the UberException
@@ -68,7 +68,7 @@ class UberException
 
   def forget!
     Occurrence.delete_all_for(id)
-    Exceptionist.mongo['exceptions'].remove({:_id => id}, :safe => true)
+    Exceptionist.mongo['exceptions'].remove({:_id => id}, :w => 1)
   end
 
   def close!
