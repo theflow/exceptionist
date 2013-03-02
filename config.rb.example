@@ -12,8 +12,11 @@ require 'app'
 # ==========================
 #
 
-# Configure your Redis server and port
-Exceptionist.redis = 'localhost:6379'
+# Configure your MongoDB server and port
+Exceptionist.mongo = 'localhost:27017'
+
+# Credentials for accessing the web app, remove if you do auth in another way
+Exceptionist.enable_authentication('username', 'password')
 
 # Configure your base url for the report mails
 # Exceptionist.config[:base_url] = 'http://www.example.org'
@@ -27,25 +30,19 @@ Exceptionist.redis = 'localhost:6379'
 #   :auth => :login
 # }
 
-
-# Filter config
-# =============
+# Project list
+# ============
 #
 
-# An example which filters out exceptions triggered by common search bots
-# Exceptionist.filter.add :nonbot do |occurrence|
-#   occurrence.user_agent !~ /(Google|Slurp|bot)/
-# end
+# The list of all the projects you want to have in Exceptionist
+#
+#   * the name needs to be a valid URL slug
+#   * the key needs to be unique in this list
 
+Exceptionist.add_project 'project-name', 'UNIQUE_API_KEY'
 
 # Aggregator config
-# =============
+# =================
 #
-# Exceptionist.aggregators.add ['Mysql::Error', 'RuntimeError', 'SystemExit'] do |occurrence|
-#   "#{occurrence.exception_class}:#{occurrence.exception_message}"
-# end
-#
-# Exceptionist.aggregators.add 'Timeout::Error' do |occurrence|
-#   first_non_lib_line = occurrence.exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
-#   "#{occurrence.exception_class}:#{occurrence.exception_message}:#{first_non_lib_line}"
-# end
+# Exceptionist.global_exception_classes << 'Mysql::Error'
+# Exceptionist.timeout_exception_classes << 'Patron::TimeoutError'

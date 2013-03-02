@@ -11,7 +11,7 @@ context 'ApiTest' do
 
   setup do
     @project = 'ExampleProject'
-    Exceptionist.redis.flushall
+    clear_collections
   end
 
   test 'should create the first UberException' do
@@ -22,7 +22,7 @@ context 'ApiTest' do
 
     uber_exceptions = UberException.find_all(@project)
     assert_equal 1, uber_exceptions.count
-    assert_equal 1, uber_exceptions.first.occurrences.count
+    assert_equal 1, uber_exceptions.first.occurrences_count
   end
 
   test 'should add occurrences if it is the same exception' do
@@ -36,6 +36,14 @@ context 'ApiTest' do
 
     uber_exceptions = UberException.find_all(@project)
     assert_equal 1, uber_exceptions.count
-    assert_equal 2, uber_exceptions.first.occurrences.count
+    assert_equal 2, uber_exceptions.first.occurrences_count
+  end
+
+  test 'should check if api key is valid' do
+    post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/unauth_exception.xml')
+
+    assert_equal 'Invalid API Key', last_response.body
+    assert_equal 401, last_response.status
+    assert_equal [], UberException.find_all(@project)
   end
 end

@@ -12,12 +12,15 @@ context 'IntegrationTest' do
   include Webrat::Methods
   include Webrat::Matchers
 
+  # make webrat follow redirects
+  Rack::Test::DEFAULT_HOST = 'example.com'
+
   def app
     ExceptionistApp
   end
 
   setup do
-    Exceptionist.redis.flushall
+    clear_collections
   end
 
   context 'the Dashboard' do
@@ -36,23 +39,22 @@ context 'IntegrationTest' do
     end
 
     test 'should show the dashboard with two projects' do
-      occurrence1 = create_occurrence(:project_name => 'Project1')
+      occurrence1 = create_occurrence(:project_name => 'ExampleProject')
       UberException.occurred(occurrence1)
 
-      occurrence2 = create_occurrence(:project_name => 'Project2')
+      occurrence2 = create_occurrence(:project_name => 'ExampleProject2')
       UberException.occurred(occurrence2)
 
       visit '/'
-      assert_contain 'Project1'
-      assert_contain 'Project2'
+      assert_contain 'ExampleProject'
+      assert_contain 'ExampleProject2'
     end
   end
 
   context 'the exception list' do
     test 'with one exception' do
-      occurrence = create_occurrence
-      UberException.occurred(occurrence)
-      UberException.occurred(occurrence)
+      UberException.occurred(create_occurrence)
+      UberException.occurred(create_occurrence)
 
       visit '/projects/ExampleProject'
 
@@ -75,7 +77,7 @@ context 'IntegrationTest' do
       assert_contain 'previous page'
     end
 
-    test 'should be filtered by most recent' do
+    test 'should be sorted by most recent' do
       UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-03-01'))
       UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2009-02-01'))
 
@@ -158,7 +160,7 @@ context 'IntegrationTest' do
 
       click_button 'Close'
       # redirects back to project page
-      assert_equal '/projects/ExampleProject?', current_url
+      assert_equal '/projects/ExampleProject', URI.parse(current_url).path
       assert_not_contain 'NameError in users#show'
       assert_contain 'NameError in users#index'
     end

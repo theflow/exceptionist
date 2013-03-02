@@ -5,27 +5,7 @@
     <h3><a href="/projects/<%= project.name %>"><%= project.name %></a> (<%= project.exceptions_count %>)</h3>
 
     <div class="span-22 prepend-1 last">
-      <% holder_div_id = "holder_#{project.name}" %>
-      <div id="<%= holder_div_id %>" style="width:870px; height: 220px"></div>
-      <script type="text/javascript" charset="utf-8">
-        <% last_thirty_days = project.last_thirty_days %>
-        var data = [<%= last_thirty_days.map { |day| "[#{day.first.to_i * 1000}, #{day.last}]" }.join(",") %>];
-
-        var options = {
-          series: {
-            bars: { show: true, fill: 1, fillColor: "#8486CE", barWidth: 20 * 60 * 60 * 1000, align: "center" },
-            color: "#8486CE",
-          },
-          grid: {
-            color: "#666",
-            borderColor: "#cccccc",
-            borderWidth: 1
-          },
-          xaxis: { mode: "time" }
-        }
-
-        $.plot($("#<%= holder_div_id %>"), [data], options);
-      </script>
+      <%= partial(:thirty_day_graph, :holder_div_id => "holder_#{project.name}", :data => project.last_thirty_days) %>
     </div>
   </div>
 <% end %>

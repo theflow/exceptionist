@@ -1,47 +1,37 @@
 module Exceptionist
-  def self.namespace
-    "Exceptionist"
+  def self.mongo
+    @mongo ||= Mongo::Connection.new(@host, @port).db('exceptionist')
   end
 
-  def self.redis
-    @redis ||= Redis.new(:host => host, :port => port, :thread_safe => true)
-  end
-
-  def self.redis=(server)
-    case server
-    when String
-      host, port = server.split(':')
-      @redis = Redis.new(:host => host, :port => port, :thread_safe => true)
-    when Redis
-      @redis = server
-    else
-      raise "I don't know what to do with #{server.inspect}"
-    end
+  def self.mongo=(server)
+    @host, @port = server.split(':')
   end
 
   def self.config
     @config ||= {}
   end
 
-  def self.filter
-    @filter ||= FilterStore.new
+  def self.credentials
+    @credentials
   end
 
-  class FilterStore
-    def initialize
-      @filters = []
-    end
+  def self.enable_authentication(username, password)
+    @credentials = [username, password]
+  end
 
-    def add(name, &block)
-      @filters << [name, block]
-    end
+  def self.projects
+    @projects ||= ActiveSupport::OrderedHash.new
+  end
 
-    def clear
-      @filters = []
-    end
+  def self.add_project(name, api_key)
+    projects[name] = api_key
+  end
 
-    def all
-      @filters
-    end
+  def self.global_exception_classes
+    ['Mysql::Error', 'RuntimeError', 'SystemExit']
+  end
+
+  def self.timeout_exception_classes
+    ['Timeout::Error']
   end
 end

@@ -4,12 +4,15 @@ source 'http://rubygems.org'
 gem 'unicorn'
 
 gem 'rake'
-gem 'redis', '~> 2.0'
-gem 'sinatra', '~> 1.0'
+gem 'mongo'
+gem 'bson_ext'
+gem 'sinatra'
 gem 'nokogiri'
 gem 'yajl-ruby'
+gem 'activesupport'
 
 group :development do
   gem 'rack-test'
   gem 'webrat'
+  gem 'shotgun'
 end

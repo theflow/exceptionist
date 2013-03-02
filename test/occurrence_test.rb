@@ -14,7 +14,7 @@ context 'OccurrenceTest' do
       assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
                     "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], hash[:exception_backtrace]
       assert_equal 'production', hash[:environment]
-      assert_equal 'ExampleProject', hash[:project_name]
+      assert_equal 'SECRET_API_KEY', hash[:api_key]
 
       assert_equal({ "SERVER_NAME"=>"example.org", "HTTP_USER_AGENT"=>"Mozilla" }, hash[:cgi_data])
       assert_equal({}, hash[:session])
@@ -36,6 +36,8 @@ context 'OccurrenceTest' do
     test 'should create a model from xml' do
       occurrence = Occurrence.from_xml(read_fixtures_file('fixtures/exception.xml'))
 
+      assert_nil occurrence.project_name
+
       assert_equal 'http://example.com', occurrence.url
       assert_equal 'users', occurrence.controller_name
       assert_equal nil, occurrence.action_name
@@ -44,7 +46,7 @@ context 'OccurrenceTest' do
       assert_equal ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'",
                     "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `index'"], occurrence.exception_backtrace
       assert_equal 'production', occurrence.environment
-      assert_equal 'ExampleProject', occurrence.project_name
+      assert_equal 'SECRET_API_KEY', occurrence.api_key
 
       assert_equal({ "SERVER_NAME"=>"example.org", "HTTP_USER_AGENT"=>"Mozilla" }, occurrence.cgi_data)
       assert_equal({}, occurrence.session)
@@ -67,16 +69,7 @@ context 'OccurrenceTest' do
 
   context 'Occurrence saving' do
     setup do
-      Exceptionist.redis.flushall
-    end
-
-    test 'saving an occurrence should set the ID' do
-      occurrence = Occurrence.new
-      assert_nil occurrence.id
-
-      occurrence.save
-
-      assert_not_nil occurrence.id
+      clear_collections
     end
 
     test 'an occurrence occurred' do
@@ -86,22 +79,6 @@ context 'OccurrenceTest' do
       uber_exp = occurrence.uber_exception
       assert_equal 1, uber_exp.occurrences_count
       assert_equal 'NameError: undefined local variable or method dude', uber_exp.first_occurrence.exception_message
-    end
-
-    test 'an occurrence occurred and should be filtered' do
-      Exceptionist.filter.add :dotcom do |occurrence|
-        occurrence.url =~ /\.com/
-      end
-
-      com_exception = UberException.occurred(create_occurrence(:url => 'http://example.com'))
-      org_exception = UberException.occurred(create_occurrence(:exception_class => 'DifferentError', :url => 'http://example.org'))
-
-      assert_equal [com_exception], UberException.find_all_sorted_by_time('ExampleProject', :dotcom, 0, 25)
-
-      all_exceptions = UberException.find_all_sorted_by_time('ExampleProject', nil, 0, 25)
-      assert_equal 2, all_exceptions.size
-      assert all_exceptions.include?(com_exception)
-      assert all_exceptions.include?(org_exception)
     end
   end
 

@@ -1,8 +1,9 @@
 require 'time'
 require 'zlib'
 require 'digest'
+require 'active_support/ordered_hash'
 
-require 'redis'
+require 'mongo'
 require 'yajl'
 require 'nokogiri'
 

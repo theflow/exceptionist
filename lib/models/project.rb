@@ -10,51 +10,51 @@ class Project
   end
 
   def last_thirty_days
-    last_n_days(30).map { |day| [Time.utc(day.year, day.month, day.day), occurrence_count_on(day)] }
+    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
   end
 
-  def last_n_days(days)
+  def self.last_n_days(days)
     today = Time.now
     start = today - (3600 * 24 * (days - 1)) # `days` days ago
 
     n_days = []
     begin
-      n_days << start
+      n_days << Time.utc(start.year, start.month, start.day)
     end while (start += 86400) <= today
 
     n_days
   end
 
   def occurrence_count_on(date)
-    Exceptionist.redis.llen("Exceptionist::Project:#{name}:OnDay:#{date.strftime('%Y-%m-%d')}")
+    Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
   end
 
-  def last_three_exceptions
-    latest_exceptions(0, 3)
+  def latest_exceptions(start, limit = 25)
+    UberException.find_all_sorted_by_time(name, start, limit)
   end
 
-  def latest_exceptions(filter, start, limit = 25)
-    UberException.find_all_sorted_by_time(name, filter, start, limit)
-  end
-
-  def most_frequest_exceptions(filter, start, limit = 25)
-    UberException.find_all_sorted_by_occurrence_count(name, filter, start, limit)
+  def most_frequest_exceptions(start, limit = 25)
+    UberException.find_all_sorted_by_occurrence_count(name, start, limit)
   end
 
   def new_exceptions_on(day)
     UberException.find_new_on(name, day)
   end
 
-  def total_count_yesterday
-    Occurrence.count_new_on(name, Time.now - 86400)
+  def total_count_on(day)
+    Occurrence.count_all_on(name, day)
   end
 
   def ==(other)
     name == other.name
   end
 
+  def self.find_by_key(api_key)
+    project = Exceptionist.projects.find { |name, project_key| project_key == api_key }
+    project ? Project.new(project.first) : nil
+  end
+
   def self.all
-    projects = Exceptionist.redis.smembers('Exceptionist::Projects') || []
-    projects.map { |name| Project.new(name) }
+    Exceptionist.projects.map { |name, api_key| Project.new(name) }
   end
 end

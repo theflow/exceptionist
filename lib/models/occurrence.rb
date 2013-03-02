@@ -2,12 +2,12 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :id, :uber_key
+                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key, :api_key
 
 
-  def initialize(attributes = {})
+  def initialize(attributes={})
     attributes.each do |key, value|
-      send "#{key}=", value
+      send("#{key}=", value)
     end
 
     self.occurred_at ||= attributes['occurred_at'] || Time.now
@@ -15,11 +15,11 @@ class Occurrence
   end
 
   def inspect
-    "(Occurrence: id: #{id}, title: '#{title}')"
+    "(Occurrence: id: #{_id}, title: '#{title}')"
   end
 
   def ==(other)
-    id == other.id
+    _id == other._id
   end
 
   def title
@@ -52,26 +52,23 @@ class Occurrence
   end
 
   def uber_exception
-    UberException.new(uber_key)
+    UberException.find(uber_key)
   end
 
-  def close!
-    # do this here, because the UberException does not know which project it's in
-    redis.zrem("Exceptionist::Project:#{project_name}:UberExceptions", uber_key)
+  def self.delete_all_for(uber_key)
+    Exceptionist.mongo['occurrences'].remove({:uber_key => uber_key}, :w => 1)
   end
 
-  def self.find(id)
-    unserialize redis.get(key(id))
+  def self.find_first_for(uber_key)
+    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :asc], :limit => 1).first)
   end
 
-  def self.find_all(ids)
-    ids = ids.map { |id| key(id) }
-    keys = redis.mget(*ids)
-    keys.map { |key| unserialize(key) }
+  def self.find_last_for(uber_key)
+    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc], :limit => 1).first)
   end
 
-  def self.count_new_on(project, day)
-    redis.llen("Exceptionist::Project:#{project}:OnDay:#{day.strftime('%Y-%m-%d')}")
+  def self.count_all_on(project, day)
+    Exceptionist.mongo['occurrences'].find({:project_name => project, :occurred_at_day => day.strftime('%Y-%m-%d')}).count
   end
 
   #
@@ -79,8 +76,7 @@ class Occurrence
   #
 
   def save
-    self.id = generate_id
-    redis.set(key(self.id), serialize)
+    Exceptionist.mongo['occurrences'].insert(to_hash)
 
     self
   end
@@ -97,29 +93,13 @@ class Occurrence
       :cgi_data            => cgi_data,
       :url                 => url,
       :occurred_at         => occurred_at,
+      :occurred_at_day     => occurred_at.strftime('%Y-%m-%d'),
       :exception_backtrace => exception_backtrace,
       :controller_name     => controller_name,
       :environment         => environment,
       :exception_class     => exception_class,
       :project_name        => project_name,
-      :id                  => id,
       :uber_key            => uber_key }
-  end
-
-  def serialize
-    Zlib::Deflate.deflate(to_json)
-  end
-
-  def to_json
-    Yajl::Encoder.encode(to_hash)
-  end
-
-  def self.unserialize(data)
-    from_json(Zlib::Inflate.inflate(data))
-  end
-
-  def self.from_json(json)
-    new(Yajl::Parser.parse(json))
   end
 
   def self.from_xml(xml_text)
@@ -130,8 +110,8 @@ class Occurrence
     doc = Nokogiri::XML(xml_text) { |config| config.noblanks }
 
     hash = {}
-    hash[:project_name] = doc.xpath('/notice/api-key').first.content
-    hash[:environment]  = doc.xpath('/notice/server-environment/environment-name').first.content
+    hash[:api_key]     = doc.xpath('/notice/api-key').first.content
+    hash[:environment] = doc.xpath('/notice/server-environment/environment-name').first.content
 
     hash[:exception_class]     = doc.xpath('/notice/error/class').first.content
     hash[:exception_message]   = parse_optional_element(doc, '/notice/error/message')
@@ -179,21 +159,13 @@ class Occurrence
     element ? element.content : nil
   end
 
-  def self.key(*parts)
-    "#{Exceptionist.namespace}::#{name}:#{parts.join(':')}"
-  end
-
 private
-
-  def generate_id
-    redis.incr("Exceptionist::OccurrenceIdGenerator")
-  end
 
   def generate_uber_key
     key = case exception_class
-      when 'Mysql::Error', 'RuntimeError', 'SystemExit'
+      when *Exceptionist.global_exception_classes
         "#{exception_class}:#{exception_message}"
-      when 'Timeout::Error'
+      when *Exceptionist.timeout_exception_classes
         first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
         "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
       else
@@ -202,17 +174,5 @@ private
     end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
-  end
-
-  def key(*parts)
-    self.class.key(*parts)
-  end
-
-  def redis
-    Exceptionist.redis
-  end
-
-  def self.redis
-    Exceptionist.redis
   end
 end

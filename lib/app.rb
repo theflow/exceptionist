@@ -8,7 +8,11 @@ require 'pp'
 class ExceptionistApp < Sinatra::Base
   dir = File.join(File.dirname(__FILE__), '..')
   set :views,  "#{dir}/views"
-  set :public, "#{dir}/public"
+  set :public_folder, "#{dir}/public"
+
+  before do
+    protected! if request.path_info !~ /^\/notifier_api\/v2/
+  end
 
   get '/' do
     @projects = Project.all
@@ -20,11 +24,10 @@ class ExceptionistApp < Sinatra::Base
     @projects = Project.all
     @current_project = Project.new(params[:project])
     @start = params[:start] ? params[:start].to_i : 0
-    @filter = params[:filter] if params[:filter] != ''
     if params[:sort_by] && params[:sort_by] == 'frequent'
-      @uber_exceptions = @current_project.most_frequest_exceptions(@filter, @start)
+      @uber_exceptions = @current_project.most_frequest_exceptions(@start)
     else
-      @uber_exceptions = @current_project.latest_exceptions(@filter, @start)
+      @uber_exceptions = @current_project.latest_exceptions(@start)
     end
 
     @title = "Latest Exceptions for #{@current_project.name}"
@@ -54,35 +57,67 @@ class ExceptionistApp < Sinatra::Base
 
   get '/exceptions/:id' do
     @projects = Project.all
-    @uber_exception = UberException.new(params[:id])
-    @occurrence_position = params[:occurrence_position] ? params[:occurrence_position].to_i : @uber_exception.occurrences_count
+    @uber_exception = UberException.find(params[:id])
+    @occurrence_position = @uber_exception.occurrences_count
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
     @current_project = @occurrence.project
     @backlink = true
 
     @title = "[#{@current_project.name}] #{@uber_exception.title}"
-    erb :show, :layout => !request.xhr?
+    erb :show
   end
 
-  post '/occurrences/:id' do
-    @occurrence = Occurrence.find(params[:id])
-    @occurrence.close!
+  get '/exceptions/:id/occurrences/:occurrence_position' do
+    @uber_exception = UberException.find(params[:id])
+    @occurrence_position = params[:occurrence_position].to_i
+    @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
-    redirect "/projects/#{@occurrence.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
+    erb :_occurrence, :layout => false
+  end
+
+  post '/exceptions/:id/close' do
+    @uber_exceptions = UberException.find(params[:id])
+    @uber_exceptions.close!
+
+    redirect "/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
   end
 
   post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(params[:data] || request.body.read)
-    occurrence.save
-    UberException.occurred(occurrence)
+
+    project = Project.find_by_key(occurrence.api_key)
+    if project
+      occurrence.project_name = project.name
+      occurrence.save
+      uber_exc = UberException.occurred(occurrence)
+
+      "<notice><error-id>#{uber_exc.id}</error-id></notice>"
+    else
+      status 401
+      'Invalid API Key'
+    end
   end
 
   helpers do
     include Rack::Utils
 
+    def protected!
+      return if authorized?
+
+      response['WWW-Authenticate'] = %(Basic realm="Exceptionist")
+      throw(:halt, [401, "Not authorized\n"])
+    end
+
+    def authorized?
+      return true if Exceptionist.credentials.nil?
+
+      @auth ||= Rack::Auth::Basic::Request.new(request.env)
+      @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == Exceptionist.credentials
+    end
+
     def format_time(time)
-      time.strftime('%b %d %H:%M')
+      time.localtime.strftime('%b %d %H:%M')
     end
 
     def truncate(text, length)

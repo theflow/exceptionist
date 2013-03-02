@@ -9,7 +9,7 @@
 </style>
 
 <div style="margin: 10px 10px">
-  <h3>Total exceptions: <%= @current_project.total_count_yesterday %></h3>
+  <h3>Total exceptions: <%= @current_project.total_count_on(@day) %></h3>
 
   <h3>There have been <%= @uber_exceptions.size %> new exceptions:</h3>
 

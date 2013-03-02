@@ -6,7 +6,7 @@ require 'rubygems'
 require 'app'
 
 ##
-# start our own redis when the tests start,
+# start our own mongodb when the tests start,
 # kill it when they end
 #
 at_exit do
@@ -18,17 +18,24 @@ at_exit do
     exit_code = Test::Unit::AutoRunner.run
   end
 
-  pid = `ps -e -o pid,command | grep [r]edis-test`.split(" ")[0]
-  puts "Killing test redis server..."
+  pid = `ps -e -o pid,command | grep [m]ongod-test`.split(" ")[0]
+  puts "Killing test mongod server..."
   Process.kill("KILL", pid.to_i)
-  `rm -f /tmp/test_dump.rdb`
+  `rm -rf /tmp/test_mongodb`
   exit exit_code
 end
 
+puts 'Starting mongod for testing at localhost:9736...'
+
+`mkdir -p /tmp/test_mongodb`
 test_dir = File.dirname(File.expand_path(__FILE__))
-puts 'Starting redis for testing at localhost:9736...'
-`redis-server #{test_dir}/redis-test.conf`
-Exceptionist.redis = Redis.new(:host => '127.0.0.1', :port => 9736)
+`mongod run --fork --logpath /dev/null --config #{test_dir}/mongod-test.conf`
+sleep 1
+
+# Configure
+Exceptionist.mongo = 'localhost:9736'
+Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
+Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
 
 
 ##
@@ -80,3 +87,7 @@ def create_occurrence(attributes = {})
   build_occurrence(attributes).save
 end
 
+def clear_collections
+  Exceptionist.mongo.drop_collection('occurrences')
+  Exceptionist.mongo.drop_collection('exceptions')
+end
