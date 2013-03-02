@@ -170,7 +170,7 @@ class Occurrence
     elsif node.children.size == 1 && node.children.first.keys.include?("key")
       { node.children.first["key"] => node.content }
     else
-      node.content unless (options[:skip_rack] && key.include?('.'))
+      node.content unless (options[:skip_rack] && node['key'].include?('.'))
     end
   end
 
