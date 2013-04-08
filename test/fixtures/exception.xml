@@ -20,6 +20,8 @@
     <cgi-data>
       <var key="SERVER_NAME">example.org</var>
       <var key="HTTP_USER_AGENT">Mozilla</var>
+      <var key="rack.url_scheme">https</var>
+      <var key="action_dispatch.cookies">#&lt;ActionDispatch::Cookies::CookieJar:0x0000000e33dcf0&gt;</var>
     </cgi-data>
   </request>
   <server-environment>

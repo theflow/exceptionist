@@ -134,7 +134,7 @@ class Occurrence
 
       hash[:parameters]  = parse_vars(doc.xpath('/notice/request/params'))
       hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
-      hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_rack => true)
+      hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_internal => true)
     end
 
     hash
@@ -143,7 +143,7 @@ class Occurrence
   def self.parse_vars(node, options = {})
     node.children.inject({}) do |hash, child|
       key = child['key']
-      hash[key] = self.node_to_hash(child, options)
+      hash[key] = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
       hash
     end
   end
@@ -155,10 +155,10 @@ class Occurrence
         hash[key] = self.node_to_hash(child, options)
         hash
       end
-    elsif node.children.size == 1 && node.children.first.keys.include?("key")
-      { node.children.first["key"] => node.content }
+    elsif node.children.size == 1 && node.children.first.keys.include?('key')
+      {node.children.first['key'] => node.content}
     else
-      node.content unless (options[:skip_rack] && node['key'].include?('.'))
+      node.content
     end
   end
 
