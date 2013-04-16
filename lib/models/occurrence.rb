@@ -152,11 +152,12 @@ class Occurrence
     if node.children.size > 1
       node.children.inject({}) do |hash, child|
         key = child['key']
-        hash[key] = self.node_to_hash(child, options)
+        hash[key] = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
         hash
       end
     elsif node.children.size == 1 && node.children.first.keys.include?('key')
-      {node.children.first['key'] => node.content}
+      key = node.children.first['key']
+      {key => node.content} unless (options[:skip_internal] && key.include?('.'))
     else
       node.content
     end
