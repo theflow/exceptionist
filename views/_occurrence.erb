@@ -63,7 +63,7 @@
       <div class="span-22 last">
       <% @occurrence.cgi_data.each do |key, value| %>
         <div class="span-6"><code><%= key %></code></div>
-        <div class="span-16 last"><%= value == '' ? '&nbsp;' : value %></div>
+        <div class="span-16 last"><%= value && value != '' ? value : '&nbsp;' %></div>
       <% end %>
       </div>
     </dd>
