@@ -25,10 +25,10 @@ context 'UberExceptionTest' do
 
   test 'should forget old exceptions' do
     project = Project.new('ExampleProject')
-    very_old_date = Time.now - (84600 * 50)
+    very_old_date = Time.now - (86400 * 50)
 
     very_old_exc = UberException.occurred(create_occurrence(:occurred_at => very_old_date))
-    old_exc      = UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => Time.now - (84600 * 28)))
+    old_exc      = UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => Time.now - (86400 * 28)))
     today_exc    = UberException.occurred(create_occurrence(:action_name => 'create', :occurred_at => Time.now))
 
     assert_equal [today_exc, old_exc, very_old_exc], UberException.find_all_sorted_by_time(project.name, 0, 20)
@@ -50,6 +50,6 @@ context 'UberExceptionTest' do
     UberException.forget_old_exceptions(project.name, 1)
 
     assert_equal [today_exc], UberException.find_all_sorted_by_time(project.name, 0, 20)
-    assert_equal [], UberException.find_new_on(project.name, Time.now - 84600 - 3600)
+    assert_equal [], UberException.find_new_on(project.name, Time.now - 86400 - 3600)
   end
 end

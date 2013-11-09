@@ -99,7 +99,7 @@ context 'IntegrationTest' do
     end
 
     test 'should forget old exceptions' do
-      UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => Time.now - (84600 * 50)))
+      UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => Time.now - (86400 * 50)))
       UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => Time.now))
 
       visit '/projects/ExampleProject/forget_exceptions', :post

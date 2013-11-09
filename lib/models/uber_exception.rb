@@ -54,7 +54,7 @@ class UberException
   end
 
   def self.forget_old_exceptions(project, days)
-    since_date = Time.now - (84600 * days)
+    since_date = Time.now - (86400 * days)
     deleted = 0
 
     uber_exceptions = Exceptionist.mongo['exceptions'].find({:occurred_at => {'$lt' => since_date}})
