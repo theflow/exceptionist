@@ -57,7 +57,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:occurred_at => {'$lt' => since_date}})
+    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :occurred_at => {'$lt' => since_date}})
     uber_exceptions.each do |doc|
       UberException.new(doc).forget!
       deleted += 1
