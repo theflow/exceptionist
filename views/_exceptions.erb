@@ -4,8 +4,8 @@
     First: <%= format_time(uber_exc.first_occurred_at) %>
   </div>
   <div class="span-18">
-    <h6><a href="/exceptions/<%= uber_exc.id %>?backparams=<%= escape(request.query_string) %>"><%= truncate(uber_exc.title, 100) %></a></h6>
-    <%= truncate(uber_exc.url, 80) %>
+    <h6><a href="/exceptions/<%= uber_exc.id %>?backparams=<%= escape(request.query_string) %>"><%= escape_html(truncate(uber_exc.title, 100)) %></a></h6>
+    <%= escape_html(truncate(uber_exc.url, 80)) %>
   </div>
   <div class="span-2 last centered">
     <span class="occurrence_count"># <%= uber_exc.occurrences_count %></span>
