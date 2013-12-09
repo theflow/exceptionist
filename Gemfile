@@ -7,7 +7,7 @@ gem 'rake'
 gem 'mongo'
 gem 'bson_ext'
 gem 'sinatra'
-gem 'nokogiri'
+gem 'nokogiri', '~> 1.5.10'
 gem 'yajl-ruby'
 gem 'activesupport'
 
