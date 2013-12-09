@@ -108,7 +108,7 @@ class ExceptionistApp < Sinatra::Base
       occurrence.save
       uber_exc = UberException.occurred(occurrence)
 
-      "<notice><error-id>#{uber_exc.id}</error-id></notice>"
+      "<notice><id>#{uber_exc.id}</id></notice>"
     else
       status 401
       'Invalid API Key'
