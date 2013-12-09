@@ -55,7 +55,7 @@
     <dd><%= "#{@occurrence.http_method} #{@occurrence.url}" %></dd>
 
     <dt>Params:</dt>
-    <dd class="nice_hash"><%= pretty_hash(@occurrence.parameters) %></dd>
+    <dd class="nice_hash"><%= escape_html(pretty_hash(@occurrence.parameters)) %></dd>
 
     <% if @occurrence.cgi_data %>
     <dt>Environment:</dt>
