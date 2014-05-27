@@ -25,7 +25,7 @@ class Occurrence
   def title
     case exception_class
       when 'Mysql::Error', 'RuntimeError', 'Timeout::Error', 'SystemExit'
-        exception_message
+        "#{exception_class} #{exception_message}"
       else
         "#{exception_class} in #{controller_name}##{action_name}"
     end
