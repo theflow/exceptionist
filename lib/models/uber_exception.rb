@@ -84,7 +84,16 @@ class UberException
   end
 
   def current_occurrence(position)
-    Occurrence.new(Exceptionist.mongo['occurrences'].find({:uber_key => id}, :sort => [:occurred_at, :asc], :skip => position - 1, :limit => 1).first)
+    if occurrence = Exceptionist.mongo['occurrences'].find({:uber_key => id}, :sort => [:occurred_at, :asc], :skip => position - 1, :limit => 1).first 
+      Occurrence.new(occurrence)
+    else
+      nil
+    end
+  end
+
+  def update_occurrence_count
+    @occurrences_count = Exceptionist.mongo['occurrences'].find({:uber_key => id}).count
+    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'occurrence_count' => @occurrences_count}})
   end
 
   def first_occurred_at

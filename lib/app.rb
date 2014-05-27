@@ -77,6 +77,11 @@ class ExceptionistApp < Sinatra::Base
     @occurrence_position = @uber_exception.occurrences_count
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
+    if @occurrence.nil?
+      @uber_exception.update_occurrence_count
+      redirect request.url
+    end
+
     @current_project = @occurrence.project
     @backlink = true
 
