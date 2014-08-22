@@ -143,7 +143,8 @@ class Occurrence
   def self.parse_vars(node, options = {})
     node.children.inject({}) do |hash, child|
       key = child['key']
-      hash[key] = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+      value = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+      hash[key] = value unless value.nil?
       hash
     end
   end
