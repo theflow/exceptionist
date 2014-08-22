@@ -16,6 +16,9 @@ module Exceptionist
       Exceptionist.mongo['occurrences'].ensure_index([[:project_name, Mongo::ASCENDING], [:occurred_at_day, Mongo::ASCENDING]])
       Exceptionist.mongo['occurrences'].ensure_index([[:uber_key, Mongo::ASCENDING], [:occurred_at, Mongo::ASCENDING]])
       Exceptionist.mongo['occurrences'].ensure_index([[:uber_key, Mongo::ASCENDING], [:occurred_at_day, Mongo::ASCENDING]])
+
+      # River view
+      Exceptionist.mongo['occurrences'].ensure_index([[:occurred_at, Mongo::DESCENDING]])
     end
   end
 end
