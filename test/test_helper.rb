@@ -1,6 +1,5 @@
 $LOAD_PATH.unshift File.dirname(File.expand_path(__FILE__)) + '/../lib'
 
-require 'test/unit'
 require 'rubygems'
 
 require 'app'
@@ -11,12 +10,6 @@ require 'app'
 #
 at_exit do
   next if $!
-
-  if defined?(MiniTest)
-    exit_code = MiniTest::Unit.new.run(ARGV)
-  else
-    exit_code = Test::Unit::AutoRunner.run
-  end
 
   pid = `ps -e -o pid,command | grep [m]ongod-test`.split(" ")[0]
   puts "Killing test mongod server..."
@@ -36,32 +29,6 @@ sleep 1
 Exceptionist.mongo = 'localhost:9736'
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
 Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
-
-
-##
-# test/spec/mini 5
-# http://gist.github.com/307649
-# chris@ozmm.org
-#
-def context(*args, &block)
-  return super unless (name = args.first) && block
-  require 'test/unit'
-  klass = Class.new(defined?(ActiveSupport::TestCase) ? ActiveSupport::TestCase : Test::Unit::TestCase) do
-    def self.test(name, &block)
-      define_method("test_#{name.to_s.gsub(/\W/,'_')}", &block) if block
-    end
-    def self.xtest(*args) end
-    def self.context(*args, &block) instance_eval(&block) end
-    def self.setup(&block)
-      define_method(:setup) { self.class.setups.each { |s| instance_eval(&s) } }
-      setups << block
-    end
-    def self.setups; @setups ||= [] end
-    def self.teardown(&block) define_method(:teardown, &block) end
-  end
-  (class << klass; self end).send(:define_method, :name) { name.gsub(/\W/,'_') }
-  klass.class_eval &block
-end
 
 ##
 # Exceptionist specific helpers
@@ -91,3 +58,5 @@ def clear_collections
   Exceptionist.mongo.drop_collection('occurrences')
   Exceptionist.mongo.drop_collection('exceptions')
 end
+
+require "minitest/autorun"

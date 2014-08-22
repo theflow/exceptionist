@@ -1,11 +1,11 @@
 require File.dirname(__FILE__) + '/test_helper'
 
-context 'UberExceptionTest' do
-  setup do
+class UberExceptionTest < Minitest::Test
+  def setup
     clear_collections
   end
 
-  test 'should find all new on a day' do
+  def test_find_all_new_on_a_day
     project = Project.new('ExampleProject')
 
     old_ocr        = create_occurrence(:occurred_at => Time.local(2011, 8, 9, 14, 42))
@@ -23,7 +23,7 @@ context 'UberExceptionTest' do
     assert_equal [yesterday_ocr1.uber_exception], exceptions
   end
 
-  test 'should forget old exceptions' do
+  def test_forget_old_exceptions
     project = Project.new('ExampleProject')
     very_old_date = Time.now - (86400 * 50)
 
