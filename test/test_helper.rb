@@ -18,6 +18,9 @@ at_exit do
   exit exit_code
 end
 
+# minitest install its own at_exit, so we need to do this after our own
+require 'minitest/autorun'
+
 puts 'Starting mongod for testing at localhost:9736...'
 
 `mkdir -p /tmp/test_mongodb`
@@ -32,7 +35,7 @@ Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
 
 ##
 # Exceptionist specific helpers
-# 
+#
 def read_fixtures_file(path)
   File.read File.join(File.dirname(__FILE__), path)
 end
@@ -58,5 +61,3 @@ def clear_collections
   Exceptionist.mongo.drop_collection('occurrences')
   Exceptionist.mongo.drop_collection('exceptions')
 end
-
-require "minitest/autorun"
