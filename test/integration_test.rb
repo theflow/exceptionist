@@ -141,7 +141,6 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_be_able_to_close_an_exception
-    skip "not working so far"
     UberException.occurred(create_occurrence(:action_name => 'show'))
     UberException.occurred(create_occurrence(:action_name => 'index'))
 
@@ -152,8 +151,10 @@ class IntegrationTest < Minitest::Test
     click_link 'NameError in users#show'
 
     click_button 'Close'
+    follow_redirect!
+
     # redirects back to project page
-    assert_equal '/projects/ExampleProject', URI.parse(current_url).path
+    assert_equal 'http://example.org/projects/ExampleProject', last_request.url
     assert_not_contain 'NameError in users#show'
     assert_contain 'NameError in users#index'
   end

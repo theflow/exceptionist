@@ -101,7 +101,7 @@ class ExceptionistApp < Sinatra::Base
     @uber_exceptions = UberException.find(params[:id])
     @uber_exceptions.close!
 
-    redirect "/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}"
+    redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")
   end
 
   post '/notifier_api/v2/notices/?' do
