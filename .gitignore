@@ -5,3 +5,5 @@ webrat.log
 vendor/bundle
 .bundle
 Gemfile.lock
+
+.idea
