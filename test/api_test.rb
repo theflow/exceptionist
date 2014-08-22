@@ -2,19 +2,19 @@ require File.dirname(__FILE__) + '/test_helper'
 
 require 'rack/test'
 
-context 'ApiTest' do
+class ApiTest < Minitest::Test
   include Rack::Test::Methods
 
   def app
     ExceptionistApp
   end
 
-  setup do
+  def setup
     @project = 'ExampleProject'
     clear_collections
   end
 
-  test 'should create the first UberException' do
+  def test_create_the_first_UberException
     assert_equal [], UberException.find_all(@project)
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception.xml')
@@ -25,7 +25,7 @@ context 'ApiTest' do
     assert_equal 1, uber_exceptions.first.occurrences_count
   end
 
-  test 'should add occurrences if it is the same exception' do
+  def test_add_occurrences_if_it_is_the_same_exception
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception.xml')
     assert last_response.ok?
 
@@ -39,7 +39,7 @@ context 'ApiTest' do
     assert_equal 2, uber_exceptions.first.occurrences_count
   end
 
-  test 'should check if api key is valid' do
+  def test_check_if_api_key_is_valid
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/unauth_exception.xml')
 
     assert_equal 'Invalid API Key', last_response.body
