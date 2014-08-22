@@ -1,4 +1,4 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 # deploy with unicorn by default
 gem 'unicorn'

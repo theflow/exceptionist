@@ -1,7 +1,5 @@
 $LOAD_PATH.unshift File.dirname(File.expand_path(__FILE__)) + '/../lib'
 
-require 'rubygems'
-
 require 'app'
 
 ##

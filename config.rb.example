@@ -3,7 +3,6 @@
 #
 $LOAD_PATH.unshift 'lib'
 
-require 'rubygems'
 require 'bundler/setup'
 require 'app'
 
