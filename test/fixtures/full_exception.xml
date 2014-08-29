@@ -126,17 +126,17 @@
       <var key="HTTP_USER_AGENT">Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_2; en-us) AppleWebKit/531.21.8 (KHTML, like Gecko) Version/4.0.4 Safari/531.21.10</var>
       <var key="rack.url_scheme">http</var>
       <var key="rack.request.cookie_hash">
-        <var key="top_tabs">--- 
-- 883
-- 3
-- 4
-- 2
-- 884
-- 8
-- :gettext_key: Events @top_tabs
-:url: /%{domain_id}/events
-:id: events
-</var>
+        <var key="top_tabs">
+        - 883
+        - 3
+        - 4
+        - 2
+        - 884
+        - 8
+        - :gettext_key: Events @top_tabs
+        :url: /events
+        :id: events
+        </var>
         <var key="_session_id">4f590e004b4107ad63a70da4cab6a971</var>
       </var>
       <var key="HTTP_ACCEPT_LANGUAGE">en-us</var>

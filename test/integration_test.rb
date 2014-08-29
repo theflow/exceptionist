@@ -7,17 +7,13 @@ Webrat.configure do |config|
   config.mode = :rack
 end
 
-class IntegrationTest < Minitest::Test
+class IntegrationTest < AbstractTest
   include Rack::Test::Methods
   include Webrat::Methods
   include Webrat::Matchers
 
   def app
     ExceptionistApp
-  end
-
-  def setup
-    clear_collections
   end
 
   def test_show_a_empty_dashboard
@@ -28,6 +24,8 @@ class IntegrationTest < Minitest::Test
     occurrence = create_occurrence
     UberException.occurred(occurrence)
 
+    Exceptionist.esclient.refresh
+
     visit '/'
     assert_contain 'ExampleProject'
 
@@ -35,11 +33,13 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_show_the_dashboard_with_two_projects
-    occurrence1 = create_occurrence(:project_name => 'ExampleProject')
-    UberException.occurred(occurrence1)
+    occur1 = create_occurrence(project_name: 'ExampleProject')
+    UberException.occurred(occur1)
 
-    occurrence2 = create_occurrence(:project_name => 'ExampleProject2')
-    UberException.occurred(occurrence2)
+    occur2 = create_occurrence(project_name: 'ExampleProject2')
+    UberException.occurred(occur2)
+
+    Exceptionist.esclient.refresh
 
     visit '/'
     assert_contain 'ExampleProject'
@@ -50,6 +50,8 @@ class IntegrationTest < Minitest::Test
     UberException.occurred(create_occurrence)
     UberException.occurred(create_occurrence)
 
+    Exceptionist.esclient.refresh
+
     visit '/projects/ExampleProject'
 
     assert_contain 'Latest Exceptions for ExampleProject'
@@ -59,8 +61,10 @@ class IntegrationTest < Minitest::Test
 
   def test_with_pagination
     27.times do |i|
-      UberException.occurred(create_occurrence(:action_name => "action_#{i}"))
+      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
     end
+
+    Exceptionist.esclient.refresh
 
     visit '/projects/ExampleProject'
     assert_contain 'next page'
@@ -72,8 +76,10 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_be_sorted_by_most_recent
-    UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-03-01'))
-    UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2009-02-01'))
+    UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-03-01'))
+    UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2009-02-01'))
+
+    Exceptionist.esclient.refresh
 
     visit '/projects/ExampleProject'
 
@@ -83,8 +89,10 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_show_new_exceptions
-    UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => '2010-07-01'))
-    UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => '2010-08-01'))
+    UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-07-01'))
+    UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2010-08-01'))
+
+    Exceptionist.esclient.refresh
 
     visit '/projects/ExampleProject/new_on/2010-07-01?mail_to=the@dude.org'
 
@@ -93,8 +101,10 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_forget_old_exceptions
-    UberException.occurred(create_occurrence(:action_name => 'show', :occurred_at => Time.now - (86400 * 50)))
-    UberException.occurred(create_occurrence(:action_name => 'index', :occurred_at => Time.now))
+    UberException.occurred(create_occurrence(action_name:'show', occurred_at:Time.now - (86400 * 50)))
+    UberException.occurred(create_occurrence(action_name:'index', occurred_at:Time.now))
+
+    Exceptionist.esclient.refresh
 
     visit '/projects/ExampleProject/forget_exceptions', :post
 
@@ -104,6 +114,8 @@ class IntegrationTest < Minitest::Test
   def test_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)
+
+    Exceptionist.esclient.refresh
 
     visit "/exceptions/#{occurrence.uber_key}"
     assert_contain 'GET http://example.com'
@@ -115,14 +127,16 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_paginate_occurrences
-    occurrence1 = create_occurrence(:url => 'http://example.com/?show=one')
-    occurrence2 = create_occurrence(:url => 'http://example.com/?show=two')
-    occurrence3 = create_occurrence(:url => 'http://example.com/?show=three')
-    UberException.occurred(occurrence1)
-    UberException.occurred(occurrence2)
-    UberException.occurred(occurrence3)
+    occur1 = create_occurrence(url: 'http://example.com/?show=one')
+    occur2 = create_occurrence(url: 'http://example.com/?show=two')
+    occur3 = create_occurrence(url: 'http://example.com/?show=three')
+    UberException.occurred(occur1)
+    UberException.occurred(occur2)
+    UberException.occurred(occur3)
 
-    visit "/exceptions/#{occurrence1.uber_key}"
+    Exceptionist.esclient.refresh
+
+    visit "/exceptions/#{occur1.uber_key}"
     assert_contain 'Older'
     assert_contain 'Newer'
     assert_contain '3 of 3'
@@ -141,8 +155,10 @@ class IntegrationTest < Minitest::Test
   end
 
   def test_be_able_to_close_an_exception
-    UberException.occurred(create_occurrence(:action_name => 'show'))
-    UberException.occurred(create_occurrence(:action_name => 'index'))
+    UberException.occurred(create_occurrence(action_name:'show'))
+    UberException.occurred(create_occurrence(action_name:'index'))
+
+    Exceptionist.esclient.refresh
 
     visit '/projects/ExampleProject'
     assert_contain 'NameError in users#show'
@@ -151,6 +167,9 @@ class IntegrationTest < Minitest::Test
     click_link 'NameError in users#show'
 
     click_button 'Close'
+
+    Exceptionist.esclient.refresh
+
     follow_redirect!
 
     # redirects back to project page
@@ -158,4 +177,5 @@ class IntegrationTest < Minitest::Test
     assert_not_contain 'NameError in users#show'
     assert_contain 'NameError in users#index'
   end
+
 end

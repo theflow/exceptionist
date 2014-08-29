@@ -1,33 +1,19 @@
-$LOAD_PATH.unshift File.dirname(File.expand_path(__FILE__)) + '/../lib'
-
+require 'elastic_search_helper'
 require 'app'
 
-##
-# start our own mongodb when the tests start,
-# kill it when they end
-#
-at_exit do
-  next if $!
+port = 10000
 
-  pid = `ps -e -o pid,command | grep [m]ongod-test`.split(" ")[0]
-  puts "Killing test mongod server..."
-  Process.kill("KILL", pid.to_i)
-  `rm -rf /tmp/test_mongodb`
-  exit exit_code
+at_exit do
+  ElasticSearchHelper.stop(port)
 end
 
 # minitest install its own at_exit, so we need to do this after our own
 require 'minitest/autorun'
 
-puts 'Starting mongod for testing at localhost:9736...'
-
-`mkdir -p /tmp/test_mongodb`
-test_dir = File.dirname(File.expand_path(__FILE__))
-`mongod run --fork --logpath /dev/null --config #{test_dir}/mongod-test.conf`
-sleep 1
+Exceptionist.endpoint = "localhost:#{port}"
+ElasticSearchHelper.start(port)
 
 # Configure
-Exceptionist.mongo = 'localhost:9736'
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
 Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
 
@@ -40,13 +26,13 @@ end
 
 def build_occurrence(attributes = {})
   default_attributes = {
-    :exception_class     => 'NameError',
-    :exception_message   => 'NameError: undefined local variable or method dude',
-    :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
-    :controller_name     => 'users',
-    :action_name         => 'show',
-    :project_name        => 'ExampleProject',
-    :url                 => 'http://example.com'
+    exception_class:      'NameError',
+    exception_message:    'NameError: undefined local variable or method dude',
+    exception_backtrace:  ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
+    controller_name:      'users',
+    action_name:          'show',
+    project_name:         'ExampleProject',
+    url:                  'http://example.com'
   }
   Occurrence.new(default_attributes.merge(attributes))
 end
@@ -56,6 +42,11 @@ def create_occurrence(attributes = {})
 end
 
 def clear_collections
-  Exceptionist.mongo.drop_collection('occurrences')
-  Exceptionist.mongo.drop_collection('exceptions')
+  Exceptionist.esclient.delete_by_query( match_all: {})
+end
+
+class AbstractTest < Minitest::Test
+  def setup
+    clear_collections
+  end
 end

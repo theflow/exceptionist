@@ -5,6 +5,7 @@ require 'net/smtp'
 require 'stringio'
 require 'pp'
 
+
 class ExceptionistApp < Sinatra::Base
   dir = File.join(File.dirname(__FILE__), '..')
   set :views,  "#{dir}/views"
@@ -44,7 +45,7 @@ class ExceptionistApp < Sinatra::Base
 
   get '/projects/:project/river' do
     @current_project = Project.new(params[:project])
-    @occurrences = Occurrence.find_all(@current_project.name)
+    @occurrences = Occurrence.find_all_by_name(@current_project.name)
 
     @title = "Latest Occurrences for #{@current_project.name}"
     erb :river
@@ -78,7 +79,7 @@ class ExceptionistApp < Sinatra::Base
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
     if @occurrence.nil?
-      @uber_exception.update_occurrence_count
+      @uber_exception.update_occurrences_count
       redirect request.url
     end
 
@@ -106,8 +107,8 @@ class ExceptionistApp < Sinatra::Base
 
   post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(params[:data] || request.body.read)
-
     project = Project.find_by_key(occurrence.api_key)
+
     if project
       occurrence.project_name = project.name
       occurrence.save

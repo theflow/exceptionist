@@ -2,12 +2,13 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key, :api_key
+                :project_name, :occurred_at, :occurred_at_day, :_id, :uber_key, :api_key,
+                :_score, :sort
 
 
   def initialize(attributes={})
     attributes.each do |key, value|
-      send("#{key}=", value)
+      send("#{key}=", value) unless ["_index", "_type"].include?(key)
     end
 
     self.occurred_at ||= attributes['occurred_at'] || Time.now
@@ -56,27 +57,29 @@ class Occurrence
   end
 
   def self.delete_all_for(uber_key)
-    Exceptionist.mongo['occurrences'].remove({:uber_key => uber_key}, :w => 1)
+    Exceptionist.esclient.delete_by_query({ term: { uber_key: uber_key } })
   end
 
   def self.find_first_for(uber_key)
-    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :asc], :limit => 1).first)
+    occurrences = Exceptionist.esclient.search_occurrences( { term: { uber_key: uber_key } }, { occurred_at: { order: 'asc' } }, from: 0, size: 1 )
+    occurrences.first
   end
 
   def self.find_last_for(uber_key)
-    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc], :limit => 1).first)
+    occurrences = Exceptionist.esclient.search_occurrences( { term: { uber_key: uber_key } }, { occurred_at: { order: 'desc' } }, from: 0, size: 1 )
+    occurrences.first
   end
 
   def self.count_all_on(project, day)
-    Exceptionist.mongo['occurrences'].find({:project_name => project, :occurred_at_day => day.strftime('%Y-%m-%d')}).count
+    Exceptionist.esclient.count('occurrences', [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
   end
 
-  def self.find_all(project=nil, limit=50)
-    find_options = {}
-    find_options[:project_name] = project if project
+  def self.find_all(size=50)
+    Exceptionist.esclient.search_occurrences( {}, { occurred_at: { order: 'desc' } }, 0, size )
+  end
 
-    occurrences = Exceptionist.mongo['occurrences'].find(find_options, :sort => [:occurred_at, :desc], :limit => limit)
-    occurrences.map { |doc| new(doc) }
+  def self.find_all_by_name(project, limit=50)
+    Exceptionist.esclient.search_occurrences( { term: { project_name: project } }, { occurred_at: { order: 'desc' } }, from: 0, size: limit )
   end
 
   #
@@ -84,13 +87,20 @@ class Occurrence
   #
 
   def save
-    Exceptionist.mongo['occurrences'].insert(to_hash)
-
+    occurrence = Exceptionist.esclient.index('occurrences', to_hash)
+    @_id = occurrence._id
     self
   end
 
   def self.create(attributes = {})
     new(attributes).save
+  end
+
+  def self.es_create(attributes)
+    return nil unless attributes
+
+    attributes.merge!(attributes['_source']).delete('_source')
+    Occurrence.new(attributes)
   end
 
   def to_hash
@@ -100,7 +110,7 @@ class Occurrence
       :parameters          => parameters,
       :cgi_data            => cgi_data,
       :url                 => url,
-      :occurred_at         => occurred_at,
+      :occurred_at         => occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"),
       :occurred_at_day     => occurred_at.strftime('%Y-%m-%d'),
       :exception_backtrace => exception_backtrace,
       :controller_name     => controller_name,

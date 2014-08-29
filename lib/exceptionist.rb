@@ -1,10 +1,19 @@
+require 'hashie'
+require 'multi_json'
+require 'faraday'
+require 'elasticsearch'
+require 'elasticsearch/api'
+require 'es_client'
+
 module Exceptionist
-  def self.mongo
-    @mongo ||= Mongo::Connection.new(@host, @port).db('exceptionist')
+  attr_accessor :esclient, :endpoint
+
+  def self.esclient
+    @esclient ||= ESClient.new(@endpoint)
   end
 
-  def self.mongo=(server)
-    @host, @port = server.split(':')
+  def self.endpoint=(endpoint)
+    @endpoint = endpoint
   end
 
   def self.config

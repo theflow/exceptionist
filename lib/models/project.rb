@@ -26,7 +26,7 @@ class Project
   end
 
   def occurrence_count_on(date)
-    Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
+    Occurrence.count_all_on(name, date)
   end
 
   def latest_exceptions(start, limit = 25)
@@ -34,7 +34,7 @@ class Project
   end
 
   def most_frequest_exceptions(start, limit = 25)
-    UberException.find_all_sorted_by_occurrence_count(name, start, limit)
+    UberException.find_all_sorted_by_occurrences_count(name, start, limit)
   end
 
   def new_exceptions_on(day)

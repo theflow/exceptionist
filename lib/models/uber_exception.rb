@@ -1,53 +1,51 @@
 class UberException
-  attr_accessor :id, :project_name, :occurrences_count
+  attr_accessor :id, :project_name, :occurrences_count, :closed
 
   def initialize(attributes)
     @id = attributes['_id']
     @project_name = attributes['project_name']
-    @occurrences_count = attributes['occurrence_count']
+    @occurrences_count = attributes['occurrences_count']
+  end
+
+  def self.create_es(attributes)
+    attributes.merge!(attributes['_source']).delete('_source')
+    UberException.new(attributes)
   end
 
   def self.count_all(project)
-    Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}).count
+    Exceptionist.esclient.count('exceptions', { term: { project_name: project } } )
   end
 
   def self.find(uber_key)
-    new(Exceptionist.mongo['exceptions'].find_one({:_id => uber_key}))
+    Exceptionist.esclient.get_exception(uber_key)
   end
 
   def self.find_all(project)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false})
-    uber_exceptions.map { |doc| new(doc) }
+    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ])
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
-    uber_exceptions.map { |doc| new(doc) }
+    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { occurred_at: { order: 'desc'} }, start, limit)
   end
 
-  def self.find_all_sorted_by_occurrence_count(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurrence_count, :desc])
-    uber_exceptions.map { |doc| new(doc) }
+  def self.find_all_sorted_by_occurrences_count(project, start, limit)
+    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { occurrences_count: { order: 'desc' } }, start, limit )
   end
 
   def self.find_new_on(project, day)
     next_day = day + 86400
-    uber_keys = Exceptionist.mongo['occurrences'].distinct(:uber_key, {:occurred_at_day => day.strftime('%Y-%m-%d')})
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:_id => {'$in' => uber_keys}}).map { |doc| new(doc) }
+
+    buckets = Exceptionist.esclient.search_aggs({ term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, 'uber_key' )
+    uber_exceptions = Exceptionist.esclient.search_ids('exceptions', buckets.map { |occ| occ['key'] } )
 
     uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
   end
 
+
+
   def self.occurred(occurrence)
-    # upsert the UberException
-    Exceptionist.mongo['exceptions'].update(
-      {:_id => occurrence.uber_key},
-      {
-        "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at, :closed => false},
-        "$inc" => {:occurrence_count => 1}
-      },
-      :upsert => true, :w => 1
-    )
+    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1', upsert:
+        { project_name: occurrence.project_name, occurred_at: occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"), closed: false, occurrences_count: 1 } })
 
     # return the UberException
     new('_id' => occurrence.uber_key)
@@ -57,9 +55,10 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :occurred_at => {'$lt' => since_date}})
-    uber_exceptions.each do |doc|
-      UberException.new(doc).forget!
+    uber_exceptions = Exceptionist.esclient.search_exceptions( [ { term: { project_name: project } }, range: { occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+
+    uber_exceptions.each do |exception|
+      exception.forget!
       deleted += 1
     end
 
@@ -68,11 +67,12 @@ class UberException
 
   def forget!
     Occurrence.delete_all_for(id)
-    Exceptionist.mongo['exceptions'].remove({:_id => id}, :w => 1)
+
+    Exceptionist.esclient.delete('exceptions', id)
   end
 
   def close!
-    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'closed' => true}})
+    Exceptionist.esclient.update('exceptions', @id, { doc: { closed: true } })
   end
 
   def last_occurrence
@@ -84,16 +84,19 @@ class UberException
   end
 
   def current_occurrence(position)
-    if occurrence = Exceptionist.mongo['occurrences'].find({:uber_key => id}, :sort => [:occurred_at, :asc], :skip => position - 1, :limit => 1).first 
-      Occurrence.new(occurrence)
+    return nil if position < 1
+
+    response = Exceptionist.esclient.search_occurrences({ term: { uber_key: id } }, { occurred_at: { order: 'asc'} }, position - 1, 1)
+    if response.any?
+      response.first
     else
       nil
     end
   end
 
-  def update_occurrence_count
-    @occurrences_count = Exceptionist.mongo['occurrences'].find({:uber_key => id}).count
-    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'occurrence_count' => @occurrences_count}})
+  def update_occurrences_count
+    @occurrences_count = Exceptionist.esclient.count('occurrences', { term: { uber_key: id } })
+    Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: @occurrences_count } })
   end
 
   def first_occurred_at
@@ -112,12 +115,12 @@ class UberException
     last_occurrence.url
   end
 
-  def occurrence_count_on(date)
-    Exceptionist.mongo['occurrences'].find({:uber_key => id, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
+  def occurrences_count_on(date)
+    Exceptionist.esclient.count('occurrences', [ { term: { uber_key: id } }, term: { occurred_at_day: date.strftime('%Y-%m-%d') } ])
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
+    Project.last_n_days(30).map { |day| [day, occurrences_count_on(day)] }
   end
 
   def ==(other)
