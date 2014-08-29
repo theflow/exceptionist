@@ -4,6 +4,5 @@ webrat.log
 *.json
 vendor/bundle
 .bundle
-Gemfile.lock
 
 .idea
