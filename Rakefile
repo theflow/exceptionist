@@ -24,3 +24,8 @@ desc "Import occurrences from json file"
 task :import do
   Exceptionist::Importer.run
 end
+
+desc "Clear DB and create index with mapping"
+task :cleardb do
+  Exceptionist::ClearDB.run
+end
