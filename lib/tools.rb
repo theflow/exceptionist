@@ -26,8 +26,14 @@ module Exceptionist
 
         occurrences = Yajl::Parser.parse(File.read(file))
         occurrences.each do |occurrence_hash|
+
+          # TODO: still problems with es mapping when indexing new documents
+          replace_empty_deep!(occurrence_hash)
           occurrence_hash.delete('uber_key')
           occurrence_hash.delete('id')
+          occurrence_hash['parameters'].delete('utm_source') if occurrence_hash['parameters']
+          occurrence_hash['parameters'].delete('status') if occurrence_hash['parameters']
+
           occurrence = Occurrence.new(occurrence_hash)
           occurrence.save
 
@@ -35,6 +41,17 @@ module Exceptionist
         end
       end
     end
+
+    def self.replace_empty_deep!(h)
+      h.each do | k, v |
+        if  v && v.empty?
+          h[k] = nil
+        else
+          replace_empty_deep!(v) if v.kind_of?(Hash)
+        end
+      end
+    end
+  end
 
   class ClearDB
     def self.run
