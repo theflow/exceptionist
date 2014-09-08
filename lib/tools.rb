@@ -20,7 +20,7 @@ module Exceptionist
 
   class Importer
     def self.run
-      files = Dir.glob('occurrences_export*').sort
+      files = Dir.glob('test/fixtures/occurrences_export*').sort
       files.each do |file|
         puts "importing #{file}"
 
