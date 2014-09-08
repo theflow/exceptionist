@@ -65,7 +65,7 @@ class ESClient
     @es.indices.delete(index: index)
   end
 
-  def create_indices(index, query)
+  def create_indices(index, query={})
     @es.indices.create(index: index, body: query)
   end
 
