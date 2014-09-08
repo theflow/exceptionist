@@ -1,3 +1,7 @@
+html{
+  word-wrap: break-word;
+}
+
 #project_nav {
   margin-top: 12px;
   font-weight: bold;
