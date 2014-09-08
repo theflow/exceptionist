@@ -44,6 +44,12 @@ module Exceptionist
 
     def self.replace_empty_deep!(h)
       h.each do | k, v |
+
+        # TODO: remove custom date from date fields
+        if  v && v == 'custom-date'
+          h[k] = nil
+        end
+
         if  v && v.empty?
           h[k] = nil
         else
