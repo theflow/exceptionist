@@ -69,6 +69,10 @@ class ESClient
     @es.indices.create(index: index, body: query)
   end
 
+  def get_mapping(type)
+    @es.indices.get_mapping(index: INDEX, type: type)
+  end
+
   def get_exception(id)
     response = @es.get(index: INDEX, type: TYPE_EXCEPTIONS, id: id)
     create_exception(response)
