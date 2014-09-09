@@ -11,8 +11,8 @@ require 'app'
 # ==========================
 #
 
-# Configure your MongoDB server and port
-Exceptionist.mongo = 'localhost:27017'
+# Configure your ES server and port
+Exceptionist.endpoint = 'localhost:9200'
 
 # Credentials for accessing the web app, remove if you do auth in another way
 Exceptionist.enable_authentication('username', 'password')
