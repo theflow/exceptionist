@@ -1,12 +1,13 @@
 require 'elasticsearch'
 
 class ESClient
-  attr_accessor :es
+  attr_accessor :es, :host, :port
   INDEX = 'exceptionist'
   TYPE_EXCEPTIONS = 'exceptions'
   TYPE_OCCURRENCES = 'occurrences'
 
   def initialize(endpoint)
+    @host, @port = endpoint.split(':')
     @es = Elasticsearch::Client.new(host: endpoint)
   end
 
