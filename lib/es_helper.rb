@@ -34,7 +34,6 @@ module ESHelper
         occurrences = Yajl::Parser.parse(File.read(file))
         occurrences.each do |occurrence_hash|
 
-          pp occurrence_hash
           occurrence_hash.delete('uber_key')
           occurrence_hash.delete('id')
 
