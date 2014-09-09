@@ -3,16 +3,16 @@ require 'elasticsearch'
 
 module ESHelper
 
-  def self.startCluster(port)
+  def self.startCluster
     Elasticsearch::Extensions::Test::Cluster.start(
         cluster_name: "my-testing-cluster",
-        port: port,
+        port: Exceptionist.esclient.port,
         nodes: 1,
     )
   end
 
-  def self.stopCluster(port)
-    Elasticsearch::Extensions::Test::Cluster.stop(port: port)
+  def self.stopCluster
+    Elasticsearch::Extensions::Test::Cluster.stop( port: Exceptionist.esclient.port )
   end
 
   class Exporter
