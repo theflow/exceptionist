@@ -1,30 +1,35 @@
 <h2><%= @title %></h2>
 
-<div class="span-4 sorting_links">
-  <a href="/projects/<%= @current_project.name %>/river">River</a>
-</div>
+<% if ! @uber_exceptions.empty? %>
 
-<div class="span-20 sorting_links right-aligned last">
-  <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</span>
-  <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
-</div>
+    <div class="span-4 sorting_links">
+      <a href="/projects/<%= @current_project.name %>/river">River</a>
+    </div>
 
+    <div class="span-20 sorting_links right-aligned last">
+      <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</span>
+      <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
+    </div>
 
-<div class="span-24">
-  <hr />
-  <%= partial(:exceptions, :exceptions => @uber_exceptions) %>
-</div>
+    <div class="span-24">
+      <hr />
+      <%= partial(:exceptions, :exceptions => @uber_exceptions) %>
+    </div>
 
-<div class="span-3 append-18">
-  <% if @start - 25 >= 0 %>
-  <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
-  <% end %>&nbsp;
-</div>
-<% p  %>
-<div class="span-3 right-aligned last">
-  <% if @start + 25 <= @current_project.exceptions_count %>
-  <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
-  <% end %>
-</div>
+    <div class="span-3 append-18">
+      <% if @start - 25 >= 0 %>
+          <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
+      <% end %>&nbsp;
+    </div>
+    <% p  %>
+    <div class="span-3 right-aligned last">
+      <% if @start + 25 <= @current_project.exceptions_count %>
+          <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
+      <% end %>
+    </div>
+
+<% else %>
+    <p>Are you kidding? There are no exceptions!</p>
+<% end %>
 
 <hr class="space" />

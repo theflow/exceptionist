@@ -46,6 +46,13 @@ class IntegrationTest < AbstractTest
     assert_contain 'ExampleProject2'
   end
 
+  def test_with_no_exceptions
+    visit '/projects/ExampleProject'
+
+    assert_contain 'Latest Exceptions for ExampleProject'
+    assert_contain 'Are you kidding? There are no exceptions!'
+  end
+
   def test_with_one_exception
     UberException.occurred(create_occurrence)
     UberException.occurred(create_occurrence)
