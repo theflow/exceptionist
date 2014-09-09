@@ -6,7 +6,7 @@ require 'elasticsearch/api'
 require 'es_client'
 
 module Exceptionist
-  attr_accessor :esclient, :endpoint
+  attr_accessor :esclient
 
   def self.esclient
     @esclient ||= ESClient.new(@endpoint)
