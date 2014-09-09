@@ -1,17 +1,18 @@
-require 'elastic_search_helper'
+require 'es_helper'
 require 'app'
 
 port = 10000
 
 at_exit do
-  ElasticSearchHelper.stop(port)
+  ESHelper.stopCluster
 end
 
 # minitest install its own at_exit, so we need to do this after our own
 require 'minitest/autorun'
 
 Exceptionist.endpoint = "localhost:#{port}"
-ElasticSearchHelper.start(port)
+ESHelper.startCluster
+ESHelper::ClearDB.run
 
 # Configure
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'

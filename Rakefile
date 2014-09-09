@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift 'lib'
 require 'tools'
+require 'es_helper'
 
 task :default => :test
 
@@ -17,15 +18,20 @@ end
 
 desc "Export occurrences in json"
 task :export do
-  Exceptionist::Exporter.run
+  ESHelper::Exporter.run
 end
 
 desc "Import occurrences from json file"
 task :import do
-  Exceptionist::Importer.run
+  ESHelper::Importer.run
 end
 
 desc "Clear DB and create index with mapping"
 task :cleardb do
-  Exceptionist::ClearDB.run
+  ESHelper::ClearDB.run
+end
+
+desc "Print mapping"
+task :mapping do
+  ESHelper::Mapping.run
 end
