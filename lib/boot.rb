@@ -10,6 +10,7 @@ require 'nokogiri'
 require 'models/project'
 require 'models/uber_exception'
 require 'models/occurrence'
+require 'models/deploy'
 require 'models/mailer'
 
 require 'exceptionist'
