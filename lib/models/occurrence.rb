@@ -103,20 +103,20 @@ class Occurrence
   end
 
   def to_hash
-    { :exception_message   => exception_message,
-      :session             => session,
-      :action_name         => action_name,
-      :parameters          => parameters,
-      :cgi_data            => cgi_data,
-      :url                 => url,
-      :occurred_at         => occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"),
-      :occurred_at_day     => occurred_at.strftime('%Y-%m-%d'),
-      :exception_backtrace => exception_backtrace,
-      :controller_name     => controller_name,
-      :environment         => environment,
-      :exception_class     => exception_class,
-      :project_name        => project_name,
-      :uber_key            => uber_key }
+    { exception_message:    exception_message,
+      session:              session,
+      action_name:          action_name,
+      parameters:           parameters,
+      cgi_data:             cgi_data,
+      url:                  url,
+      occurred_at:          occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"),
+      occurred_at_day:      occurred_at.strftime('%Y-%m-%d'),
+      exception_backtrace:  exception_backtrace,
+      controller_name:      controller_name,
+      environment:          environment,
+      exception_class:      exception_class,
+      project_name:         project_name,
+      uber_key:             uber_key }
   end
 
   def self.from_xml(xml_text)
