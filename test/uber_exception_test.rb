@@ -51,12 +51,16 @@ class UberExceptionTest < AbstractTest
   def test_find_all_sorted_by_occurrences_count
     exce1 = UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
+    UberException.occurred(create_occurrence())
+    exce3 = UberException.occurred(create_occurrence(action_name: 'different'))
     exce2 = UberException.occurred(create_occurrence(action_name: 'other'))
+    UberException.occurred(create_occurrence(action_name: 'other'))
+
 
     Exceptionist.esclient.refresh
 
-    assert_equal [exce1, exce2], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 0, 10)
-    assert_equal [exce2], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 1, 10)
+    assert_equal [exce1, exce2, exce3], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 0, 10)
+    assert_equal [exce2, exce3], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 1, 10)
   end
 
   def test_find_new_on
