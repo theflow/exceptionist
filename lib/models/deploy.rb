@@ -7,6 +7,10 @@ class Deploy
     Exceptionist.esclient.search_deploys( term: { project_name: project } )
   end
 
+  def self.find_last_deploy(project)
+    Exceptionist.esclient.search_deploys( { term: { project_name: project } }, { deploy_time: { order: 'desc' } }, from: 0, size: 1 ).first
+  end
+
   def self.from_json(json)
     attr = symbolize_keys(JSON.parse(json))
     Deploy.new(attr)
