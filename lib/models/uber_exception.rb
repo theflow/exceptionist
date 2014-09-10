@@ -2,9 +2,10 @@ class UberException
   attr_accessor :id, :project_name, :occurrences_count, :closed
 
   def initialize(attributes)
-    @id = attributes['_id']
-    @project_name = attributes['project_name']
-    @occurrences_count = attributes['occurrences_count']
+    @id = attributes[:id]
+    @project_name = attributes[:project_name]
+    @occurrences_count = attributes[:occurrences_count]
+    @closed = attributes[:closed]
   end
 
   def self.create_es(attributes)
