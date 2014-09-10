@@ -45,7 +45,7 @@ class Deploy
         api_key: api_key,
         version: version,
         changelog_link: changelog_link,
-        deploy_time: deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+        deploy_time: deploy_time.is_a?(String) ? deploy_time : deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
     }
   end
 

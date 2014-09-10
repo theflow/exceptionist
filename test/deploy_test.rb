@@ -11,6 +11,15 @@ class DeployTest < AbstractTest
     assert_equal 0, Deploy.find_all('OtherProject').count
   end
 
+  def test_save_with_deploy_time
+    deploy = create_deploy( deploy_time: '2014-09-10T14:45:42.125+0200' )
+
+    Exceptionist.esclient.refresh
+
+    assert_equal deploy, Deploy.find_all('ExampleProject').first
+    assert_equal 0, Deploy.find_all('OtherProject').count
+  end
+
   def test_find_all
     create_deploy
     create_deploy( version: '0.0.2' )
