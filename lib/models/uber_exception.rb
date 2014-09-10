@@ -47,9 +47,7 @@ class UberException
   def self.occurred(occurrence)
     Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1', upsert:
         { project_name: occurrence.project_name, occurred_at: occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"), closed: false, occurrences_count: 1 } })
-
-    # return the UberException
-    new('_id' => occurrence.uber_key)
+    Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
 
   def self.forget_old_exceptions(project, days)
