@@ -7,7 +7,7 @@ class Occurrence
 
   def initialize(attributes={})
     attributes.each do |key, value|
-      send("#{key}=", value) unless ["_index", "_type"].include?(key)
+      send("#{key}=", value)
     end
 
     self.occurred_at ||= attributes['occurred_at'] || Time.now
