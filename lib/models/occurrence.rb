@@ -15,11 +15,11 @@ class Occurrence
   end
 
   def inspect
-    "(Occurrence: id: #{_id}, title: '#{title}')"
+    "(Occurrence: id: #{id}, title: '#{title}')"
   end
 
   def ==(other)
-    _id == other._id
+    id == other.id
   end
 
   def title
@@ -87,7 +87,7 @@ class Occurrence
 
   def save
     occurrence = Exceptionist.esclient.index('occurrences', to_hash)
-    @_id = occurrence._id
+    @id = occurrence._id
     self
   end
 
