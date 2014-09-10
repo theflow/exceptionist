@@ -178,19 +178,19 @@ class Occurrence
     element ? element.content : nil
   end
 
-private
+  private
 
   def generate_uber_key
     key = case exception_class
-      when *Exceptionist.global_exception_classes
-        "#{exception_class}:#{exception_message}"
-      when *Exceptionist.timeout_exception_classes
-        first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
-        "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
-      else
-        backtrace = exception_backtrace ? exception_backtrace.first : ''
-        "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
-    end
+            when *Exceptionist.global_exception_classes
+              "#{exception_class}:#{exception_message}"
+            when *Exceptionist.timeout_exception_classes
+              first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
+              "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
+            else
+              backtrace = exception_backtrace ? exception_backtrace.first : ''
+              "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
+          end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
   end
