@@ -121,6 +121,20 @@ class ExceptionistApp < Sinatra::Base
     end
   end
 
+  post '/notifier_api/v2/deploy/?' do
+    deploy = Deploy.from_json(params[:data] || request.body.read)
+    project = Project.find_by_key(deploy.api_key)
+    if project
+      deploy.project_name = project.name
+      deploy.save
+
+      "<notice><id>#{deploy.id}</id></notice>"
+    else
+      status 401
+      'Invalid API Key'
+    end
+  end
+
   helpers do
     include Rack::Utils
 

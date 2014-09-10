@@ -89,4 +89,15 @@ class ApiTest < AbstractTest
     assert_equal 1, exce.count
     assert_equal 1, exce.first.occurrences_count
   end
+
+  def test_api_deploy
+    assert_equal [], Deploy.find_all('ExampleProject')
+
+    post '/notifier_api/v2/deploy/', read_fixtures_file('fixtures/deploy.json')
+    assert last_response.ok?
+
+    Exceptionist.esclient.refresh
+
+    assert_equal 1, Deploy.find_all('ExampleProject').count
+  end
 end
