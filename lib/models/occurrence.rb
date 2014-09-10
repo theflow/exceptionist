@@ -2,8 +2,7 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :occurred_at_day, :_id, :uber_key, :api_key,
-                :_score, :sort
+                :project_name, :occurred_at, :occurred_at_day, :id, :uber_key, :api_key, :sort
 
 
   def initialize(attributes={})
