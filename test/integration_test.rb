@@ -32,6 +32,27 @@ class IntegrationTest < AbstractTest
     click_link 'ExampleProject'
   end
 
+  def test_show_the_dashboard_with_no_deploy
+    occurrence = create_occurrence
+    UberException.occurred(occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/'
+    assert_contain '- no deploy found'
+  end
+
+  def test_show_the_dashboard_with_deploy
+    occurrence = create_occurrence
+    UberException.occurred(occurrence)
+    create_deploy
+
+    Exceptionist.esclient.refresh
+
+    visit '/'
+    assert_contain '- deploy:'
+  end
+
   def test_show_the_dashboard_with_two_projects
     occur1 = create_occurrence(project_name: 'ExampleProject')
     UberException.occurred(occur1)
