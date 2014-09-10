@@ -25,6 +25,10 @@ class Project
     n_days
   end
 
+  def last_deploy
+    Deploy.find_last_deploy(name)
+  end
+
   def occurrence_count_on(date)
     Occurrence.count_all_on(name, date)
   end
