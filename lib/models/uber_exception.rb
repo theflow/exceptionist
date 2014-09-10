@@ -115,7 +115,7 @@ class UberException
   end
 
   def occurrences_count_on(date)
-    Exceptionist.esclient.count('occurrences', [ { term: { uber_key: id } }, term: { occurred_at_day: date.strftime('%Y-%m-%d') } ])
+    Occurrence.count_all_on(project_name, date)
   end
 
   def last_thirty_days
