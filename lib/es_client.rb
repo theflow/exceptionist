@@ -5,6 +5,7 @@ class ESClient
   INDEX = 'exceptionist'
   TYPE_EXCEPTIONS = 'exceptions'
   TYPE_OCCURRENCES = 'occurrences'
+  TYPE_DEPLOYS = 'deploys'
 
   def initialize(endpoint)
     @host, @port = endpoint.split(':')
@@ -84,16 +85,34 @@ class ESClient
   end
 
   private
-  def create_occurrence(attributes)
-    return nil unless attributes
-
-    attributes.merge!(attributes['_source']).delete('_source')
-    Occurrence.new(attributes)
+  def create_occurrence(attr)
+    attr = transform(attr)
+    Occurrence.new(attr)
   end
 
-  def create_exception(attributes)
-    attributes.merge!(attributes['_source']).delete('_source')
-    UberException.new(attributes)
+  def create_exception(attr)
+    attr = transform(attr)
+    UberException.new(attr)
+  end
+
+  def create_deploy(attr)
+    attr = transform(attr)
+    Deploy.new(attr)
+  end
+
+  def transform(attr)
+    attr.merge!(attr['_source']).delete('_source')
+    attr = symbolize_keys(attr)
+    attr[:id] = attr.delete :_id
+    attr.delete :_index
+    attr.delete :_type
+    attr.delete :_score
+    attr.delete :sort
+    attr
+  end
+
+  def symbolize_keys(hash)
+    hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
 
   def create_search_query(terms, sort, from, size)

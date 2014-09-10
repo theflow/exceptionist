@@ -73,7 +73,14 @@ module ESHelper
                                                        project_name: { type: 'string', index: 'not_analyzed' },
                                                        closed: { type: 'boolean' },
                                                        occurred_at: { type: 'date' }
-                                                   } }
+                                                   } },
+                                               deploys: {
+                                                   properties: {
+                                                       project_name: { type: 'string', index: 'not_analyzed' },
+                                                       version: { type: 'string', index: 'not_analyzed' },
+                                                       deploy_time: { type: 'date' },
+                                                       changelog_link: { type: 'string', index: 'not_analyzed'}
+                                                   } },
                                            } })
       Exceptionist.esclient.refresh
     end
