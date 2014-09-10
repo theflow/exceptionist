@@ -3,6 +3,10 @@ require 'json'
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :deploy_time
 
+  def self.find_all(project)
+    Exceptionist.esclient.search_deploys( term: { project_name: project } )
+  end
+
   def self.from_json(json)
     attr = symbolize_keys(JSON.parse(json))
     Deploy.new(attr)

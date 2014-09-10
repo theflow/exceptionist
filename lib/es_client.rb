@@ -26,6 +26,13 @@ class ESClient
     hash.hits.hits.map { |doc| create_exception(doc) }
   end
 
+  def search_deploys(filters, sort={}, from=0, size=50)
+    query = create_search_query(filters, sort, from, size)
+    response = @es.search(index: INDEX, type: TYPE_DEPLOYS, body: query)
+    hash = Hashie::Mash.new(response)
+    hash.hits.hits.map { |doc| create_deploy(doc) }
+  end
+
   def search_aggs(filters, aggs)
     query = { query: { filtered: { filter: { bool: { must: filters } } } }, aggs: { exceptions: { terms: { field: aggs } } } }
     response = @es.search(index: INDEX, type: TYPE_OCCURRENCES, body: query)
