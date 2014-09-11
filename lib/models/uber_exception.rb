@@ -14,7 +14,7 @@ class UberException
   end
 
   def self.count_all(project)
-    Exceptionist.esclient.count('exceptions', { term: { project_name: project } } )
+    Exceptionist.esclient.count(type: 'exceptions', terms: { term: { project_name: project } } )
   end
 
   def self.find(uber_key)
@@ -87,7 +87,7 @@ class UberException
   end
 
   def update_occurrences_count
-    @occurrences_count = Exceptionist.esclient.count('occurrences', { term: { uber_key: id } })
+    @occurrences_count = Exceptionist.esclient.count(terms: { term: { uber_key: id } })
     Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: @occurrences_count } })
   end
 

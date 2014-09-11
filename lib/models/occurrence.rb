@@ -76,7 +76,7 @@ class Occurrence
   end
 
   def self.count_all_on(project, day)
-    Exceptionist.esclient.count('occurrences', [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
+    Exceptionist.esclient.count( terms: [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
   end
 
   def self.find_all(size=50)
