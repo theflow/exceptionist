@@ -64,10 +64,10 @@ class Occurrence
   end
 
   def self.find_last_for(uber_key)
-    Occurrence.find(uber_key: uber_key)
+    Occurrence.find(uber_key: uber_key, sort: { occurred_at: { order: 'desc' } })
   end
 
-  def self.find(uber_key: '', sort: { occurred_at: { order: 'desc' } }, position: 0)
+  def self.find(uber_key: '', sort: {}, position: 0)
     raise ArgumentError, 'position has to be >= 0' if position < 0
 
     occurrences = Exceptionist.esclient.search_occurrences( filters: { term: { uber_key: uber_key } }, sort: sort, from: position, size: 1 )
@@ -79,12 +79,12 @@ class Occurrence
     Exceptionist.esclient.count( terms: [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
   end
 
-  def self.find_all(size=50)
-    Exceptionist.esclient.search_occurrences( sort: { occurred_at: { order: 'desc' } }, size: size )
+  def self.find_all(filters: {}, sort: { occurred_at: { order: 'desc' } }, size: 50)
+    Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, size: size )
   end
 
   def self.find_all_by_name(project, size=50)
-    Exceptionist.esclient.search_occurrences( filters: { term: { project_name: project } }, sort: { occurred_at: { order: 'desc' } }, size: size )
+    Occurrence.find_all(filters: { term: { project_name: project } }, size: size)
   end
 
   #

@@ -25,18 +25,18 @@ class UberExceptionTest < AbstractTest
     assert_equal uber_exception.id, UberException.get(uber_exception.id).id
   end
 
-  def test_find_all
+  def test_find
     exce1 = UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
     exce2 = UberException.occurred(create_occurrence(action_name: 'other'))
 
     Exceptionist.esclient.refresh
 
-    assert UberException.find_all('ExampleProject').include? exce1
-    assert UberException.find_all('ExampleProject').include? exce2
+    assert UberException.find(project: 'ExampleProject').include? exce1
+    assert UberException.find(project: 'ExampleProject').include? exce2
   end
 
-  def test_find_all_sorted_by_time
+  def test_find_sorted_by_time
     exce1 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12, 14, 42), action_name: 'action1'))
     exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12, 15, 42), action_name: 'action2'))
     exce3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 13, 14, 42), action_name: 'action3'))
@@ -44,11 +44,11 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [exce4, exce3, exce2, exce1], UberException.find_all_sorted_by_time('ExampleProject', 0, 10)
-    assert_equal [exce2], UberException.find_all_sorted_by_time('ExampleProject', 2, 1)
+    assert_equal [exce4, exce3, exce2, exce1], UberException.find_sorted_by_time('ExampleProject', 0, 10)
+    assert_equal [exce2], UberException.find_sorted_by_time('ExampleProject', 2, 1)
   end
 
-  def test_find_all_sorted_by_occurrences_count
+  def test_find_sorted_by_occurrences_count
     exce1 = UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
@@ -59,8 +59,8 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [exce1, exce2, exce3], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 0, 10)
-    assert_equal [exce2, exce3], UberException.find_all_sorted_by_occurrences_count('ExampleProject', 1, 10)
+    assert_equal [exce1, exce2, exce3], UberException.find_sorted_by_occurrences_count('ExampleProject', 0, 10)
+    assert_equal [exce2, exce3], UberException.find_sorted_by_occurrences_count('ExampleProject', 1, 10)
   end
 
   def test_find_new_on
@@ -95,7 +95,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [today_exec, old_exec, very_old_exec], UberException.find_all_sorted_by_time(project.name, 0, 20)
+    assert_equal [today_exec, old_exec, very_old_exec], UberException.find_sorted_by_time(project.name, 0, 20)
     assert_equal [very_old_exec], UberException.find_new_on(project.name, very_old_date - 60)
 
     # shouldn't forget anything
@@ -103,7 +103,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [today_exec, old_exec, very_old_exec], UberException.find_all_sorted_by_time(project.name, 0, 20)
+    assert_equal [today_exec, old_exec, very_old_exec], UberException.find_sorted_by_time(project.name, 0, 20)
     assert_equal [very_old_exec], UberException.find_new_on(project.name, very_old_date - 60)
 
     # should forget the very_old exception
@@ -111,7 +111,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [today_exec, old_exec], UberException.find_all_sorted_by_time(project.name, 0, 20)
+    assert_equal [today_exec, old_exec], UberException.find_sorted_by_time(project.name, 0, 20)
     assert_equal [], UberException.find_new_on(project.name, very_old_date - 60)
 
     # should forget even more
@@ -119,7 +119,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [today_exec], UberException.find_all_sorted_by_time(project.name, 0, 20)
+    assert_equal [today_exec], UberException.find_sorted_by_time(project.name, 0, 20)
     assert_equal [], UberException.find_new_on(project.name, Time.now - 86400 - 3600)
   end
 
@@ -140,7 +140,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [], UberException.find_all('ExampleProject')
+    assert_equal [], UberException.find(project: 'ExampleProject')
   end
 
   def test_current_occurrence

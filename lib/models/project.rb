@@ -34,11 +34,11 @@ class Project
   end
 
   def latest_exceptions(start, limit = 25)
-    UberException.find_all_sorted_by_time(name, start, limit)
+    UberException.find_sorted_by_time(name, start, limit)
   end
 
   def most_frequest_exceptions(start, limit = 25)
-    UberException.find_all_sorted_by_occurrences_count(name, start, limit)
+    UberException.find_sorted_by_occurrences_count(name, start, limit)
   end
 
   def new_exceptions_on(day)

@@ -21,24 +21,18 @@ class UberException
     Exceptionist.esclient.get_exception(uber_key)
   end
 
-  def self.find_all(project)
-    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ])
+  def self.find_sorted_by_occurrences_count(project, from, size)
+    UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_all_sorted_by_time(project, from, size)
-    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ], sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
+  def self.find_sorted_by_time(project, from, size)
+    UberException.find(project: project, sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_all_sorted_by_time_since(project, since, from, size)
-    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } }, range: { last_occurred_at: { gte: since.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ], sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
-  end
-
-  def self.find_all_sorted_by_occurrences_count(project, from, size)
-    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ], sort: { occurrences_count: { order: 'desc' } }, from: from, size: size )
-  end
-
-  def self.find_all_sorted_by_occurrences_count_since(project, since, from, size)
-    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } }, range: { last_occurred_at: { gte: since.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ], { occurrences_count: { order: 'desc'} }, from: from, size: size)
+  def self.find(project: '', filters: [], sort: {}, from: 0, size: 50)
+    filters = [filters] if filters.class == Hash
+    filters << { term: { closed: false } } << { term: { project_name: project } }
+    Exceptionist.esclient.search_exceptions(filters: filters, sort: sort, from: from, size: size)
   end
 
   def self.find_new_on(project, day)
