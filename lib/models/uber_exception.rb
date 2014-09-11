@@ -25,6 +25,8 @@ class UberException
   end
 
   def self.find(project: '', filters: [], sort: {}, from: 0, size: 50)
+    raise ArgumentError, 'position has to be >= 0' if from < 0
+
     filters = [filters] if filters.class == Hash
     filters << { term: { closed: false } } << { term: { project_name: project } }
     Exceptionist.esclient.search_exceptions(filters: filters, sort: sort, from: from, size: size)
