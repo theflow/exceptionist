@@ -20,11 +20,15 @@ class UberException
     UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_sorted_by_time(project, from, size)
-    UberException.find(project: project, sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
+  def self.find_since_last_deploy(project)
+    deploy = Deploy.find_last_deploy(project)
+    occurrences = Occurrence.find( filters: [ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.deploy_time } } } ] )
+    ids = []
+    occurrences.each { |occurr| ids << occurr.uber_key }
+    find( project: project, filters: { ids: { type: 'exceptions', values: ids } } )
   end
 
-  def self.find(project: '', filters: [], sort: {}, from: 0, size: 50)
+  def self.find(project: '', filters: [], sort: { last_occurred_at: { order: 'desc'} }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
     filters = [filters] if filters.class == Hash
