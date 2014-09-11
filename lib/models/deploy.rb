@@ -3,7 +3,7 @@ require 'json'
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :deploy_time
 
-  def self.find_all(project)
+  def self.find(project)
     Exceptionist.esclient.search_deploys( term: { project_name: project } )
   end
 

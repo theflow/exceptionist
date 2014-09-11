@@ -7,8 +7,8 @@ class DeployTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal deploy, Deploy.find_all('ExampleProject').first
-    assert_equal 0, Deploy.find_all('OtherProject').count
+    assert_equal deploy, Deploy.find('ExampleProject').first
+    assert_equal 0, Deploy.find('OtherProject').count
   end
 
   def test_save_with_deploy_time
@@ -16,8 +16,8 @@ class DeployTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal deploy, Deploy.find_all('ExampleProject').first
-    assert_equal 0, Deploy.find_all('OtherProject').count
+    assert_equal deploy, Deploy.find('ExampleProject').first
+    assert_equal 0, Deploy.find('OtherProject').count
   end
 
   def test_find_all
@@ -27,8 +27,8 @@ class DeployTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal 2, Deploy.find_all('ExampleProject').count
-    assert_equal 1, Deploy.find_all('OtherProject').count
+    assert_equal 2, Deploy.find('ExampleProject').count
+    assert_equal 1, Deploy.find('OtherProject').count
   end
 
   def test_find_last_deploy
