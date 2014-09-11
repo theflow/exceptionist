@@ -14,43 +14,6 @@ class Occurrence
     self.uber_key ||= generate_uber_key
   end
 
-  def inspect
-    "(Occurrence: id: #{id}, title: '#{title}')"
-  end
-
-  def ==(other)
-    id == other.id
-  end
-
-  def title
-    case exception_class
-      when 'Mysql::Error', 'RuntimeError', 'Timeout::Error', 'SystemExit'
-        "#{exception_class} #{exception_message}"
-      else
-        "#{exception_class} in #{controller_name}##{action_name}"
-    end
-  end
-
-  def http_method
-    cgi_data ? cgi_data['REQUEST_METHOD'] : 'GET'
-  end
-
-  def referer
-    cgi_data ? cgi_data['HTTP_REFERER'] : nil
-  end
-
-  def user_agent
-    cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
-  end
-
-  def occurred_at
-    @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
-  end
-
-  def project
-    Project.new(project_name)
-  end
-
   def uber_exception
     UberException.get(uber_key)
   end
@@ -85,6 +48,43 @@ class Occurrence
 
   def self.find_all_by_name(project, size=50)
     Occurrence.find_all(filters: { term: { project_name: project } }, size: size)
+  end
+
+  def ==(other)
+    id == other.id
+  end
+
+  #
+  # accessors
+  #
+
+  def title
+    case exception_class
+      when 'Mysql::Error', 'RuntimeError', 'Timeout::Error', 'SystemExit'
+        "#{exception_class} #{exception_message}"
+      else
+        "#{exception_class} in #{controller_name}##{action_name}"
+    end
+  end
+
+  def http_method
+    cgi_data ? cgi_data['REQUEST_METHOD'] : 'GET'
+  end
+
+  def referer
+    cgi_data ? cgi_data['HTTP_REFERER'] : nil
+  end
+
+  def user_agent
+    cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
+  end
+
+  def occurred_at
+    @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
+  end
+
+  def project
+    Project.new(project_name)
   end
 
   #

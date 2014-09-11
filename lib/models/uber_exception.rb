@@ -8,11 +8,6 @@ class UberException
     @closed = attributes[:closed]
   end
 
-  def self.create_es(attributes)
-    attributes.merge!(attributes['_source']).delete('_source')
-    UberException.new(attributes)
-  end
-
   def self.count_all(project)
     Exceptionist.esclient.count(type: 'exceptions', terms: { term: { project_name: project } } )
   end
