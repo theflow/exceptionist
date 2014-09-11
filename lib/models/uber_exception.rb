@@ -17,7 +17,7 @@ class UberException
     Exceptionist.esclient.count(type: 'exceptions', terms: { term: { project_name: project } } )
   end
 
-  def self.find(uber_key)
+  def self.get(uber_key)
     Exceptionist.esclient.get_exception(uber_key)
   end
 

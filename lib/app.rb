@@ -74,7 +74,7 @@ class ExceptionistApp < Sinatra::Base
 
   get '/exceptions/:id' do
     @projects = Project.all
-    @uber_exception = UberException.find(params[:id])
+    @uber_exception = UberException.get(params[:id])
     @occurrence_position = @uber_exception.occurrences_count
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
@@ -91,7 +91,7 @@ class ExceptionistApp < Sinatra::Base
   end
 
   get '/exceptions/:id/occurrences/:occurrence_position' do
-    @uber_exception = UberException.find(params[:id])
+    @uber_exception = UberException.get(params[:id])
     @occurrence_position = params[:occurrence_position].to_i
     @occurrence = @uber_exception.current_occurrence(@occurrence_position)
 
@@ -99,7 +99,7 @@ class ExceptionistApp < Sinatra::Base
   end
 
   post '/exceptions/:id/close' do
-    @uber_exceptions = UberException.find(params[:id])
+    @uber_exceptions = UberException.get(params[:id])
     @uber_exceptions.close!
 
     redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")

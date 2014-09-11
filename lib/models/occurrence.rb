@@ -52,7 +52,7 @@ class Occurrence
   end
 
   def uber_exception
-    UberException.find(uber_key)
+    UberException.get(uber_key)
   end
 
   def self.delete_all_for(uber_key)

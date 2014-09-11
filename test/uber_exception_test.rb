@@ -22,7 +22,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal uber_exception.id, UberException.find(uber_exception.id).id
+    assert_equal uber_exception.id, UberException.get(uber_exception.id).id
   end
 
   def test_find_all
@@ -130,7 +130,7 @@ class UberExceptionTest < AbstractTest
     Exceptionist.esclient.refresh
 
     assert_raises(Elasticsearch::Transport::Transport::Errors::NotFound) do
-      UberException.find(uber_exce.id)
+      UberException.get(uber_exce.id)
     end
   end
 
