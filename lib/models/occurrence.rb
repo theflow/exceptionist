@@ -36,6 +36,10 @@ class Occurrence
     Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } })
   end
 
+  def self.find_by_name(project, size=50)
+    Occurrence.find(filters: { term: { project_name: project } }, size: size)
+  end
+
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
@@ -46,10 +50,6 @@ class Occurrence
 
   def self.count_all_on(project, day)
     Exceptionist.esclient.count( terms: [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
-  end
-
-  def self.find_by_name(project, size=50)
-    Occurrence.find(filters: { term: { project_name: project } }, size: size)
   end
 
   def ==(other)
