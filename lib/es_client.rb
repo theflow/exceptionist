@@ -57,9 +57,9 @@ class ESClient
     @es.update(index: INDEX, type: type, id: id, body: body)
   end
 
-  def count(type: 'occurrences', terms: [])
-    terms = [terms] if terms.class == Hash
-    query = { query: { filtered: { filter: { bool: { must: terms } } } } }
+  def count(type: 'occurrences', filters: [])
+    filters = [filters] if filters.class == Hash
+    query = { query: { filtered: { filter: { bool: { must: filters } } } } }
 
     @es.count(index: INDEX, type: type, body: query)['count']
   end
