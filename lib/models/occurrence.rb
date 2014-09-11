@@ -28,15 +28,15 @@ class Occurrence
   end
 
   def self.find_last_for(uber_key)
-    occurrences = Occurrence.find(uber_key: uber_key, sort: { occurred_at: { order: 'desc' } }, size: 1)
+    occurrences = Occurrence.find(uber_key: uber_key, size: 1)
     occurrences.any? ? occurrences.first : nil
   end
 
   def self.find_since(uber_key, date)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, sort: { occurred_at: { order: 'desc' } })
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } })
   end
 
-  def self.find(uber_key: '', filters: {}, sort: {}, from: 0, size: 50)
+  def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
     filters = [filters] if filters.class == Hash
