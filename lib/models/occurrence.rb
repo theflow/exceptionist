@@ -40,7 +40,7 @@ class Occurrence
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
     filters = [filters] if filters.class == Hash
-    filters << { term: { uber_key: uber_key } }
+    filters << { term: { uber_key: uber_key } } unless uber_key.empty?
     Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, from: from, size: size )
   end
 
