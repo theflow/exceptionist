@@ -38,6 +38,10 @@ class Deploy
     project_name == other.project_name && version == other.version
   end
 
+  def inspect
+    "(Deploy id=#{id} project_name=#{project_name})"
+  end
+
   private
   def to_hash
     {

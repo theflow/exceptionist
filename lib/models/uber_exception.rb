@@ -119,4 +119,7 @@ class UberException
     id == other.id
   end
 
+  def inspect
+    "(UberException id=#{id})"
+  end
 end

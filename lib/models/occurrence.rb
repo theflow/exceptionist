@@ -56,6 +56,10 @@ class Occurrence
     id == other.id
   end
 
+  def inspect
+    "(Occurrence id=#{id} uber_key=#{uber_key})"
+  end
+
   #
   # accessors
   #

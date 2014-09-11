@@ -53,6 +53,10 @@ class Project
     name == other.name
   end
 
+  def inspect
+    "(Project name=#{name})"
+  end
+
   def self.find_by_key(api_key)
     project = Exceptionist.projects.find { |name, project_key| project_key == api_key }
     project ? Project.new(project.first) : nil
