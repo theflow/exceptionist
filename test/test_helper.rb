@@ -55,7 +55,7 @@ def create_deploy(attributes = {})
 end
 
 def clear_collections
-  Exceptionist.esclient.delete_by_query( match_all: {})
+  Exceptionist.esclient.delete_by_query
 end
 
 class AbstractTest < Minitest::Test

@@ -62,7 +62,7 @@ class ESClient
     @es.count(index: INDEX, type: type, body: query)['count']
   end
 
-  def delete_by_query(query)
+  def delete_by_query(query: { match_all: {} })
     @es.delete_by_query( index: INDEX, body: { query: query } )
   end
 

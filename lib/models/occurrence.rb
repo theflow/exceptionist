@@ -56,7 +56,7 @@ class Occurrence
   end
 
   def self.delete_all_for(uber_key)
-    Exceptionist.esclient.delete_by_query({ term: { uber_key: uber_key } })
+    Exceptionist.esclient.delete_by_query(query: { term: { uber_key: uber_key } })
   end
 
   def self.find_first_for(uber_key)
