@@ -82,7 +82,7 @@ class UberException
   end
 
   def current_occurrence(position)
-    occurrences = Occurrence.find(uber_key: id, sort: { occurred_at: { order: 'asc'} }, position: position - 1, size: 1)
+    occurrences = Occurrence.find(uber_key: id, sort: { occurred_at: { order: 'asc'} }, from: position - 1, size: 1)
     occurrences.any? ? occurrences.first : nil
   end
 
