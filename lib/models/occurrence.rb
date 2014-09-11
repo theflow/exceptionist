@@ -70,7 +70,7 @@ class Occurrence
   def self.find(uber_key: '', sort: { occurred_at: { order: 'desc' } }, position: 0)
     raise ArgumentError, 'position has to be >= 0' if position < 0
 
-    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: sort, from: position, size: 1 )
+    occurrences = Exceptionist.esclient.search_occurrences( filters: { term: { uber_key: uber_key } }, sort: sort, from: position, size: 1 )
 
     occurrences.any? ? occurrences.first : nil
   end
@@ -80,11 +80,11 @@ class Occurrence
   end
 
   def self.find_all(size=50)
-    Exceptionist.esclient.search( sort: { occurred_at: { order: 'desc' } }, size: size )
+    Exceptionist.esclient.search_occurrences( sort: { occurred_at: { order: 'desc' } }, size: size )
   end
 
   def self.find_all_by_name(project, size=50)
-    Exceptionist.esclient.search( filters: { term: { project_name: project } }, sort: { occurred_at: { order: 'desc' } }, size: size )
+    Exceptionist.esclient.search_occurrences( filters: { term: { project_name: project } }, sort: { occurred_at: { order: 'desc' } }, size: size )
   end
 
   #

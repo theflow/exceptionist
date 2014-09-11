@@ -12,18 +12,20 @@ class ESClient
     @es = Elasticsearch::Client.new(host: endpoint)
   end
 
-  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 50)
-    query = create_search_query(filters, sort, from, size)
-    response = @es.search(index: INDEX, type: type, body: query)
-    hash = Hashie::Mash.new(response)
+  def search_occurrences(filters: {}, sort: {}, from: 0, size: 50)
+    hash = search(filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| create_occurrence(doc) }
   end
 
-  def search_exceptions(filters, sort={}, from=0, size=50)
-    query = create_search_query(filters, sort, from, size)
-    response = @es.search(index: INDEX, type: TYPE_EXCEPTIONS, body: query)
-    hash = Hashie::Mash.new(response)
+  def search_exceptions(filters: {}, sort: {}, from: 0, size: 50)
+    hash = search(type: TYPE_EXCEPTIONS, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| create_exception(doc) }
+  end
+
+  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 50)
+    query = create_search_query(filters, sort, from, size)
+    response = @es.search(index: INDEX, type: type, body: query)
+    Hashie::Mash.new(response)
   end
 
   def search_deploys(filters, sort={}, from=0, size=50)

@@ -22,15 +22,23 @@ class UberException
   end
 
   def self.find_all(project)
-    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ])
+    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ])
   end
 
-  def self.find_all_sorted_by_time(project, start, limit)
-    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { last_occurred_at: { order: 'desc'} }, start, limit)
+  def self.find_all_sorted_by_time(project, from, size)
+    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ], sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_all_sorted_by_occurrences_count(project, start, limit)
-    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { occurrences_count: { order: 'desc' } }, start, limit )
+  def self.find_all_sorted_by_time_since(project, since, from, size)
+    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } }, range: { last_occurred_at: { gte: since.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ], sort: { last_occurred_at: { order: 'desc'} }, from: from, size: size)
+  end
+
+  def self.find_all_sorted_by_occurrences_count(project, from, size)
+    Exceptionist.esclient.search_exceptions(filters: [ { term: { project_name: project } }, { term: { closed: false } } ], sort: { occurrences_count: { order: 'desc' } }, from: from, size: size )
+  end
+
+  def self.find_all_sorted_by_occurrences_count_since(project, since, from, size)
+    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } }, range: { last_occurred_at: { gte: since.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ], { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
   def self.find_new_on(project, day)
@@ -54,7 +62,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.esclient.search_exceptions( [ { term: { project_name: project } }, range: { last_occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { last_occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
 
     uber_exceptions.each do |exception|
       exception.forget!
