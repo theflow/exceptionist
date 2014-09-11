@@ -32,10 +32,10 @@ class Occurrence
     occurrences.any? ? occurrences.first : nil
   end
 
-  def self.find(uber_key: '', sort: {}, position: 0, size: 50)
-    raise ArgumentError, 'position has to be >= 0' if position < 0
+  def self.find(uber_key: '', sort: {}, from: 0, size: 50)
+    raise ArgumentError, 'position has to be >= 0' if from < 0
 
-    Exceptionist.esclient.search_occurrences( filters: { term: { uber_key: uber_key } }, sort: sort, from: position, size: size )
+    Exceptionist.esclient.search_occurrences( filters: { term: { uber_key: uber_key } }, sort: sort, from: from, size: size )
   end
 
   def self.count_all_on(project, day)
