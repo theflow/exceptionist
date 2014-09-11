@@ -60,13 +60,19 @@ class Occurrence
   end
 
   def self.find_first_for(uber_key)
-    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc' } }, size: 1 )
-    occurrences.first
+    Occurrence.find(uber_key: uber_key, sort: { occurred_at: { order: 'asc' } })
   end
 
   def self.find_last_for(uber_key)
-    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'desc' } }, size: 1 )
-    occurrences.first
+    Occurrence.find(uber_key: uber_key)
+  end
+
+  def self.find(uber_key: '', sort: { occurred_at: { order: 'desc' } }, position: 0)
+    raise ArgumentError, 'position has to be >= 0' if position < 0
+
+    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: sort, from: position, size: 1 )
+
+    occurrences.any? ? occurrences.first : nil
   end
 
   def self.count_all_on(project, day)
@@ -79,17 +85,6 @@ class Occurrence
 
   def self.find_all_by_name(project, size=50)
     Exceptionist.esclient.search( filters: { term: { project_name: project } }, sort: { occurred_at: { order: 'desc' } }, size: size )
-  end
-
-  def self.get_occurrence(uber_key: '', position: 1)
-    return nil if position < 1
-
-    response = Exceptionist.esclient.search(filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc'} }, from: position - 1, size: 1)
-    if response.any?
-      response.first
-    else
-      nil
-    end
   end
 
   #

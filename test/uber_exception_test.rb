@@ -154,8 +154,11 @@ class UberExceptionTest < AbstractTest
     assert_equal ocr1, uber_ex.current_occurrence(1)
     assert_equal ocr2, uber_ex.current_occurrence(2)
 
-    assert_equal nil, uber_ex.current_occurrence(0)
     assert_equal nil, uber_ex.current_occurrence(3)
+
+    assert_raises ArgumentError do
+      uber_ex.current_occurrence(0)
+    end
   end
 
   def test_update_occurence_count
