@@ -21,8 +21,6 @@ class OccurrenceTest < AbstractTest
   end
 
   def test_find_first_for
-    assert_equal nil, Occurrence.find_first_for('empty db')
-
     occur = create_occurrence(occurred_at: Time.local(2010, 8, 9))
     create_occurrence(occurred_at: Time.local(2012, 8, 9))
     other_occur = create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
