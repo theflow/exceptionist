@@ -33,8 +33,8 @@ class Project
     Occurrence.count_all_on(name, date)
   end
 
-  def latest_exceptions(start, limit = 25)
-    UberException.find_sorted_by_time(name, start, limit)
+  def latest_exceptions(from, size = 25)
+    UberException.find(project: name, from: from, size: size)
   end
 
   def most_frequest_exceptions(start, limit = 25)
