@@ -1,5 +1,5 @@
 class UberException
-  attr_accessor :id, :project_name, :occurrences_count, :closed
+  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurred_at
 
   def initialize(attributes)
     @id = attributes[:id]
@@ -26,7 +26,7 @@ class UberException
   end
 
   def self.find_all_sorted_by_time(project, start, limit)
-    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { occurred_at: { order: 'desc'} }, start, limit)
+    Exceptionist.esclient.search_exceptions([ { term: { project_name: project } }, { term: { closed: false } } ], { last_occurred_at: { order: 'desc'} }, start, limit)
   end
 
   def self.find_all_sorted_by_occurrences_count(project, start, limit)
@@ -46,7 +46,7 @@ class UberException
 
   def self.occurred(occurrence)
     Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1', upsert:
-        { project_name: occurrence.project_name, occurred_at: occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"), closed: false, occurrences_count: 1 } })
+        { project_name: occurrence.project_name, last_occurred_at: occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"), closed: false, occurrences_count: 1 } })
     Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
 
@@ -54,7 +54,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.esclient.search_exceptions( [ { term: { project_name: project } }, range: { occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    uber_exceptions = Exceptionist.esclient.search_exceptions( [ { term: { project_name: project } }, range: { last_occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
 
     uber_exceptions.each do |exception|
       exception.forget!

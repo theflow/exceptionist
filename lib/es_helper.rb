@@ -72,7 +72,7 @@ module ESHelper
                                                    properties: {
                                                        project_name: { type: 'string', index: 'not_analyzed' },
                                                        closed: { type: 'boolean' },
-                                                       occurred_at: { type: 'date' },
+                                                       last_occurred_at: { type: 'date' },
                                                        occurrences_count: {type: 'long'}
                                                    } },
                                                deploys: {
