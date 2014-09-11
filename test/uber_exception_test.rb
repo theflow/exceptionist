@@ -17,7 +17,7 @@ class UberExceptionTest < AbstractTest
     assert_equal 2, UberException.count_all('ExampleProject')
   end
 
-  def test_find
+  def test_get
     uber_exception = UberException.occurred(create_occurrence())
 
     Exceptionist.esclient.refresh
