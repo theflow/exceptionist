@@ -83,14 +83,7 @@ class UberException
   end
 
   def current_occurrence(position)
-    return nil if position < 1
-
-    response = Exceptionist.esclient.search_occurrences({ term: { uber_key: id } }, { occurred_at: { order: 'asc'} }, position - 1, 1)
-    if response.any?
-      response.first
-    else
-      nil
-    end
+    Occurrence.get_occurrence(uber_key: id, position: position)
   end
 
   def update_occurrences_count

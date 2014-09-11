@@ -60,12 +60,12 @@ class Occurrence
   end
 
   def self.find_first_for(uber_key)
-    occurrences = Exceptionist.esclient.search_occurrences( { term: { uber_key: uber_key } }, { occurred_at: { order: 'asc' } }, from: 0, size: 1 )
+    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc' } }, size: 1 )
     occurrences.first
   end
 
   def self.find_last_for(uber_key)
-    occurrences = Exceptionist.esclient.search_occurrences( { term: { uber_key: uber_key } }, { occurred_at: { order: 'desc' } }, from: 0, size: 1 )
+    occurrences = Exceptionist.esclient.search( filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'desc' } }, size: 1 )
     occurrences.first
   end
 
@@ -74,11 +74,22 @@ class Occurrence
   end
 
   def self.find_all(size=50)
-    Exceptionist.esclient.search_occurrences( {}, { occurred_at: { order: 'desc' } }, 0, size )
+    Exceptionist.esclient.search( sort: { occurred_at: { order: 'desc' } }, size: size )
   end
 
-  def self.find_all_by_name(project, limit=50)
-    Exceptionist.esclient.search_occurrences( { term: { project_name: project } }, { occurred_at: { order: 'desc' } }, from: 0, size: limit )
+  def self.find_all_by_name(project, size=50)
+    Exceptionist.esclient.search( filters: { term: { project_name: project } }, sort: { occurred_at: { order: 'desc' } }, size: size )
+  end
+
+  def self.get_occurrence(uber_key: '', position: 1)
+    return nil if position < 1
+
+    response = Exceptionist.esclient.search(filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc'} }, from: position - 1, size: 1)
+    if response.any?
+      response.first
+    else
+      nil
+    end
   end
 
   #
