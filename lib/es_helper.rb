@@ -17,7 +17,7 @@ module ESHelper
 
   class Exporter
     def self.run
-      occurrences = Occurrence.find_all.map { |occurrence| occurrence.to_hash }
+      occurrences = Occurrence.find.map { |occurrence| occurrence.to_hash }
 
       File.open('occurrences_export.json', 'w') do |file|
         file.write(Yajl::Encoder.encode(occurrences))

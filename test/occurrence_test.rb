@@ -10,14 +10,14 @@ class OccurrenceTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal 3, Occurrence.find_all_by_name(occur.project_name).size
+    assert_equal 3, Occurrence.find_by_name(occur.project_name).size
 
     Occurrence.delete_all_for(occur.uber_key)
 
     Exceptionist.esclient.refresh
 
-    assert_equal 0, Occurrence.find_all_by_name(occur.project_name).size
-    assert_equal 1, Occurrence.find_all_by_name(other_occur.project_name).size
+    assert_equal 0, Occurrence.find_by_name(occur.project_name).size
+    assert_equal 1, Occurrence.find_by_name(other_occur.project_name).size
   end
 
   def test_find_first_for
@@ -70,7 +70,7 @@ class OccurrenceTest < AbstractTest
     assert_equal 3, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 9))
   end
 
-  def test_find_all
+  def test_find
     occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
     occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
     occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
@@ -78,10 +78,10 @@ class OccurrenceTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [occur2, occur4, occur3, occur1], Occurrence.find_all
+    assert_equal [occur2, occur4, occur3, occur1], Occurrence.find
   end
 
-  def test_find_all_by_name
+  def test_find_by_name
     occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
     occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
     occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
@@ -89,8 +89,8 @@ class OccurrenceTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [occur2, occur3, occur1], Occurrence.find_all_by_name('ExampleProject', 5)
-    assert_equal [occur2, occur3], Occurrence.find_all_by_name('ExampleProject', 2)
+    assert_equal [occur2, occur3, occur1], Occurrence.find_by_name('ExampleProject', 5)
+    assert_equal [occur2, occur3], Occurrence.find_by_name('ExampleProject', 2)
   end
 
   def test_generate_uber_key

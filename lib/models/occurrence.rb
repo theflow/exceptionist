@@ -48,12 +48,8 @@ class Occurrence
     Exceptionist.esclient.count( terms: [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
   end
 
-  def self.find_all(filters: {}, sort: { occurred_at: { order: 'desc' } }, size: 50)
-    Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, size: size )
-  end
-
-  def self.find_all_by_name(project, size=50)
-    Occurrence.find_all(filters: { term: { project_name: project } }, size: size)
+  def self.find_by_name(project, size=50)
+    Occurrence.find(filters: { term: { project_name: project } }, size: size)
   end
 
   def ==(other)
