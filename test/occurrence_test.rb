@@ -70,6 +70,21 @@ class OccurrenceTest < AbstractTest
     assert_equal 3, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 9))
   end
 
+  def test_count_since
+    create_occurrence(occurred_at: Time.local(2010, 8, 9, 14, 42))
+    create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42))
+    create_occurrence(occurred_at: Time.local(2012, 8, 9, 17, 42))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal 2, Occurrence.count_since('ExampleProject', Time.local(2011, 8, 8))
+
+    create_occurrence
+    Exceptionist.esclient.refresh
+
+    assert_equal 3, Occurrence.count_since('ExampleProject', Time.local(2011, 8, 8))
+  end
+
   def test_find
     occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
     occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))

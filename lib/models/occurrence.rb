@@ -52,11 +52,10 @@ class Occurrence
     Occurrence.count( project: project, filters: { term: { occurred_at_day: day.strftime('%Y-%m-%d') } })
   end
 
-  # def self.count_since(project, day)
-  #   Occurrence.count_project
-  #   Exceptionist.esclient.count( terms: [ { term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, { term: { project_name: project } } ] )
-  # end
-  #
+  def self.count_since(project, time)
+    Occurrence.count(project: project, filters: { range: { occurred_at: { gte: time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } )
+  end
+
   def self.count(project: '', filters: {})
     filters = [filters] if filters.class == Hash
     filters << { term: { project_name: project } } unless project.empty?
