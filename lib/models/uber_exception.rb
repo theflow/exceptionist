@@ -17,7 +17,7 @@ class UberException
     Exceptionist.esclient.get_exception(uber_key)
   end
 
-  def self.find_sorted_by_occurrences_count(project, from, size)
+  def self.find_sorted_by_occurrences_count(project, from = 0, size = 50)
     UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
