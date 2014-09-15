@@ -38,17 +38,20 @@ class UberExceptionTest < AbstractTest
   end
 
   def test_update_last_occurred_at
-    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12)))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal Time.local(2011, 8, 12), UberException.find(project: 'ExampleProject').first.last_occurred_at
-
+    exec = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12)))
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 13)))
 
     Exceptionist.esclient.refresh
 
-    assert_equal Time.local(2011, 8, 13), UberException.find(project: 'ExampleProject').first.last_occurred_at
+    assert_equal Time.local(2011, 8, 13), UberException.get(exec.id).last_occurred_at
+
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16)))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 17)))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal Time.local(2011, 8, 12), UberException.get(exec.id).first_occurred_at
+    assert_equal Time.local(2011, 8, 17), UberException.get(exec.id).last_occurred_at
   end
 
   def test_find_sorted_by_occurrences_count
