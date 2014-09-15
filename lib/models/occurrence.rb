@@ -40,6 +40,10 @@ class Occurrence
     Occurrence.find(filters: { term: { project_name: project } }, size: size)
   end
 
+  def self.find_next(uber_key, date)
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
+  end
+
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 

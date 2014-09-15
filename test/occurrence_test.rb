@@ -52,6 +52,17 @@ class OccurrenceTest < AbstractTest
     assert_equal [new_occur, occur], Occurrence.find_since(uber_key: occur.uber_key, date: Time.local(2011, 8, 9))
   end
 
+  def test_find_next
+    create_occurrence(occurred_at: Time.local(2010, 8, 9))
+    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
+    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal occur3, Occurrence.find_next(occur2.uber_key, Time.local(2011, 1, 1))
+    assert_equal occur2, Occurrence.find_next(occur2.uber_key, Time.local(2012, 1, 1))
+  end
+
   def test_count_all_on
     create_occurrence(occurred_at: Time.local(2011, 8, 9, 14, 42))
     create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42))
