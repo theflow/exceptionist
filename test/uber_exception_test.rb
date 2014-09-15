@@ -26,17 +26,6 @@ class UberExceptionTest < AbstractTest
   end
 
   def test_find
-    exce1 = UberException.occurred(create_occurrence())
-    UberException.occurred(create_occurrence())
-    exce2 = UberException.occurred(create_occurrence(action_name: 'other'))
-
-    Exceptionist.esclient.refresh
-
-    assert UberException.find(project: 'ExampleProject').include? exce1
-    assert UberException.find(project: 'ExampleProject').include? exce2
-  end
-
-  def test_find_2
     exce1 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12, 14, 42), action_name: 'action1'))
     exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12, 15, 42), action_name: 'action2'))
     exce3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 13, 14, 42), action_name: 'action3'))
