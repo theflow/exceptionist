@@ -52,6 +52,18 @@ class OccurrenceTest < AbstractTest
     assert_equal [new_occur, occur], Occurrence.find_since(uber_key: occur.uber_key, date: Time.local(2011, 8, 9))
   end
 
+  def test_find_by_name
+    occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
+    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
+    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
+    create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
+
+    Exceptionist.esclient.refresh
+
+    assert_equal [occur2, occur3, occur1], Occurrence.find_by_name('ExampleProject', 5)
+    assert_equal [occur2, occur3], Occurrence.find_by_name('ExampleProject', 2)
+  end
+
   def test_find_next
     create_occurrence(occurred_at: Time.local(2010, 8, 9))
     occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
@@ -96,6 +108,7 @@ class OccurrenceTest < AbstractTest
     assert_equal 3, Occurrence.count_since('ExampleProject', Time.local(2011, 8, 8))
   end
 
+
   def test_find
     occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
     occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
@@ -105,18 +118,6 @@ class OccurrenceTest < AbstractTest
     Exceptionist.esclient.refresh
 
     assert_equal [occur2, occur4, occur3, occur1], Occurrence.find
-  end
-
-  def test_find_by_name
-    occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal [occur2, occur3, occur1], Occurrence.find_by_name('ExampleProject', 5)
-    assert_equal [occur2, occur3], Occurrence.find_by_name('ExampleProject', 2)
   end
 
   def test_generate_uber_key
