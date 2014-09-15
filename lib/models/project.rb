@@ -29,22 +29,6 @@ class Project
     Deploy.find_last_deploy(name)
   end
 
-  def occurrence_count_on(date)
-    Occurrence.count_all_on(name, date)
-  end
-
-  def latest_exceptions(from, size = 25)
-    UberException.find(project: name, from: from, size: size)
-  end
-
-  def most_frequest_exceptions(start, limit = 25)
-    UberException.find_sorted_by_occurrences_count(name, start, limit)
-  end
-
-  def new_exceptions_on(day)
-    UberException.find_new_on(name, day)
-  end
-
   def total_count_on(day)
     Occurrence.count_all_on(name, day)
   end
