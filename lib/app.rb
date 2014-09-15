@@ -34,11 +34,10 @@ class ExceptionistApp < Sinatra::Base
     @current_project = Project.new(params[:project])
     @start = params[:start] ? params[:start].to_i : 0
     if params[:sort_by] && params[:sort_by] == 'frequent'
-      @uber_exceptions = @current_project.most_frequest_exceptions(@start)
+      @uber_exceptions = UberException.find_sorted_by_occurrences_count(@current_project.name)
     else
-      @uber_exceptions = @current_project.latest_exceptions(@start)
+      @uber_exceptions = UberException.find(project: @current_project.name, from: @start)
     end
-
     @title = "Latest Exceptions for #{@current_project.name}"
     erb :index
   end
@@ -54,7 +53,7 @@ class ExceptionistApp < Sinatra::Base
   get '/projects/:project/new_on/:day' do
     @day = Time.parse(params[:day])
     @current_project = Project.new(params[:project])
-    @uber_exceptions = @current_project.new_exceptions_on(@day)
+    @uber_exceptions = UberException.find_new_on(@current_project.name, @day)
 
     message_body = erb(:new_exceptions, :layout => false)
 

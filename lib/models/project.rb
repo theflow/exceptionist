@@ -10,7 +10,7 @@ class Project
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
+    Project.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
   end
 
   def self.last_n_days(days)
