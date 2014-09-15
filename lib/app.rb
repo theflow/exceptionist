@@ -42,6 +42,19 @@ class ExceptionistApp < Sinatra::Base
     erb :index
   end
 
+  get '/projects/:project/since_last_deploy' do
+    @projects = Project.all
+    @current_project = Project.new(params[:project])
+    @start = params[:start] ? params[:start].to_i : 0
+    if params[:sort_by] && params[:sort_by] == 'frequent'
+      @uber_exceptions = UberException.find_since_last_deploy_ordered_by_occurrences_count(@current_project.name)
+    else
+      @uber_exceptions = UberException.find_since_last_deploy(@current_project.name)
+    end
+    @title = "Exceptions since last deploy for #{@current_project.name}"
+    erb :index
+  end
+
   get '/projects/:project/river' do
     @current_project = Project.new(params[:project])
     @occurrences = Occurrence.find_by_name(@current_project.name)
