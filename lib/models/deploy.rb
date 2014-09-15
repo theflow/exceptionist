@@ -26,6 +26,7 @@ class Deploy
     end
 
     self.deploy_time ||= Time.now
+    self.deploy_time = Time.parse(self.deploy_time) if self.deploy_time.is_a? String
   end
 
   def save

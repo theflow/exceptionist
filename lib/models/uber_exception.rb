@@ -24,7 +24,7 @@ class UberException
   def self.find_since_last_deploy(project)
     deploy = Deploy.find_last_deploy(project)
     return nil unless deploy
-    occurrences = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.deploy_time } } } ],'uber_key')
+    occurrences = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
     ids = []
     occurrences.each { |occurr| ids << occurr['key'] }
     exces = find( project: project, filters: { ids: { type: 'exceptions', values: ids } } )
