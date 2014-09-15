@@ -100,6 +100,40 @@ class UberExceptionTest < AbstractTest
     assert_equal 1, uber_execs[2].occurrences_count
   end
 
+  def test_find_since_last_deploy_ordered_by_occurrences_count
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12), action_name: 'action1'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 11), action_name: 'action2'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
+    exec2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
+    exec3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16), action_name: 'action3'))
+
+    create_deploy(deploy_time: Time.local(2011, 8, 13))
+
+    Exceptionist.esclient.refresh
+
+    uber_execs = UberException.find_since_last_deploy_ordered_by_occurrences_count('ExampleProject')
+
+
+    assert_equal [exec2, exec3], uber_execs
+    assert_equal 2, uber_execs[0].occurrences_count
+    assert_equal 1, uber_execs[1].occurrences_count
+
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2010, 8, 11), action_name: 'action3'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2010, 8, 12), action_name: 'action3'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 17), action_name: 'action3'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 18), action_name: 'action3'))
+    exec4 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 18), action_name: 'action4'))
+
+    Exceptionist.esclient.refresh
+
+    uber_execs = UberException.find_since_last_deploy_ordered_by_occurrences_count('ExampleProject')
+
+    assert_equal [exec3, exec2, exec4], uber_execs
+    assert_equal 3, uber_execs[0].occurrences_count
+    assert_equal 2, uber_execs[1].occurrences_count
+    assert_equal 1, uber_execs[2].occurrences_count
+  end
+
   def test_find_new_on
     project = Project.new('ExampleProject')
 

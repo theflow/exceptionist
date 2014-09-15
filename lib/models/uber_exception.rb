@@ -38,6 +38,10 @@ class UberException
     exces
   end
 
+  def self.find_since_last_deploy_ordered_by_occurrences_count(project)
+    find_since_last_deploy(project).sort{ |x, y| y.occurrences_count <=> x.occurrences_count }
+  end
+
   def self.find(project: '', filters: [], sort: { last_occurred_at: { order: 'desc'} }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
