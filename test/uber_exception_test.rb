@@ -103,6 +103,11 @@ class UberExceptionTest < AbstractTest
     assert_equal 1, uber_execs[2].occurrences_count
   end
 
+  def test_find_since_last_deploy_with_no_deploy
+    UberException.occurred(create_occurrence)
+    assert_equal nil, UberException.find_since_last_deploy('ExampleProject')
+  end
+
   def test_find_since_last_deploy_ordered_by_occurrences_count
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12), action_name: 'action1'))
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 11), action_name: 'action2'))
