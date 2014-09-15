@@ -64,6 +64,15 @@ class UberException
 
   def self.occurred(occurrence)
     timestamp = occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+
+    #TODO maybe remove when arrival time is sorted
+    begin
+      exec = Exceptionist.esclient.get_exception(occurrence.uber_key)
+      timestamp = exec.last_occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") if occurrence.occurred_at < exec.last_occurred_at
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+
+    end
+
     Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.last_occurred_at=last_occurred_at; ctx._source.closed=closed',
                                                                       upsert: { project_name: occurrence.project_name, last_occurred_at: timestamp, closed: false, occurrences_count: 1},
                                                                       params: { last_occurred_at: timestamp, closed: false} })
