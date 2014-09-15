@@ -48,6 +48,20 @@ class UberExceptionTest < AbstractTest
     assert_equal [exce2], UberException.find(project: 'ExampleProject', from: 2, size: 1)
   end
 
+  def test_update_last_occurred_at
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12)))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal Time.local(2011, 8, 12), UberException.find(project: 'ExampleProject').first.last_occurred_at
+
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 13)))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal Time.local(2011, 8, 13), UberException.find(project: 'ExampleProject').first.last_occurred_at
+  end
+
   def test_find_sorted_by_occurrences_count
     exce1 = UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
@@ -65,8 +79,10 @@ class UberExceptionTest < AbstractTest
 
   def test_find_since_last_deploy
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12), action_name: 'action1'))
-    exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 14), action_name: 'action2'))
-    exce3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action3'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 14), action_name: 'action2'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
+    exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
+    exce3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16), action_name: 'action3'))
 
     create_deploy(deploy_time: Time.local(2011, 8, 13))
 
@@ -76,11 +92,12 @@ class UberExceptionTest < AbstractTest
 
     UberException.occurred(create_occurrence(occurred_at: Time.local(2010, 8, 11), action_name: 'action4'))
     UberException.occurred(create_occurrence(occurred_at: Time.local(2010, 8, 12), action_name: 'action4'))
-    exce4 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16), action_name: 'action4'))
+    exce4 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 17), action_name: 'action4'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 18), action_name: 'action2'))
 
     Exceptionist.esclient.refresh
 
-    assert_equal [exce3, exce2, exce4], UberException.find_since_last_deploy('ExampleProject')
+    assert_equal [exce2, exce4, exce3], UberException.find_since_last_deploy('ExampleProject')
   end
 
   def test_find_new_on

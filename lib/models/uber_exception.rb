@@ -6,6 +6,7 @@ class UberException
     @project_name = attributes[:project_name]
     @occurrences_count = attributes[:occurrences_count]
     @closed = attributes[:closed]
+    @last_occurred_at = Time.parse(attributes[:last_occurred_at])
   end
 
   def self.count_all(project)
@@ -48,8 +49,10 @@ class UberException
 
 
   def self.occurred(occurrence)
-    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1', upsert:
-        { project_name: occurrence.project_name, last_occurred_at: occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"), closed: false, occurrences_count: 1 } })
+    timestamp = occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.last_occurred_at=last_occurred_at; ctx._source.closed=closed',
+                                                                      upsert: { project_name: occurrence.project_name, last_occurred_at: timestamp, closed: false, occurrences_count: 1},
+                                                                      params: { last_occurred_at: timestamp, closed: false} })
     Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
 
@@ -91,16 +94,12 @@ class UberException
   end
 
   def update_occurrences_count
-    @occurrences_count = Occurrence.count(filters: { term: { uber_key: id } })
-    Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: @occurrences_count } })
+    occurrences_count = Occurrence.count(filters: { term: { uber_key: id } })
+    Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: occurrences_count } })
   end
 
   def first_occurred_at
     first_occurrence.occurred_at
-  end
-
-  def last_occurred_at
-    last_occurrence.occurred_at
   end
 
   def title
