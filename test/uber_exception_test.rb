@@ -187,7 +187,7 @@ class UberExceptionTest < AbstractTest
     end
   end
 
-  def test_update_occurence_count
+  def test_update_occurrence_count
     uber_ex = UberException.occurred(create_occurrence())
     UberException.occurred(create_occurrence())
 
