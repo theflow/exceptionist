@@ -49,7 +49,7 @@ class OccurrenceTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [new_occur, occur], Occurrence.find_since(occur.uber_key, Time.local(2011, 8, 9))
+    assert_equal [new_occur, occur], Occurrence.find_since(uber_key: occur.uber_key, date: Time.local(2011, 8, 9))
   end
 
   def test_count_all_on
