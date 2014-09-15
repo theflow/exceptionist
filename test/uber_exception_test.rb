@@ -222,6 +222,23 @@ class UberExceptionTest < AbstractTest
     assert_equal [], UberException.find(project: 'ExampleProject')
   end
 
+  def test_first_occurrence_since_last_deploy
+    exec = UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    assert_equal nil, exec.first_occurrence_since_last_deploy
+
+    create_deploy
+
+    occur = create_occurrence
+    UberException.occurred(occur)
+    UberException.occurred(create_occurrence)
+    Exceptionist.esclient.refresh
+
+    assert_equal occur, exec.first_occurrence_since_last_deploy
+  end
+
   def test_current_occurrence
     ocr1 = create_occurrence(occurred_at: Time.local(2011, 8, 12, 15, 42))
     ocr2 = create_occurrence(occurred_at: Time.local(2011, 8, 13, 14, 42))
