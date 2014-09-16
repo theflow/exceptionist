@@ -35,6 +35,19 @@ class UberExceptionTest < AbstractTest
     assert_equal 2, UberException.count_all('ExampleProject')
   end
 
+  def test_count_since
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12), action_name: 'action1'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 14), action_name: 'action2'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16), action_name: 'action3'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 18), action_name: 'action4'))
+
+    Exceptionist.esclient.refresh
+
+    assert_equal 4, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 8, 12))
+    assert_equal 2, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 8, 15))
+    assert_equal 0, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 8, 20))
+  end
+
   def test_get
     uber_exception = UberException.occurred(create_occurrence())
 

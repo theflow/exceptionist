@@ -14,6 +14,10 @@ class UberException
     Exceptionist.esclient.count(type: 'exceptions', filters: { term: { project_name: project } } )
   end
 
+  def self.count_since(project: '', date: '')
+    Exceptionist.esclient.count(type: 'exceptions', filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+  end
+
   def self.get(uber_key)
     Exceptionist.esclient.get_exception(uber_key)
   end
