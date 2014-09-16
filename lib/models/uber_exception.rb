@@ -42,8 +42,24 @@ class UberException
     exces
   end
 
-  def self.find_since_last_deploy_ordered_by_occurrences_count(project)
-    find_since_last_deploy(project).sort{ |x, y| y.occurrences_count <=> x.occurrences_count }
+  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', from: 0, size: 25)
+    deploy = Deploy.find_last_deploy(project)
+    return nil unless deploy
+    agg_exces = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
+    ids = []
+    agg_exces.each { |occurr| ids << occurr['key'] }
+    exces = Exceptionist.esclient.mget(ids: ids.slice!(from, size))
+    exces.each do |exce|
+      agg_exces.each do |occurr|
+        if occurr['key'] == exce.id
+          exce.occurrences_count = occurr['doc_count']
+          agg_exces.delete(occurr)
+          break
+        end
+      end
+      exce.first_occurred_at = Occurrence.find_next(exce.id, deploy.deploy_time).occurred_at
+    end
+    exces
   end
 
   def self.find(project: '', filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
