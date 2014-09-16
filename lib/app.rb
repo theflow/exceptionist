@@ -32,6 +32,7 @@ class ExceptionistApp < Sinatra::Base
   get '/projects/:project' do
     @projects = Project.all
     @current_project = Project.new(params[:project])
+    @exceptions_count = UberException.count_all(@current_project.name)
     @start = params[:start] ? params[:start].to_i : 0
     if params[:sort_by] && params[:sort_by] == 'frequent'
       @uber_exceptions = UberException.find_sorted_by_occurrences_count(project: @current_project.name, from: @start)
@@ -45,6 +46,9 @@ class ExceptionistApp < Sinatra::Base
   get '/projects/:project/since_last_deploy' do
     @projects = Project.all
     @current_project = Project.new(params[:project])
+
+    @exceptions_count = UberException.count_since(project: @current_project.name, date: @deploy.deploy_time)
+
     @start = params[:start] ? params[:start].to_i : 0
     if params[:sort_by] && params[:sort_by] == 'frequent'
       @uber_exceptions = UberException.find_since_last_deploy_ordered_by_occurrences_count(@current_project.name)

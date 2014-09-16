@@ -18,13 +18,13 @@
 
     <div class="span-3 append-18">
       <% if @start - 25 >= 0 %>
-          <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
+          <strong><a href="?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
       <% end %>&nbsp;
     </div>
     <% p  %>
     <div class="span-3 right-aligned last">
-      <% if @start + 25 <= @current_project.exceptions_count %>
-          <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
+      <% if @start + 25 <= @exceptions_count %>
+          <strong><a href="?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
       <% end %>
     </div>
 
