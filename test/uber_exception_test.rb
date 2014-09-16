@@ -66,8 +66,8 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    assert_equal [exce1, exce2, exce3], UberException.find_sorted_by_occurrences_count('ExampleProject', 0, 10)
-    assert_equal [exce2, exce3], UberException.find_sorted_by_occurrences_count('ExampleProject', 1, 10)
+    assert_equal [exce1, exce2, exce3], UberException.find_sorted_by_occurrences_count(project: 'ExampleProject')
+    assert_equal [exce2, exce3], UberException.find_sorted_by_occurrences_count(project: 'ExampleProject', from: 1)
   end
 
   def test_find_since_last_deploy
