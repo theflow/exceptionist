@@ -94,18 +94,18 @@ class OccurrenceTest < AbstractTest
   end
 
   def test_count_since
-    create_occurrence(occurred_at: Time.local(2010, 8, 9, 14, 42))
+    occur = create_occurrence(occurred_at: Time.local(2010, 8, 9, 14, 42))
     create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42))
     create_occurrence(occurred_at: Time.local(2012, 8, 9, 17, 42))
 
     Exceptionist.esclient.refresh
 
-    assert_equal 2, Occurrence.count_since('ExampleProject', Time.local(2011, 8, 8))
+    assert_equal 2, Occurrence.count_since(occur.uber_key, Time.local(2011, 8, 8))
 
     create_occurrence
     Exceptionist.esclient.refresh
 
-    assert_equal 3, Occurrence.count_since('ExampleProject', Time.local(2011, 8, 8))
+    assert_equal 3, Occurrence.count_since(occur.uber_key, Time.local(2011, 8, 8))
   end
 
 

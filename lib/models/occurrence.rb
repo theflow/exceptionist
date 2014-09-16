@@ -57,8 +57,8 @@ class Occurrence
     Occurrence.count( project: project, filters: { term: { occurred_at_day: day.strftime('%Y-%m-%d') } })
   end
 
-  def self.count_since(project, time)
-    Occurrence.count(project: project, filters: { range: { occurred_at: { gte: time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } )
+  def self.count_since(uber_key, time)
+    Occurrence.count(filters: [{ range: { occurred_at: { gte: time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, { term: { uber_key: uber_key } }] )
   end
 
   def self.count(project: '', filters: {})
