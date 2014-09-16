@@ -36,7 +36,7 @@ class Deploy
   end
 
   def ==(other)
-    project_name == other.project_name && version == other.version
+    id == other.id
   end
 
   def inspect
