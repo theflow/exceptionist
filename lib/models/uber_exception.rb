@@ -18,7 +18,7 @@ class UberException
     Exceptionist.esclient.get_exception(uber_key)
   end
 
-  def self.find_sorted_by_occurrences_count(project, from = 0, size = 50)
+  def self.find_sorted_by_occurrences_count(project, from = 0, size = 25)
     UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
@@ -46,7 +46,7 @@ class UberException
     find_since_last_deploy(project).sort{ |x, y| y.occurrences_count <=> x.occurrences_count }
   end
 
-  def self.find(project: '', filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 50)
+  def self.find(project: '', filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
     filters = [filters] if filters.class == Hash

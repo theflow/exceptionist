@@ -87,14 +87,30 @@ class IntegrationTest < AbstractTest
     assert_contain '# 2'
   end
 
-  def test_with_pagination
+  def test_project_pagination_recent
     27.times do |i|
       UberException.occurred(create_occurrence(action_name:"action_#{i}"))
     end
 
     Exceptionist.esclient.refresh
 
-    visit '/projects/ExampleProject'
+    visit '/projects/ExampleProject?sort_by=latest'
+    assert_contain 'next page'
+    assert_not_contain 'previous page'
+
+    click_link 'next page'
+    assert_not_contain 'next page'
+    assert_contain 'previous page'
+  end
+
+  def test_project_pagination_frequent
+    27.times do |i|
+      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+    end
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject?sort_by=frequent'
     assert_contain 'next page'
     assert_not_contain 'previous page'
 
