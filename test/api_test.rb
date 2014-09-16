@@ -2,8 +2,12 @@ require 'test_helper'
 
 require 'rack/test'
 
-class ApiTest < AbstractTest
+class ApiTest < MiniTest::Test
   include Rack::Test::Methods
+
+  def setup
+    clear_collections
+  end
 
   def app
     ExceptionistApp

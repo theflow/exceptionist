@@ -7,10 +7,14 @@ Webrat.configure do |config|
   config.mode = :rack
 end
 
-class IntegrationTest < AbstractTest
+class IntegrationTest < MiniTest::Test
   include Rack::Test::Methods
   include Webrat::Methods
   include Webrat::Matchers
+
+  def setup
+    clear_collections
+  end
 
   def app
     ExceptionistApp

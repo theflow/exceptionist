@@ -1,6 +1,10 @@
 require 'test_helper'
 
-class ProjectTest < AbstractTest
+class ProjectTest < MiniTest::Test
+
+  def setup
+    clear_collections
+  end
 
   def test_last_n_days
     assert_equal 2, Project.last_n_days(2).size
