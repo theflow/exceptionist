@@ -94,7 +94,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    uber_exces = UberException.find_since_last_deploy('ExampleProject')
+    uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject')
 
     assert_equal [exce3, exce2], uber_exces
     assert_equal 1, uber_exces[0].occurrences_count
@@ -107,7 +107,7 @@ class UberExceptionTest < AbstractTest
 
     Exceptionist.esclient.refresh
 
-    uber_exces = UberException.find_since_last_deploy('ExampleProject')
+    uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject')
 
     assert_equal [exce4, exce2, exce3], uber_exces
     assert_equal 2, uber_exces[0].occurrences_count
@@ -120,7 +120,7 @@ class UberExceptionTest < AbstractTest
 
   def test_find_since_last_deploy_with_no_deploy
     UberException.occurred(create_occurrence)
-    assert_equal nil, UberException.find_since_last_deploy('ExampleProject')
+    assert_equal nil, UberException.find_since_last_deploy(project: 'ExampleProject')
   end
 
   def test_find_since_last_deploy_ordered_by_occurrences_count

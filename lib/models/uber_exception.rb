@@ -26,13 +26,13 @@ class UberException
     UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_since_last_deploy(project)
+  def self.find_since_last_deploy(project: '', from: 0, size: 25)
     deploy = Deploy.find_last_deploy(project)
     return nil unless deploy
     agg_exces = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = find( project: project, filters: { ids: { type: 'exceptions', values: ids } } )
+    exces = find( project: project, filters: { ids: { type: 'exceptions', values: ids } }, from: from, size: size )
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
