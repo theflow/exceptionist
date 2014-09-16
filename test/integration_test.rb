@@ -155,6 +155,38 @@ class IntegrationTest < AbstractTest
     assert_contain 'Deleted exceptions: 1'
   end
 
+  def test_projects_since_last_deploy_no_exce
+    visit '/projects/ExampleProject/since_last_deploy'
+
+    assert_contain 'no exceptions'
+  end
+
+  def test_projects_since_last_deploy_fresh_deploy
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+    create_deploy
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject/since_last_deploy'
+
+    assert_contain 'no exceptions'
+  end
+
+  def test_projects_since_last_deploy_old_deploy
+    create_deploy
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject/since_last_deploy'
+
+    assert_contain 'NameError in users#show'
+  end
+
   def test_exceptions_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)

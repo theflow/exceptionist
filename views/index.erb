@@ -1,6 +1,6 @@
 <h2><%= @title %></h2>
 
-<% if ! @uber_exceptions.empty? %>
+<% if @uber_exceptions && @uber_exceptions.any? %>
 
     <div class="span-4 sorting_links">
       <a href="/projects/<%= @current_project.name %>/river">River</a>
