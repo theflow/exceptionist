@@ -28,7 +28,7 @@ class ESClient
     Hashie::Mash.new(response)
   end
 
-  def search_deploys(filters, sort={}, from=0, size=25)
+  def search_deploys(filters: {}, sort: {}, from: 0, size: 25)
     query = create_search_query(filters, sort, from, size)
     response = @es.search(index: INDEX, type: TYPE_DEPLOYS, body: query)
     hash = Hashie::Mash.new(response)

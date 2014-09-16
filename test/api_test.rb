@@ -95,13 +95,13 @@ class ApiTest < MiniTest::Test
   end
 
   def test_api_deploy
-    assert_equal [], Deploy.find('ExampleProject')
+    assert_equal [], Deploy.find_by_project('ExampleProject')
 
     post '/notifier_api/v2/deploy/', read_fixtures_file('fixtures/deploy.json')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    assert_equal 1, Deploy.find('ExampleProject').count
+    assert_equal 1, Deploy.find_by_project('ExampleProject').count
   end
 end

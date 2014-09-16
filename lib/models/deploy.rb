@@ -3,14 +3,18 @@ require 'json'
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :deploy_time
 
-  def self.find(project)
-    Exceptionist.esclient.search_deploys( term: { project_name: project } )
+  def self.find_by_project(project)
+    find( filters: { term: { project_name: project } } )
   end
 
   def self.find_last_deploy(project)
-    Exceptionist.esclient.search_deploys( { term: { project_name: project } }, { deploy_time: { order: 'desc' } }, from: 0, size: 1 ).first
+    find( filters: { term: { project_name: project } }, from: 0, size: 1).first
   end
 
+  def self.find(filters: {}, sort: { deploy_time: { order: 'desc' } }, from: 0, size: 25)
+    raise ArgumentError, 'position has to be >= 0' if from < 0
+    Exceptionist.esclient.search_deploys( filters: filters, sort: sort, from: from, size: size )
+  end
   def self.from_json(json)
     attr = symbolize_keys(JSON.parse(json))
     Deploy.new(attr)
