@@ -192,6 +192,26 @@ class IntegrationTest < AbstractTest
     assert_not_contain 'previous page'
   end
 
+  def test_projects_since_last_deploy_pagination
+    create_deploy
+
+    27.times do |i|
+      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+    end
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject/since_last_deploy'
+    assert_contain 'since last deploy'
+    assert_contain 'next page'
+    assert_not_contain 'previous page'
+
+    click_link 'next page'
+    assert_contain 'since last deploy'
+    assert_not_contain 'next page'
+    assert_contain 'previous page'
+  end
+
   def test_exceptions_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)
