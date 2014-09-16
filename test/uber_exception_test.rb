@@ -98,12 +98,11 @@ class UberExceptionTest < AbstractTest
 
     assert_equal [exce4, exce2, exce3], uber_exces
     assert_equal 2, uber_exces[0].occurrences_count
-    assert_equal Time.local(2011, 8, 17), uber_exces[0].first_occurred_at.occurred_at
+    assert_equal Time.local(2011, 8, 17), uber_exces[0].first_occurred_at
     assert_equal 3, uber_exces[1].occurrences_count
-    assert_equal Time.local(2011, 8, 15), uber_exces[1].first_occurred_at.occurred_at
+    assert_equal Time.local(2011, 8, 15), uber_exces[1].first_occurred_at
     assert_equal 1, uber_exces[2].occurrences_count
-    assert_equal Time.local(2011, 8, 16), uber_exces[2].first_occurred_at.occurred_at
-
+    assert_equal Time.local(2011, 8, 16), uber_exces[2].first_occurred_at
   end
 
   def test_find_since_last_deploy_with_no_deploy

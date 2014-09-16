@@ -37,7 +37,7 @@ class UberException
           break
         end
       end
-      exce.first_occurred_at = Occurrence.find_next(exce.id, deploy.deploy_time)
+      exce.first_occurred_at = Occurrence.find_next(exce.id, deploy.deploy_time).occurred_at
     end
     exces
   end
