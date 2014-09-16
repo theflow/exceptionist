@@ -71,7 +71,9 @@ class IntegrationTest < AbstractTest
     visit '/projects/ExampleProject'
 
     assert_contain 'Latest Exceptions for ExampleProject'
-    assert_contain 'Are you kidding? There are no exceptions!'
+    assert_contain 'no exceptions'
+    assert_not_contain 'next page'
+    assert_not_contain 'previous page'
   end
 
   def test_projects_with_one_exception
