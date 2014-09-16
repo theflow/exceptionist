@@ -56,26 +56,27 @@ module ESHelper
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
       end
 
+      occurr_prop =
+          {action_name: { type: 'string', index: 'not_analyzed' },
+           controller_name: { type: 'string', index: 'not_analyzed' },
+           project_name: { type: 'string', index: 'not_analyzed' },
+           uber_key: { type: 'string', index: 'not_analyzed' },
+           exception_class: { type: 'string', index: 'not_analyzed' },
+           occurred_at_day: { type: 'date' },
+           occurred_at: { type: 'date' } }
+
       Exceptionist.esclient.create_indices('exceptionist',
                                            { mappings: {
                                                _default_: {
                                                    dynamic: 'false'
                                                },
-                                               occurrences: {
-                                                   properties: {
-                                                       action_name: { type: 'string', index: 'not_analyzed' },
-                                                       controller_name: { type: 'string', index: 'not_analyzed' },
-                                                       project_name: { type: 'string', index: 'not_analyzed' },
-                                                       uber_key: { type: 'string', index: 'not_analyzed' },
-                                                       exception_class: { type: 'string', index: 'not_analyzed' },
-                                                       occurred_at_day: { type: 'date' },
-                                                       occurred_at: { type: 'date' }
-                                                   } },
+                                               occurrences: { properties: occurr_prop },
                                                exceptions:{
                                                    properties: {
                                                        project_name: { type: 'string', index: 'not_analyzed' },
                                                        closed: { type: 'boolean' },
-                                                       last_occurred_at: { type: 'date' },
+                                                       last_occurrence: { properties: occurr_prop},
+                                                       first_occurred_at: { type: 'date' },
                                                        occurrences_count: {type: 'long'}
                                                    } },
                                                deploys: {

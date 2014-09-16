@@ -2,6 +2,24 @@ require 'test_helper'
 
 class UberExceptionTest < AbstractTest
 
+  def test_occurred
+    occur = create_occurrence(occurred_at: Time.local(2011, 8, 12))
+    exce = UberException.occurred(occur)
+
+    Exceptionist.esclient.refresh
+
+    assert_equal Time.local(2011, 8, 12), exce.first_occurred_at
+    assert_equal occur, exce.last_occurrence
+
+    occur = create_occurrence(occurred_at: Time.local(2011, 8, 13))
+    exce = UberException.occurred(occur)
+
+    Exceptionist.esclient.refresh
+
+    assert_equal Time.local(2011, 8, 12), exce.first_occurred_at
+    assert_equal occur, exce.last_occurrence
+  end
+
   def test_count_all
     UberException.occurred(create_occurrence())
 
@@ -35,23 +53,6 @@ class UberExceptionTest < AbstractTest
 
     assert_equal [exce4, exce3, exce2, exce1], UberException.find(project: 'ExampleProject')
     assert_equal [exce2], UberException.find(project: 'ExampleProject', from: 2, size: 1)
-  end
-
-  def test_update_last_occurred_at
-    exec = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12)))
-    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 13)))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal Time.local(2011, 8, 13), UberException.get(exec.id).last_occurred_at
-
-    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 16)))
-    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 17)))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal Time.local(2011, 8, 12), UberException.get(exec.id).first_occurred_at
-    assert_equal Time.local(2011, 8, 17), UberException.get(exec.id).last_occurred_at
   end
 
   def test_find_sorted_by_occurrences_count

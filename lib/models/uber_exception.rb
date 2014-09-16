@@ -1,12 +1,13 @@
 class UberException
-  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurred_at
+  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at
 
   def initialize(attributes)
     @id = attributes[:id]
     @project_name = attributes[:project_name]
     @occurrences_count = attributes[:occurrences_count]
     @closed = attributes[:closed]
-    @last_occurred_at = Time.parse(attributes[:last_occurred_at])
+    @last_occurrence = Occurrence.new(attributes[:last_occurrence])
+    @first_occurred_at = Time.parse(attributes[:first_occurred_at])
   end
 
   def self.count_all(project)
@@ -28,13 +29,15 @@ class UberException
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
     exces = find( project: project, filters: { ids: { type: 'exceptions', values: ids } } )
-    agg_exces.each do |occurr|
-      exces.each do |exce|
+    exces.each do |exce|
+      agg_exces.each do |occurr|
         if occurr['key'] == exce.id
           exce.occurrences_count = occurr['doc_count']
+          agg_exces.delete(occurr)
           break
         end
       end
+      exce.first_occurred_at = Occurrence.find_next(exce.id, deploy.deploy_time)
     end
     exces
   end
@@ -43,7 +46,7 @@ class UberException
     find_since_last_deploy(project).sort{ |x, y| y.occurrences_count <=> x.occurrences_count }
   end
 
-  def self.find(project: '', filters: [], sort: { last_occurred_at: { order: 'desc'} }, from: 0, size: 50)
+  def self.find(project: '', filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 50)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
     filters = [filters] if filters.class == Hash
@@ -60,22 +63,24 @@ class UberException
     uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
   end
 
-
-
   def self.occurred(occurrence)
-    timestamp = occurrence.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+    first_timestamp = occurrence.occurred_at
 
-    #TODO maybe remove when arrival time is sorted
+    #TODO maybe remove when events arrive sorted
     begin
       exec = Exceptionist.esclient.get_exception(occurrence.uber_key)
-      timestamp = exec.last_occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") if occurrence.occurred_at < exec.last_occurred_at
+      occurrence = exec.last_occurrence.occurred_at < first_timestamp ? occurrence : exec.last_occurrence
+      first_timestamp = first_timestamp < exec.first_occurred_at ? first_timestamp :  exec.first_occurred_at
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
 
     end
 
-    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.last_occurred_at=last_occurred_at; ctx._source.closed=closed',
-                                                                      upsert: { project_name: occurrence.project_name, last_occurred_at: timestamp, closed: false, occurrences_count: 1},
-                                                                      params: { last_occurred_at: timestamp, closed: false} })
+    first_timestamp = first_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+    hash = occurrence.to_hash
+    hash[:id] = occurrence.id
+    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
+                                                                      upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: first_timestamp, closed: false, occurrences_count: 1},
+                                                                      params: { occurrence: hash, timestamp: first_timestamp} })
     Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
 
@@ -83,7 +88,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { last_occurred_at: { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
 
     uber_exceptions.each do |exception|
       exception.forget!
@@ -103,14 +108,6 @@ class UberException
     Exceptionist.esclient.update('exceptions', @id, { doc: { closed: true } })
   end
 
-  def last_occurrence
-    @last_occurrence ||= Occurrence.find_last_for(id)
-  end
-
-  def first_occurrence
-    @first_occurrence ||= Occurrence.find_first_for(id)
-  end
-
   def first_occurrence_since_last_deploy
     deploy = Deploy.find_last_deploy(@project_name)
     return nil unless deploy
@@ -125,10 +122,6 @@ class UberException
   def update_occurrences_count
     occurrences_count = Occurrence.count(filters: { term: { uber_key: id } })
     Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: occurrences_count } })
-  end
-
-  def first_occurred_at
-    first_occurrence.occurred_at
   end
 
   def title
