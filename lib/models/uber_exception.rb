@@ -104,7 +104,7 @@ class UberException
     Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
 
-  def self.forget_old_exceptions(project, days)
+  def self.forget_old_exceptions(project, days=0)
     since_date = Time.now - (86400 * days)
     deleted = 0
 
