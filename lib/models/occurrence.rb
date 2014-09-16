@@ -10,7 +10,8 @@ class Occurrence
       send("#{key}=", value)
     end
 
-    self.occurred_at ||= attributes['occurred_at'] || Time.now
+    self.occurred_at = Time.parse(attributes['occurred_at']) if attributes['occurred_at']
+    self.occurred_at ||= Time.now
     self.uber_key ||= generate_uber_key
   end
 
