@@ -84,7 +84,7 @@ class UberExceptionTest < AbstractTest
   end
 
   def test_find_since_last_deploy
-    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 12), action_name: 'action1'))
+    exce1 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 14), action_name: 'action1'))
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 11), action_name: 'action2'))
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
     exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 8, 15), action_name: 'action2'))
@@ -96,7 +96,7 @@ class UberExceptionTest < AbstractTest
 
     uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject')
 
-    assert_equal [exce3, exce2], uber_exces
+    assert_equal [exce3, exce2, exce1], uber_exces
     assert_equal 1, uber_exces[0].occurrences_count
     assert_equal 2, uber_exces[1].occurrences_count
 
@@ -109,13 +109,21 @@ class UberExceptionTest < AbstractTest
 
     uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject')
 
-    assert_equal [exce4, exce2, exce3], uber_exces
+    assert_equal [exce4, exce2, exce3, exce1], uber_exces
     assert_equal 2, uber_exces[0].occurrences_count
     assert_equal Time.local(2011, 8, 17), uber_exces[0].first_occurred_at
     assert_equal 3, uber_exces[1].occurrences_count
     assert_equal Time.local(2011, 8, 15), uber_exces[1].first_occurred_at
     assert_equal 1, uber_exces[2].occurrences_count
     assert_equal Time.local(2011, 8, 16), uber_exces[2].first_occurred_at
+    assert_equal 1, uber_exces[3].occurrences_count
+    assert_equal Time.local(2011, 8, 16), uber_exces[2].first_occurred_at
+
+    uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject', size: 2)
+    assert_equal [exce4, exce2], uber_exces
+
+    uber_exces = UberException.find_since_last_deploy(project: 'ExampleProject', from: 2, size: 2)
+    assert_equal [exce3, exce1], uber_exces
   end
 
   def test_find_since_last_deploy_with_no_deploy
