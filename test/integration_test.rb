@@ -173,6 +173,7 @@ class IntegrationTest < AbstractTest
 
     visit '/projects/ExampleProject/since_last_deploy'
 
+    assert_contain 'since last deploy'
     assert_contain 'no exceptions'
   end
 
@@ -187,6 +188,8 @@ class IntegrationTest < AbstractTest
     visit '/projects/ExampleProject/since_last_deploy'
 
     assert_contain 'NameError in users#show'
+    assert_not_contain 'next page'
+    assert_not_contain 'previous page'
   end
 
   def test_exceptions_show_a_minimal_occurrence
