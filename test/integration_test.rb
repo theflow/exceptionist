@@ -16,11 +16,11 @@ class IntegrationTest < AbstractTest
     ExceptionistApp
   end
 
-  def test_show_a_empty_dashboard
+  def test_dashboard_empty
     visit '/'
   end
 
-  def test_show_the_dashboard_with_one_project
+  def test_dashboard_with_one_project
     occurrence = create_occurrence
     UberException.occurred(occurrence)
 
@@ -32,7 +32,7 @@ class IntegrationTest < AbstractTest
     click_link 'ExampleProject'
   end
 
-  def test_show_the_dashboard_with_no_deploy
+  def test_dashboard_with_no_deploy
     occurrence = create_occurrence
     UberException.occurred(occurrence)
 
@@ -42,7 +42,7 @@ class IntegrationTest < AbstractTest
     assert_contain '- no deploy found'
   end
 
-  def test_show_the_dashboard_with_deploy
+  def test_dashboard_with_deploy
     occurrence = create_occurrence
     UberException.occurred(occurrence)
     create_deploy
@@ -53,7 +53,7 @@ class IntegrationTest < AbstractTest
     assert_contain '- deploy:'
   end
 
-  def test_show_the_dashboard_with_two_projects
+  def test_dashboard_with_two_projects
     occur1 = create_occurrence(project_name: 'ExampleProject')
     UberException.occurred(occur1)
 
@@ -67,14 +67,14 @@ class IntegrationTest < AbstractTest
     assert_contain 'ExampleProject2'
   end
 
-  def test_with_no_exceptions
+  def test_projects_with_no_exceptions
     visit '/projects/ExampleProject'
 
     assert_contain 'Latest Exceptions for ExampleProject'
     assert_contain 'Are you kidding? There are no exceptions!'
   end
 
-  def test_with_one_exception
+  def test_projects_with_one_exception
     UberException.occurred(create_occurrence)
     UberException.occurred(create_occurrence)
 
@@ -87,7 +87,7 @@ class IntegrationTest < AbstractTest
     assert_contain '# 2'
   end
 
-  def test_project_pagination_recent
+  def test_projects_pagination_latest
     27.times do |i|
       UberException.occurred(create_occurrence(action_name:"action_#{i}"))
     end
@@ -103,7 +103,7 @@ class IntegrationTest < AbstractTest
     assert_contain 'previous page'
   end
 
-  def test_project_pagination_frequent
+  def test_projects_pagination_frequent
     27.times do |i|
       UberException.occurred(create_occurrence(action_name:"action_#{i}"))
     end
@@ -119,7 +119,7 @@ class IntegrationTest < AbstractTest
     assert_contain 'previous page'
   end
 
-  def test_be_sorted_by_most_recent
+  def test_projects_be_sorted_by_most_recent
     UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-03-01'))
     UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2009-02-01'))
 
@@ -132,7 +132,7 @@ class IntegrationTest < AbstractTest
     assert_contain 'NameError in users#show'
   end
 
-  def test_show_new_exceptions
+  def test_projects_show_new_exceptions
     UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-07-01'))
     UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2010-08-01'))
 
@@ -144,7 +144,7 @@ class IntegrationTest < AbstractTest
     assert_not_contain 'NameError in users#index'
   end
 
-  def test_forget_old_exceptions
+  def test_projects_forget_old_exceptions
     UberException.occurred(create_occurrence(action_name:'show', occurred_at:Time.now - (86400 * 50)))
     UberException.occurred(create_occurrence(action_name:'index', occurred_at:Time.now))
 
@@ -155,7 +155,7 @@ class IntegrationTest < AbstractTest
     assert_contain 'Deleted exceptions: 1'
   end
 
-  def test_show_a_minimal_occurrence
+  def test_exceptions_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)
 
@@ -170,7 +170,7 @@ class IntegrationTest < AbstractTest
     assert_contain 'User Agent'
   end
 
-  def test_paginate_occurrences
+  def test_exceptions_paginate_occurrences
     occur1 = create_occurrence(url: 'http://example.com/?show=one')
     occur2 = create_occurrence(url: 'http://example.com/?show=two')
     occur3 = create_occurrence(url: 'http://example.com/?show=three')
@@ -198,7 +198,7 @@ class IntegrationTest < AbstractTest
     assert_not_contain 'GET http://example.com/?show=two'
   end
 
-  def test_be_able_to_close_an_exception
+  def test_projects_be_able_to_close_an_exception
     UberException.occurred(create_occurrence(action_name:'show'))
     UberException.occurred(create_occurrence(action_name:'index'))
 
