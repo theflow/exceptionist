@@ -157,10 +157,10 @@ class IntegrationTest < AbstractTest
     assert_contain 'Deleted exceptions: 1'
   end
 
-  def test_projects_since_last_deploy_no_exce
-    visit '/projects/ExampleProject/since_last_deploy'
+  def test_projects_since_last_deploy_with_no_deploy
+    get '/projects/ExampleProject/since_last_deploy'
 
-    assert_contain 'no exceptions'
+    assert !last_response.ok?
   end
 
   def test_projects_since_last_deploy_fresh_deploy
