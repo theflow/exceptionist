@@ -47,6 +47,9 @@ class ExceptionistApp < Sinatra::Base
     @projects = Project.all
     @current_project = Project.new(params[:project])
 
+    @deploy = @current_project.last_deploy
+    raise ArgumentError, "There is no deploy for project #{@current_project.name}" unless @deploy
+
     @exceptions_count = UberException.count_since(project: @current_project.name, date: @deploy.deploy_time)
 
     @start = params[:start] ? params[:start].to_i : 0
