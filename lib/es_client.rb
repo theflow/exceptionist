@@ -49,6 +49,12 @@ class ESClient
     hash.hits.hits.map { |doc| create_exception(doc) }
   end
 
+  def mget(ids: [])
+    response = @es.mget( index: INDEX, type: TYPE_EXCEPTIONS, body: { ids: ids } )
+    hash = Hashie::Mash.new(response)
+    hash.docs.map { |doc| create_exception(doc) }
+  end
+
   def index(type, body)
     response = @es.index(index: INDEX, type: type, body: body)
     Hashie::Mash.new(response)
