@@ -1,123 +1,76 @@
 require 'test_helper'
 
-class OccurrenceTest < AbstractTest
+class OccurrenceTest < MiniTest::Test
+
+  def setup
+    clear_collections
+
+    @occur11 = create_occurrence(occurred_at: Time.local(2011, 1, 1))
+    @occur12 = create_occurrence(occurred_at: Time.local(2011, 1, 2))
+    create_occurrence(occurred_at: Time.local(2011, 1, 3))
+    create_occurrence(occurred_at: Time.local(2011, 1, 4))
+    create_occurrence(occurred_at: Time.local(2011, 1, 5))
+    create_occurrence(occurred_at: Time.local(2011, 1, 6))
+    create_occurrence(occurred_at: Time.local(2011, 1, 7))
+    @occur18 = create_occurrence(occurred_at: Time.local(2011, 1, 8))
+    @occur19 = create_occurrence(occurred_at: Time.local(2011, 1, 9))
+
+    @occur21 = create_occurrence(occurred_at: Time.local(2011, 1, 4), action_name: 'save')
+    create_occurrence(occurred_at: Time.local(2011, 1, 6), action_name: 'save')
+    create_occurrence(occurred_at: Time.local(2011, 1, 6), action_name: 'save')
+    create_occurrence(occurred_at: Time.local(2011, 1, 6), action_name: 'save')
+
+    @occur31 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 5), action_name: 'otherAction'))
+
+    @occur41 = create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'OtherProject')
+
+    Exceptionist.esclient.refresh
+  end
 
   def test_delete_all_for
-    occur = create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9))
-    other_occur = create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
+    Occurrence.delete_all_for(@occur11.uber_key)
 
     Exceptionist.esclient.refresh
 
-    assert_equal 3, Occurrence.find_by_name(occur.project_name).size
-
-    Occurrence.delete_all_for(occur.uber_key)
-
-    Exceptionist.esclient.refresh
-
-    assert_equal 0, Occurrence.find_by_name(occur.project_name).size
-    assert_equal 1, Occurrence.find_by_name(other_occur.project_name).size
+    assert_equal 5, Occurrence.find_by_name('ExampleProject').size
+    assert_equal 1, Occurrence.find_by_name('OtherProject').size
   end
 
   def test_find_first_for
-    occur = create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    other_occur = create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal occur, Occurrence.find_first_for(occur.uber_key)
-    assert_equal other_occur, Occurrence.find_first_for(other_occur.uber_key)
+    assert_equal @occur11, Occurrence.find_first_for(@occur12.uber_key)
   end
 
   def test_find_last_for
-    create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    other_occur = create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal occur, Occurrence.find_last_for(occur.uber_key)
-    assert_equal other_occur, Occurrence.find_last_for(other_occur.uber_key)
+    assert_equal @occur19, Occurrence.find_last_for(@occur12.uber_key)
   end
 
   def test_find_since
-    create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur = create_occurrence(occurred_at: Time.local(2011, 8, 9))
-    new_occur = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal [new_occur, occur], Occurrence.find_since(uber_key: occur.uber_key, date: Time.local(2011, 8, 9))
+    assert_equal [@occur19, @occur18], Occurrence.find_since(uber_key: @occur18.uber_key, date: Time.local(2011, 1, 7, 12, 0))
   end
 
   def test_find_by_name
-    occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal [occur2, occur3, occur1], Occurrence.find_by_name('ExampleProject', 5)
-    assert_equal [occur2, occur3], Occurrence.find_by_name('ExampleProject', 2)
+    assert_equal 14, Occurrence.find_by_name('ExampleProject').size
+    assert_equal [@occur41], Occurrence.find_by_name('OtherProject')
   end
 
   def test_find_next
-    create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal occur3, Occurrence.find_next(occur2.uber_key, Time.local(2011, 1, 1))
-    assert_equal occur2, Occurrence.find_next(occur2.uber_key, Time.local(2012, 1, 1))
+    assert_equal @occur19, Occurrence.find_next(@occur18.uber_key, Time.local(2011, 1, 8, 12, 0))
+    assert_equal @occur12, Occurrence.find_next(@occur11.uber_key, Time.local(2011, 1, 1, 12, 0))
   end
 
   def test_count_all_on
-    create_occurrence(occurred_at: Time.local(2011, 8, 9, 14, 42))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal 0, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 10))
-    assert_equal 2, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 9))
-
-    create_occurrence(occurred_at: Time.local(2011, 8, 9, 9, 42))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal 0, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 8))
-    assert_equal 3, Occurrence.count_all_on('ExampleProject', Time.local(2011, 8, 9))
+    assert_equal 0, Occurrence.count_all_on('ExampleProject', Time.local(2011, 1, 20))
+    assert_equal 4, Occurrence.count_all_on('ExampleProject', Time.local(2011, 1, 6))
   end
 
   def test_count_since
-    occur = create_occurrence(occurred_at: Time.local(2010, 8, 9, 14, 42))
-    create_occurrence(occurred_at: Time.local(2011, 8, 9, 17, 42))
-    create_occurrence(occurred_at: Time.local(2012, 8, 9, 17, 42))
-
-    Exceptionist.esclient.refresh
-
-    assert_equal 2, Occurrence.count_since(occur.uber_key, Time.local(2011, 8, 8))
-
-    create_occurrence
-    Exceptionist.esclient.refresh
-
-    assert_equal 3, Occurrence.count_since(occur.uber_key, Time.local(2011, 8, 8))
+    assert_equal 2, Occurrence.count_since(@occur11.uber_key, Time.local(2011, 1, 7, 12, 0))
+    assert_equal 0, Occurrence.count_since(@occur21.uber_key, Time.local(2011, 1, 8))
   end
 
 
   def test_find
-    occur1 = create_occurrence(occurred_at: Time.local(2010, 8, 9))
-    occur2 = create_occurrence(occurred_at: Time.local(2012, 8, 9))
-    occur3 = create_occurrence(occurred_at: Time.local(2011, 8, 9))
-    occur4 = create_occurrence(occurred_at: Time.local(2011, 8, 10), project_name: 'OtherProject')
-
-    Exceptionist.esclient.refresh
-
-    assert_equal [occur2, occur4, occur3, occur1], Occurrence.find
+    assert_equal 15, Occurrence.find.size
   end
 
   def test_generate_uber_key
