@@ -1,5 +1,5 @@
 class UberException
-  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at
+  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
   def initialize(attributes)
     @id = attributes[:id]

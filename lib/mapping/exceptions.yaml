@@ -8,3 +8,6 @@ properties:
      type: 'date'
    occurrences_count:
      type: 'long'
+   category:
+     type: 'string'
+     index: 'not_analyzed'
