@@ -44,7 +44,7 @@ class ApiTest < MiniTest::Test
     assert_equal 2, exce.first.occurrences_count
   end
 
-  def test_check_if_api_key_is_valid
+  def test_api_unauth_exception
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/unauth_exception.xml')
 
     assert_equal 'Invalid API Key', last_response.body
@@ -68,7 +68,7 @@ class ApiTest < MiniTest::Test
     assert_equal 1, exce.first.occurrences_count
   end
 
-  def test_api_unauth_exception
+  def test_api_exception_with_hash
     assert_equal [], UberException.find( project: 'ExampleProject' )
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception_with_hash_in_params.xml')
