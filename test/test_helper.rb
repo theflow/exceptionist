@@ -7,14 +7,18 @@ require 'es_helper'
 require 'app'
 
 at_exit do
-  ESHelper.stopCluster
+  Elasticsearch::Extensions::Test::Cluster.stop( port: Exceptionist.esclient.port )
 end
 
 # minitest install its own at_exit, so we need to do this after our own
 require 'minitest/autorun'
 
 Exceptionist.endpoint = "localhost:10000"
-ESHelper.startCluster
+Elasticsearch::Extensions::Test::Cluster.start(
+    cluster_name: "testing-cluster",
+    port: Exceptionist.esclient.port,
+    nodes: 1,
+)
 ESHelper::ClearDB.run
 
 # Configure

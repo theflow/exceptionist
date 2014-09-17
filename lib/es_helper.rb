@@ -4,18 +4,6 @@ require 'yaml'
 
 module ESHelper
 
-  def self.startCluster
-    Elasticsearch::Extensions::Test::Cluster.start(
-        cluster_name: "my-testing-cluster",
-        port: Exceptionist.esclient.port,
-        nodes: 1,
-    )
-  end
-
-  def self.stopCluster
-    Elasticsearch::Extensions::Test::Cluster.stop( port: Exceptionist.esclient.port )
-  end
-
   class Exporter
     def self.run
       occurrences = Occurrence.find.map { |occurrence| occurrence.to_hash }
