@@ -251,6 +251,24 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'previous page'
   end
 
+  def test_projects_new_exception_since_deploy
+    create_deploy
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject'
+    assert_contain 'new'
+
+    create_deploy
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject'
+    assert_not_contain 'new'
+  end
+
   def test_exceptions_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)

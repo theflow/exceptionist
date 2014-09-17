@@ -78,12 +78,20 @@ dd {
   text-align: right;
 }
 
+span.box {
+    float: right;
+    font-size: 1.2em;
+    padding: 6px 8px;
+}
+
 span.occurrences_count {
-  float: right;
   background-color: #eee;
-  font-size: 1.2em;
-  padding: 6px 8px;
   color: #666;
+}
+
+span.new {
+    background-color: #F0113E;
+    color: #ddd;
 }
 
 .project-label {

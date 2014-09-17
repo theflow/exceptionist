@@ -3,12 +3,15 @@
     Last: <%= format_time(uber_exc.last_occurrence.occurred_at) %><br />
     First: <%= format_time(uber_exc.first_occurred_at) %>
   </div>
-  <div class="span-18">
+  <div class="span-16">
     <h6><a href="/exceptions/<%= uber_exc.id %>?backparams=<%= escape(request.query_string) %>"><%= escape_html(truncate(uber_exc.title, 100)) %></a></h6>
     <%= escape_html(truncate(uber_exc.url, 80)) %>
   </div>
+   <div class="span-2 centered">
+     &nbsp;<% if uber_exc.new_since_last_deploy %> <span class="box new"> new </span> <% end %>
+  </div>
   <div class="span-2 last centered">
-    <span class="occurrences_count"># <%= uber_exc.occurrences_count %></span>
+    <span class="box occurrences_count"># <%= uber_exc.occurrences_count %></span>
   </div>
   <hr />
 <% end %>
