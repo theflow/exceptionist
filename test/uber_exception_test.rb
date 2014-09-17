@@ -76,17 +76,17 @@ class UberExceptionTest < MiniTest::Test
 
     assert_equal [@exce1, @exce3,  @exce2], uber_exces
     assert_equal 5, uber_exces[0].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[0].first_occurred_at
+    assert_equal Time.local(2011, 1, 1), uber_exces[0].first_occurred_at
     assert_equal 2, uber_exces[1].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[1].first_occurred_at
+    assert_equal Time.local(2011, 1, 2), uber_exces[1].first_occurred_at
     assert_equal 4, uber_exces[2].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[2].first_occurred_at
+    assert_equal Time.local(2011, 1, 4), uber_exces[2].first_occurred_at
 
     uber_exces = UberException.find_since_last_deploy(project: 'OtherProject')
 
     assert_equal [@exce5], uber_exces
     assert_equal 1, uber_exces[0].occurrences_count
-    assert_equal Time.local(2011, 1, 8), uber_exces[0].first_occurred_at
+    assert_equal Time.local(2011, 1, 4), uber_exces[0].first_occurred_at
   end
 
   def test_find_since_last_deploy_with_no_deploy
@@ -99,11 +99,11 @@ class UberExceptionTest < MiniTest::Test
 
     assert_equal [@exce1, @exce2, @exce3], uber_exces
     assert_equal 5, uber_exces[0].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[0].first_occurred_at
+    assert_equal Time.local(2011, 1, 1), uber_exces[0].first_occurred_at
     assert_equal 4, uber_exces[1].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[1].first_occurred_at
+    assert_equal Time.local(2011, 1, 4), uber_exces[1].first_occurred_at
     assert_equal 2, uber_exces[2].occurrences_count
-    assert_equal Time.local(2011, 1, 6), uber_exces[2].first_occurred_at
+    assert_equal Time.local(2011, 1, 2), uber_exces[2].first_occurred_at
   end
 
   def test_find_new_on
