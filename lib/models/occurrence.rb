@@ -118,17 +118,6 @@ class Occurrence
     self
   end
 
-  def self.create(attributes = {})
-    new(attributes).save
-  end
-
-  def self.es_create(attributes)
-    return nil unless attributes
-
-    attributes.merge!(attributes['_source']).delete('_source')
-    Occurrence.new(attributes)
-  end
-
   def to_hash
     { exception_message:    exception_message,
       session:              session,

@@ -133,11 +133,6 @@ class UberException
     occurrences.any? ? occurrences.first : nil
   end
 
-  def update_occurrences_count
-    occurrences_count = Occurrence.count(filters: { term: { uber_key: id } })
-    Exceptionist.esclient.update('exceptions', id, { doc: { occurrences_count: occurrences_count } })
-  end
-
   def title
     last_occurrence.title
   end
