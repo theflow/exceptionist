@@ -21,7 +21,7 @@ Elasticsearch::Extensions::Test::Cluster.start(
     nodes: 1,
 )
 
-Exceptionist.esclient.create_indices('exceptionist', YAML.load(File.read('lib/mapping.yaml') ))
+Exceptionist.esclient.create_indices( 'exceptionist', MappingHelper.get_mapping )
 Exceptionist.esclient.refresh
 
 # Configure

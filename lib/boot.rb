@@ -15,4 +15,6 @@ require 'models/occurrence'
 require 'models/deploy'
 require 'models/mailer'
 
+require 'mapping/mapping_helper'
+
 require 'exceptionist'

@@ -1,0 +1,20 @@
+properties:
+  action_name:
+    type: 'string'
+    index: 'not_analyzed'
+  controller_name:
+    type: 'string'
+    index: 'not_analyzed'
+  project_name:
+    type: 'string'
+    index: 'not_analyzed'
+  uber_key:
+    type: 'string'
+    index: 'not_analyzed'
+  exception_class:
+    type: 'string'
+    index: 'not_analyzed'
+  occurred_at_day:
+    type: 'date'
+  occurred_at:
+    type: 'date'
