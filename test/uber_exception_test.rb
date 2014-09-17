@@ -150,7 +150,6 @@ class UberExceptionTest < MiniTest::Test
     assert_equal [], UberException.find(filters: {term: { id: @exce1.id } } )
   end
 
-
   def test_current_occurrence
     assert_equal @occur1, @exce1.current_occurrence(1)
     assert_equal @occur2, @exce1.current_occurrence(2)
@@ -161,7 +160,6 @@ class UberExceptionTest < MiniTest::Test
       @exce1.current_occurrence(0)
     end
   end
-
 
   def test_occurrences_count_on
     assert_equal 1, @exce1.occurrences_count_on(Time.local(2011, 1, 9))
