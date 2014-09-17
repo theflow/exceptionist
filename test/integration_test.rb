@@ -216,6 +216,21 @@ class IntegrationTest < MiniTest::Test
     assert_not_contain 'previous page'
   end
 
+  def test_projects_since_last_deploy_ordered_by_occurrences_count
+    create_deploy
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject/since_last_deploy?sort_by=frequent'
+
+    assert_contain 'NameError in users#show'
+    assert_not_contain 'next page'
+    assert_not_contain 'previous page'
+  end
+
   def test_projects_since_last_deploy_pagination
     create_deploy
 
