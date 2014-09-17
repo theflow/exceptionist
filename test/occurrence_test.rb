@@ -27,6 +27,13 @@ class OccurrenceTest < MiniTest::Test
     Exceptionist.esclient.refresh
   end
 
+  def test_get_uber_exce
+    exce = UberException.occurred(@occur11)
+    Exceptionist.esclient.refresh
+
+    assert_equal exce, @occur11.uber_exception
+  end
+
   def test_title_accessor
     assert_equal 'Mysql::Error Line 42', @occur41.title
   end
