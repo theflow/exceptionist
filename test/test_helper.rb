@@ -3,8 +3,9 @@ SimpleCov.start do
   add_filter 'test'
 end
 
-require 'es_helper'
 require 'app'
+require 'elasticsearch/extensions/test/cluster'
+
 
 at_exit do
   Elasticsearch::Extensions::Test::Cluster.stop( port: Exceptionist.esclient.port )
@@ -19,7 +20,9 @@ Elasticsearch::Extensions::Test::Cluster.start(
     port: Exceptionist.esclient.port,
     nodes: 1,
 )
-ESHelper::ClearDB.run
+
+Exceptionist.esclient.create_indices('exceptionist', YAML.load(File.read('lib/mapping.yaml') ))
+Exceptionist.esclient.refresh
 
 # Configure
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
