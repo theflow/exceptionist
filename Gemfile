@@ -16,6 +16,7 @@ gem 'hashie'
 
 group :development do
   gem 'rack-test'
+  gem 'simplecov'
   gem 'webrat'
   gem 'shotgun'
   gem 'elasticsearch-extensions'

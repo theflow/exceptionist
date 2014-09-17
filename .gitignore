@@ -2,6 +2,7 @@ config.rb
 dump.rdb
 webrat.log
 import
+coverage
 vendor/bundle
 .bundle
 
