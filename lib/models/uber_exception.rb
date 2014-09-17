@@ -131,6 +131,11 @@ class UberException
     occurrences.any? ? occurrences.first : nil
   end
 
+  def new_since_last_deploy
+    deploy = Deploy.find_last_deploy(@project_name)
+    deploy.nil? ? true : deploy.occurred_at < @first_occurred_at
+  end
+
   #
   # accessors
   #

@@ -34,9 +34,13 @@ class UberExceptionTest < MiniTest::Test
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 4), project_name: 'OtherProject'))
     @exce5 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'OtherProject'))
 
+    @exce6 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'ThirdProject'))
+
     create_deploy(occurred_at: Time.local(2011, 1, 5, 12, 0))
 
     create_deploy(occurred_at: Time.local(2011, 1, 6), project_name: 'OtherProject')
+
+    create_deploy(occurred_at: Time.local(2011, 1, 6), project_name: 'ThirdProject')
 
     Exceptionist.esclient.refresh
   end
@@ -164,5 +168,11 @@ class UberExceptionTest < MiniTest::Test
   def test_occurrences_count_on
     assert_equal 1, @exce1.occurrences_count_on(Time.local(2011, 1, 9))
     assert_equal 3, @exce2.occurrences_count_on(Time.local(2011, 1, 4))
+  end
+
+  def test_new_since
+    assert ! @exce1.new_since_last_deploy
+    assert ! @exce3.new_since_last_deploy
+    assert @exce6.new_since_last_deploy
   end
 end
