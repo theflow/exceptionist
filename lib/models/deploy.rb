@@ -1,7 +1,7 @@
 require 'json'
 
 class Deploy
-  attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :deploy_time
+  attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
   def self.find_by_project(project)
     find( filters: { term: { project_name: project } } )
@@ -11,7 +11,7 @@ class Deploy
     find( filters: { term: { project_name: project } }, from: 0, size: 1).first
   end
 
-  def self.find(filters: {}, sort: { deploy_time: { order: 'desc' } }, from: 0, size: 25)
+  def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
     raise ArgumentError, 'position has to be >= 0' if from < 0
     Exceptionist.esclient.search_deploys( filters: filters, sort: sort, from: from, size: size )
   end
@@ -20,17 +20,13 @@ class Deploy
     Deploy.new(attr)
   end
 
-  def occurred_at
-    deploy_time.is_a?(String) ? Time.parse(deploy_time) : deploy_time
-  end
-
   def initialize(attributes={})
     attributes.each do |key, value|
       send("#{key}=", value)
     end
 
-    self.deploy_time ||= Time.now
-    self.deploy_time = Time.parse(self.deploy_time) if self.deploy_time.is_a? String
+    self.occurred_at ||= Time.now
+    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
   end
 
   def save
@@ -54,7 +50,7 @@ class Deploy
         api_key: api_key,
         version: version,
         changelog_link: changelog_link,
-        deploy_time: deploy_time.is_a?(String) ? deploy_time : deploy_time.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+        occurred_at: occurred_at.is_a?(String) ? occurred_at : occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
     }
   end
 

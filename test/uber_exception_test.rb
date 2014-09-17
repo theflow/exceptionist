@@ -34,9 +34,9 @@ class UberExceptionTest < MiniTest::Test
     UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 4), project_name: 'OtherProject'))
     @exce5 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'OtherProject'))
 
-    create_deploy(deploy_time: Time.local(2011, 1, 5, 12, 0))
+    create_deploy(occurred_at: Time.local(2011, 1, 5, 12, 0))
 
-    create_deploy(deploy_time: Time.local(2011, 1, 6), project_name: 'OtherProject')
+    create_deploy(occurred_at: Time.local(2011, 1, 6), project_name: 'OtherProject')
 
     Exceptionist.esclient.refresh
   end

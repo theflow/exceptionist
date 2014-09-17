@@ -5,7 +5,7 @@ properties:
   version:
     type: 'string'
     index: 'not_analyzed'
-  deploy_time:
+  occurred_at:
     type: 'date'
   changelog_link:
     type: 'string'
