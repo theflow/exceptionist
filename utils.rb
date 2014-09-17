@@ -43,6 +43,8 @@ module Utils
 
   class ClearDB
     def self.run
+      Exceptionist.endpoint = 'localhost:9200'
+
       begin
         Exceptionist.esclient.delete_indices('exceptionist')
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
