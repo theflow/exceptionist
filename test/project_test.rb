@@ -46,12 +46,4 @@ class ProjectTest < MiniTest::Test
     assert_equal 'project', Project.find_by_key('test_key').name
   end
 
-  def test_find_by_key
-    assert_equal nil, Project.find_by_key('test_key')
-
-    Exceptionist.add_project('project', 'test_key')
-
-    assert_equal 'project', Project.find_by_key('test_key').name
-  end
-
 end
