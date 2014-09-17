@@ -104,4 +104,15 @@ class ApiTest < MiniTest::Test
 
     assert_equal 1, Deploy.find_by_project('ExampleProject').count
   end
+
+  def test_api_unauth_deploy
+    post '/notifier_api/v2/deploy/', read_fixtures_file('fixtures/unauth_deploy.json')
+
+    assert_equal 'Invalid API Key', last_response.body
+    assert_equal 401, last_response.status
+
+    Exceptionist.esclient.refresh
+
+    assert_equal [], Deploy.find
+  end
 end
