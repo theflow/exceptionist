@@ -1,6 +1,6 @@
+$LOAD_PATH.unshift '.'
 $LOAD_PATH.unshift 'lib'
-require 'tools'
-require 'es_helper'
+require 'utils'
 
 task :default => :test
 
@@ -13,25 +13,25 @@ end
 desc "Remove a single exception with all occurrences completely"
 task :remove_exception do
   uber_key = ENV['KEY']
-  Exceptionist::Remover.run(uber_key)
+  Utils::Remover.run(uber_key)
 end
 
 desc "Export occurrences in json"
 task :export do
-  ESHelper::Exporter.run
+  Utils::Exporter.run
 end
 
 desc "Import occurrences from json file"
 task :import do
-  ESHelper::Importer.run
+  Utils::Importer.run
 end
 
 desc "Clear DB and create index with mapping"
 task :cleardb do
-  ESHelper::ClearDB.run
+  Utils::ClearDB.run
 end
 
 desc "Print mapping"
 task :mapping do
-  ESHelper::Mapping.run
+  Utils::Mapping.run
 end
