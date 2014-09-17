@@ -22,9 +22,13 @@ class OccurrenceTest < MiniTest::Test
 
     @occur31 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 5), action_name: 'otherAction'))
 
-    @occur41 = create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'OtherProject')
+    @occur41 = create_occurrence(occurred_at: Time.local(2011, 1, 8), project_name: 'OtherProject', exception_class: 'Mysql::Error', exception_message: 'Line 42')
 
     Exceptionist.esclient.refresh
+  end
+
+  def test_title_accessor
+    assert_equal 'Mysql::Error Line 42', @occur41.title
   end
 
   def test_delete_all_for
