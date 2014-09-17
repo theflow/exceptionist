@@ -1,6 +1,5 @@
 require 'elasticsearch/extensions/test/cluster'
 require 'elasticsearch'
-require 'yaml'
 require 'boot'
 
 

@@ -6,6 +6,7 @@ require 'active_support/ordered_hash'
 require 'mongo'
 require 'yajl'
 require 'nokogiri'
+require 'yaml'
 
 require 'models/project'
 require 'models/uber_exception'
