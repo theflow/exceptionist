@@ -71,6 +71,26 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'ExampleProject2'
   end
 
+  def test_river
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/river'
+    assert_contain 'River'
+  end
+
+  def test_river_project
+    UberException.occurred(create_occurrence)
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit 'projects/ExampleProject/river'
+    assert_contain 'Latest Occurrences'
+  end
+
   def test_projects_with_no_exceptions
     visit '/projects/ExampleProject'
 
