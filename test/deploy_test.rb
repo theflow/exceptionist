@@ -23,5 +23,7 @@ class DeployTest < MiniTest::Test
   def test_find_last_deploy
     assert_equal @deploy13, Deploy.find_last_deploy('ExampleProject')
     assert_equal @deploy21, Deploy.find_last_deploy('OtherProject')
+
+    assert_equal nil, Deploy.find_last_deploy('NoProject')
   end
 end
