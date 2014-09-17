@@ -131,6 +131,10 @@ class UberException
     occurrences.any? ? occurrences.first : nil
   end
 
+  #
+  # accessors
+  #
+
   def title
     last_occurrence.title
   end
