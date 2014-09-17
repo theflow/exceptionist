@@ -1,5 +1,8 @@
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter 'test'
+end
+
 require 'es_helper'
 require 'app'
 
