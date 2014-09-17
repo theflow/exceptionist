@@ -4,6 +4,7 @@ require 'digest'
 require 'active_support/ordered_hash'
 
 require 'mongo'
+require 'elasticsearch'
 require 'yajl'
 require 'nokogiri'
 require 'yaml'
