@@ -30,7 +30,7 @@ module ESHelper
       `curl -X POST -H "Content-Type: application/json" -d @test/fixtures/deploy_old.json localhost:9292/notifier_api/v2/deploy/`
       `curl -X POST -H "Content-Type: application/json" -d @test/fixtures/deploy.json localhost:9292/notifier_api/v2/deploy/`
 
-      files = Dir.glob('test/fixtures/occurrences_export*').sort
+      files = Dir.glob('import/occurrences_export*').sort
       files.each do |file|
         puts "importing #{file}"
 
