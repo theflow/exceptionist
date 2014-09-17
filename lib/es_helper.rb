@@ -1,5 +1,6 @@
 require 'elasticsearch/extensions/test/cluster'
 require 'elasticsearch'
+require 'yaml'
 
 module ESHelper
 
@@ -27,8 +28,9 @@ module ESHelper
 
   class Importer
     def self.run
-      `curl -X POST -H "Content-Type: application/json" -d @test/fixtures/deploy_old.json localhost:9292/notifier_api/v2/deploy/`
-      `curl -X POST -H "Content-Type: application/json" -d @test/fixtures/deploy.json localhost:9292/notifier_api/v2/deploy/`
+
+      puts "importing deploy.yaml"
+      YAML.load(File.read('import/deploy.yaml')).each { |key, value| Deploy.new(value).save}
 
       files = Dir.glob('import/occurrences_export*').sort
       files.each do |file|
