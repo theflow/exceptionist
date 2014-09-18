@@ -7,7 +7,7 @@ class Occurrence
 
   def initialize(attributes={})
     attributes.each do |key, value|
-      send("#{key}=", value)
+      instance_variable_set("@#{key}", value)
     end
 
     @occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
