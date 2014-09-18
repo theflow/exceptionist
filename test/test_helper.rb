@@ -55,11 +55,11 @@ end
 
 def build_deploy(attributes = {})
   default_attributes = {
-      project_name: 'ExampleProject',
-      api_key: 'SECRET_API_KEY',
-      version: '0.0.1',
-      changelog_link: 'https://github.com/podio/podio-rb/commit/35b1bbaaafd56b200ee4a0ea38fc13dfdea8304e',
-      occurred_at: Time.now
+      project_name:         'ExampleProject',
+      api_key:              'SECRET_API_KEY',
+      version:              '0.0.1',
+      changelog_link:       'https://github.com/podio/podio-rb/commit/35b1bbaaafd56b200ee4a0ea38fc13dfdea8304e',
+      occurred_at:          Time.now
   }
   Deploy.new(default_attributes.merge(attributes))
 end
