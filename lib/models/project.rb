@@ -14,8 +14,8 @@ class Project
   end
 
   def self.last_n_days(days)
+    start = Helpers.get_day_ago(days)
     today = Time.now
-    start = today - (3600 * 24 * (days - 1)) # `days` days ago
 
     n_days = []
     begin
