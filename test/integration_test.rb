@@ -312,6 +312,34 @@ class IntegrationTest < MiniTest::Test
     assert_not_contain 'GET http://example.com/?show=two'
   end
 
+  def test_exceptions_change_category
+    occur1 = create_occurrence(url: 'http://example.com/?show=one')
+    UberException.occurred(occur1)
+
+    Exceptionist.esclient.refresh
+
+    visit "/exceptions/#{occur1.uber_key}"
+    assert_contain 'low'
+    assert_contain 'high'
+
+    select 'high'
+    click_button 'save'
+    Exceptionist.esclient.refresh
+    follow_redirect!
+
+    assert_equal 'http://example.org/projects/ExampleProject', last_request.url
+    assert_have_selector '.high'
+
+    visit "/exceptions/#{occur1.uber_key}"
+
+    select 'low'
+    click_button 'save'
+    Exceptionist.esclient.refresh
+    follow_redirect!
+
+    assert_have_selector '.low'
+  end
+
   def test_projects_be_able_to_close_an_exception
     UberException.occurred(create_occurrence(action_name:'show'))
     UberException.occurred(create_occurrence(action_name:'index'))
