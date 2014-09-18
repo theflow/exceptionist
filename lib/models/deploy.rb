@@ -13,6 +13,7 @@ class Deploy
     raise ArgumentError, 'position has to be >= 0' if from < 0
     Exceptionist.esclient.search_deploys( filters: filters, sort: sort, from: from, size: size )
   end
+
   def self.from_json(json)
     attr = symbolize_keys(JSON.parse(json))
     Deploy.new(attr)
