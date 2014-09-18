@@ -20,4 +20,5 @@ group :development do
   gem 'webrat'
   gem 'shotgun'
   gem 'elasticsearch-extensions'
+  gem 'timecop'
 end
