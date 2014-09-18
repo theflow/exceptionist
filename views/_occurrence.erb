@@ -22,7 +22,7 @@
 <div class="span-24">
   <form action="/exceptions/<%= @occurrence.uber_key %>/category" method="post">
     <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
-    <select name="category">
+    <select name="category" style="float: left">
       <option value="low">low</option>
       <option value="high">high</option>
     </select>
