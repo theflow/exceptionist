@@ -16,6 +16,8 @@ class Deploy
 
   def self.from_json(json)
     attr = symbolize_keys(JSON.parse(json))
+    attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
+
     Deploy.new(attr)
   end
 
@@ -24,7 +26,6 @@ class Deploy
       send("#{key}=", value)
     end
 
-    self.occurred_at ||= Time.now
     self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
   end
 
