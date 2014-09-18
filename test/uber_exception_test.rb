@@ -175,4 +175,13 @@ class UberExceptionTest < MiniTest::Test
     assert ! @exce3.new_since_last_deploy
     assert @exce6.new_since_last_deploy
   end
+
+  def test_update
+    assert_equal nil, @exce1.category
+
+    @exce1.update( { category: "low" } )
+    Exceptionist.esclient.refresh
+
+    assert_equal "low", UberException.get(@exce1.id).category
+  end
 end
