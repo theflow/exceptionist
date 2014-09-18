@@ -43,7 +43,8 @@ def build_occurrence(attributes = {})
     controller_name:      'users',
     action_name:          'show',
     project_name:         'ExampleProject',
-    url:                  'http://example.com'
+    url:                  'http://example.com',
+    occurred_at:          Time.now
   }
   Occurrence.new(default_attributes.merge(attributes))
 end

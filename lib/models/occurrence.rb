@@ -10,8 +10,7 @@ class Occurrence
       send("#{key}=", value)
     end
 
-    self.occurred_at = Time.parse(attributes['occurred_at']) if attributes['occurred_at']
-    self.occurred_at ||= Time.now
+    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
     self.uber_key ||= generate_uber_key
   end
 
@@ -136,7 +135,10 @@ class Occurrence
   end
 
   def self.from_xml(xml_text)
-    new(parse_xml(xml_text))
+    attr = parse_xml(xml_text)
+    attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
+
+    new(attr)
   end
 
   def self.parse_xml(xml_text)
