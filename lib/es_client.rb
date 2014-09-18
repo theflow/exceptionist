@@ -36,7 +36,7 @@ class ESClient
   def search_aggs(filters, aggs)
     # size set 0 for Integer.MAX_VALUE
     query = { query: { filtered: { filter: { bool: { must: filters } } } }, aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
-    response = @es.search(index: INDEX, type: TYPE_OCCURRENCES, body: query)
+    response = @es.search(index: INDEX, type: TYPE_OCCURRENCES, body: query, search_type: 'count')
     hash = Hashie::Mash.new(response)
     hash.aggregations.exceptions.buckets
   end
