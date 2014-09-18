@@ -29,6 +29,11 @@ class Project
     Deploy.find_last_deploy(name)
   end
 
+  def deploys_last_thirty_days
+    since = Helpers.get_day_ago(30)
+    Deploy.find_by_project_since(@name, since)
+  end
+
   def total_count_on(day)
     Occurrence.count_all_on(name, day)
   end

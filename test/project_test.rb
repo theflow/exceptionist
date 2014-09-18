@@ -38,6 +38,12 @@ class ProjectTest < MiniTest::Test
     assert_equal nil, project.last_deploy
   end
 
+  def test_deploys_last_thirty_days
+    project = Project.new("ExampleProject")
+
+    assert_equal [], project.deploys_last_thirty_days
+  end
+
   def test_find_by_key
     assert_equal nil, Project.find_by_key('test_key')
 
