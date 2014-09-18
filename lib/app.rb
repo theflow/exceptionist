@@ -119,6 +119,13 @@ class ExceptionistApp < Sinatra::Base
     redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")
   end
 
+  post '/exceptions/:id/category' do
+    @uber_exceptions = UberException.get(params[:id])
+    @uber_exceptions.update( category: params[:category] )
+
+    redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")
+  end
+
   post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(params[:data] || request.body.read)
     project = Project.find_by_key(occurrence.api_key)

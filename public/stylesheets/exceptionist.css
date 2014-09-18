@@ -85,13 +85,14 @@ span.box {
 }
 
 span.occurrences_count {
-  background-color: #eee;
-  color: #666;
+  background-color: #ddd;
+  color: #777;
 }
 
 span.new {
     background-color: #F0113E;
     color: #ddd;
+    margin-right: 10px;
 }
 
 .project-label {
@@ -103,6 +104,18 @@ span.new {
 
 .append-tiny-bottom {
   margin-bottom:0.5em;
+}
+
+.low {
+    background-color: aliceblue;
+}
+
+.high {
+    background-color: antiquewhite;
+}
+
+.padding {
+    padding: 0 5px;
 }
 
 
