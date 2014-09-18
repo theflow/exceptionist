@@ -2,12 +2,12 @@ class UberException
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
   def initialize(attributes)
-    @id = attributes[:id]
-    @project_name = attributes[:project_name]
-    @occurrences_count = attributes[:occurrences_count]
-    @closed = attributes[:closed]
+    attributes.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
     @last_occurrence = Occurrence.new(attributes[:last_occurrence])
-    @first_occurred_at = Time.parse(attributes[:first_occurred_at])
+    @first_occurred_at = Time.parse(self.first_occurred_at) if self.first_occurred_at.is_a? String
   end
 
   def self.count_all(project)
