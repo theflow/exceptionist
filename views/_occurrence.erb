@@ -23,8 +23,9 @@
   <form action="/exceptions/<%= @occurrence.uber_key %>/category" method="post">
     <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
     <select name="category" style="float: left">
-      <option value="low">low</option>
-      <option value="high">high</option>
+      <% ['low', 'high'].each do |value| %>
+          <option value="<%= value %>" <% if value == @uber_exception.category %> selected="selected" <% end %> ><%= value %></option>
+      <% end %>
     </select>
     <button type="submit"> save </button>
   </form>
