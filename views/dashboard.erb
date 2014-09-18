@@ -13,7 +13,7 @@
          <% if project.last_deploy %> - deploy: <a href="/projects/<%= project.name %>/since_last_deploy"><%= format_time(project.last_deploy.occurred_at) %></a> <% else %> - no deploy found in db<% end %></h3>
 
       <div class="span-22 prepend-1 last">
-        <%= partial(:thirty_day_graph, :holder_div_id => "holder_#{project.name}", :data => project.last_thirty_days) %>
+        <%= partial(:thirty_day_graph, :holder_div_id => "holder_#{project.name}", :data => project.last_thirty_days, :deploys => project.deploys_last_thirty_days) %>
       </div>
     </div>
 <% end %>
