@@ -8,6 +8,7 @@ require 'elasticsearch'
 require 'yajl'
 require 'nokogiri'
 require 'yaml'
+require 'json'
 
 require 'models/project'
 require 'models/uber_exception'

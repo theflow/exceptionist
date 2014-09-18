@@ -1,5 +1,3 @@
-require 'json'
-
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
