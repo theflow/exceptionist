@@ -20,7 +20,7 @@
 </div>
 
 <div class="span-24">
-  <form action="/exceptions/<%= @occurrence.uber_key %>/category" method="post">
+  <form action="/exceptions/<%= @occurrence.uber_key %>/category" method="post" id="category">
     <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
     <select name="category" style="float: left">
       <% ['low', 'high'].each do |value| %>
@@ -35,7 +35,7 @@
   <div class="span-18"><%= @occurrence.http_method %> <a href="<%= @occurrence.url %>" class="silent_link" target="_blank"><%= @occurrence.url %></a></div>
   <div class="span-6 last right-aligned">
     <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
-    <form action="/exceptions/<%= @occurrence.uber_key %>/close" method="post" style="display: inline">
+    <form action="/exceptions/<%= @occurrence.uber_key %>/close" method="post" style="display: inline" id="close">
       <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
       <button type="submit" class="button positive close_button">
         <img src="/tick.png" alt="Close"/> Close

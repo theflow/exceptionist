@@ -323,7 +323,7 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'high'
 
     select 'high'
-    click_button 'save'
+    submit_form 'category'
     Exceptionist.esclient.refresh
     follow_redirect!
 
@@ -333,7 +333,7 @@ class IntegrationTest < MiniTest::Test
     visit "/exceptions/#{occur1.uber_key}"
 
     select 'low'
-    click_button 'save'
+    submit_form 'category'
     Exceptionist.esclient.refresh
     follow_redirect!
 
@@ -352,7 +352,7 @@ class IntegrationTest < MiniTest::Test
 
     click_link 'NameError in users#show'
 
-    click_button 'Close'
+    submit_form 'close'
 
     Exceptionist.esclient.refresh
 
