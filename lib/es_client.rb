@@ -118,10 +118,6 @@ class ESClient
     attr.merge!(attr['_source']).delete('_source')
     attr = symbolize_keys(attr)
     attr[:id] = attr.delete :_id
-    attr.delete :_index
-    attr.delete :_type
-    attr.delete :_score
-    attr.delete :sort
     attr
   end
 
