@@ -1,6 +1,14 @@
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
+  def initialize(attributes={})
+    attributes.each do |key, value|
+      send("#{key}=", value)
+    end
+
+    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
+  end
+
   def self.find_by_project(project)
     find( filters: { term: { project_name: project } } )
   end
@@ -19,14 +27,6 @@ class Deploy
     attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
 
     Deploy.new(attr)
-  end
-
-  def initialize(attributes={})
-    attributes.each do |key, value|
-      send("#{key}=", value)
-    end
-
-    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
   end
 
   def save
