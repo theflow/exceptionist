@@ -6,7 +6,7 @@ class Deploy
       send("#{key}=", value)
     end
 
-    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
+    @occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
   end
 
   def self.find_by_project(project)

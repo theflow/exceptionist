@@ -10,8 +10,8 @@ class Occurrence
       send("#{key}=", value)
     end
 
-    self.occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
-    self.uber_key ||= generate_uber_key
+    @occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
+    @uber_key ||= generate_uber_key
   end
 
   def uber_exception
