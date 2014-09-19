@@ -184,9 +184,9 @@ class IntegrationTest < MiniTest::Test
   end
 
   def test_projects_since_last_deploy_with_no_deploy
-    get '/projects/ExampleProject/since_last_deploy'
-
-    assert !last_response.ok?
+    assert_raises(ArgumentError) do
+      get '/projects/ExampleProject/since_last_deploy'
+    end
   end
 
   def test_projects_since_last_deploy_fresh_deploy
