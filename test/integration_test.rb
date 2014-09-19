@@ -1,3 +1,5 @@
+ENV['RACK_ENV'] = 'test'
+
 require 'test_helper'
 
 require 'rack/test'

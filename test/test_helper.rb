@@ -4,6 +4,8 @@ SimpleCov.start do
   add_filter 'test'
 end
 
+ENV['RACK_ENV'] = 'test'
+
 require 'app'
 require 'elasticsearch/extensions/test/cluster'
 

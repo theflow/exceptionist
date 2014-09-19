@@ -11,6 +11,12 @@ class ExceptionistApp < Sinatra::Base
   set :views,  "#{dir}/views"
   set :public_folder, "#{dir}/public"
 
+  configure :test do
+    set :raise_errors, true
+    set :dump_errors, false
+    set :show_exceptions, false
+  end
+
   before do
     protected! if request.path_info !~ /^\/notifier_api\/v2/
   end
