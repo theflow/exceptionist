@@ -271,6 +271,57 @@ class IntegrationTest < MiniTest::Test
     assert_not_contain 'new'
   end
 
+  def test_projects_filter
+    UberException.occurred(create_occurrence)
+
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject'
+    assert_have_selector '.no-category'
+    assert_have_no_selector '.low'
+    assert_have_no_selector '.high'
+
+    visit '/projects/ExampleProject?category=no-category'
+    assert_not_contain 'No exceptions'
+
+    visit '/projects/ExampleProject?category=high'
+    assert_contain 'No exceptions'
+  end
+
+  def test_projects_filter_change
+    @uber_exce = UberException.occurred(create_occurrence)
+    @uber_exce.update(category: 'high')
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject'
+    assert_have_selector '.high'
+    assert_have_no_selector '.low'
+    assert_have_no_selector '.no-category'
+
+    visit '/projects/ExampleProject?category=low'
+    assert_contain 'No exceptions'
+
+    visit '/projects/ExampleProject?category=high'
+    assert_not_contain 'No exceptions'
+  end
+
+  def test_projects_sort_most_frequent_filter
+    @uber_exce = UberException.occurred(create_occurrence)
+    @uber_exce.update(category: 'low')
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject?sort_by=frequent'
+    assert_have_selector '.low'
+    assert_have_no_selector '.high'
+    assert_have_no_selector '.no-category'
+
+    visit '/projects/ExampleProject?category=low&sort_by=frequent'
+    assert_not_contain 'No exceptions'
+
+    visit '/projects/ExampleProject?category=high&sort_by=frequent'
+    assert_contain 'No exceptions'
+  end
+
   def test_exceptions_show_a_minimal_occurrence
     occurrence = create_occurrence
     UberException.occurred(occurrence)

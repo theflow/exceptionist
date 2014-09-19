@@ -71,7 +71,7 @@ class UberExceptionTest < MiniTest::Test
   end
 
   def test_find_sorted_by_occurrences_count
-    assert_equal [@exce1, @exce2, @exce3, @exce4], UberException.find_sorted_by_occurrences_count(project: 'ExampleProject')
+    assert_equal [@exce1, @exce2, @exce3, @exce4], UberException.find_sorted_by_occurrences_count(terms: [ { project_name: 'ExampleProject' } ] )
   end
 
   def test_find_since_last_deploy
@@ -177,7 +177,7 @@ class UberExceptionTest < MiniTest::Test
   end
 
   def test_update
-    assert_equal nil, @exce1.category
+    assert_equal 'no-category', @exce1.category
 
     @exce1.update( { category: "low" } )
     Exceptionist.esclient.refresh

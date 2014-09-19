@@ -22,8 +22,8 @@ class UberException
     Exceptionist.esclient.get_exception(uber_key)
   end
 
-  def self.find_sorted_by_occurrences_count(project: '', from: 0, size: 25)
-    UberException.find(terms: [ { project_name: project } ], sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
+  def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
+    UberException.find(terms: terms, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
   def self.find_since_last_deploy(project: '', from: 0, size: 25)
@@ -67,7 +67,7 @@ class UberException
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
-    terms = terms.map { |term| { term: term } }
+    terms = terms.map { |term| { term: term } unless term.nil? }
     terms << { term: { closed: false } }
     Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
   end
@@ -97,7 +97,7 @@ class UberException
     hash = occurrence.to_hash
     hash[:id] = occurrence.id
     Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
-                                                                      upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: first_timestamp, closed: false, occurrences_count: 1},
+                                                                      upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: first_timestamp, closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: first_timestamp} })
     Exceptionist.esclient.get_exception(occurrence.uber_key)
   end
