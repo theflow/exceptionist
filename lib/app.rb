@@ -3,8 +3,6 @@ require 'boot'
 require 'sinatra/base'
 require 'net/smtp'
 require 'stringio'
-require 'pp'
-
 
 class ExceptionistApp < Sinatra::Base
   dir = File.join(File.dirname(__FILE__), '..')
