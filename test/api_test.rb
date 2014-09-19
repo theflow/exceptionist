@@ -14,14 +14,14 @@ class ApiTest < MiniTest::Test
   end
 
   def test_create_the_first_UberException
-    assert_equal [], UberException.find( project: 'ExampleProject' )
+    assert_equal [], UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception.xml')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    exce = UberException.find( project: 'ExampleProject' )
+    exce = UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
     assert_equal 1, exce.count
     assert_equal 1, exce.first.occurrences_count
   end
@@ -32,14 +32,14 @@ class ApiTest < MiniTest::Test
 
     Exceptionist.esclient.refresh
 
-    assert_equal 1, UberException.find( project: 'ExampleProject' ).count
+    assert_equal 1, UberException.find( terms: [ { project_name: 'ExampleProject' } ] ).count
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception.xml')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    exce = UberException.find( project: 'ExampleProject' )
+    exce = UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
     assert_equal 1, exce.count
     assert_equal 2, exce.first.occurrences_count
   end
@@ -52,44 +52,44 @@ class ApiTest < MiniTest::Test
 
     Exceptionist.esclient.refresh
 
-    assert_equal [], UberException.find( project: 'ExampleProject' )
+    assert_equal [], UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
   end
 
   def test_api_full_exception
-    assert_equal [], UberException.find( project: 'ExampleProject' )
+    assert_equal [], UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/full_exception.xml')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    exce = UberException.find( project: 'ExampleProject' )
+    exce = UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
     assert_equal 1, exce.count
     assert_equal 1, exce.first.occurrences_count
   end
 
   def test_api_exception_with_hash
-    assert_equal [], UberException.find( project: 'ExampleProject' )
+    assert_equal [], UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/exception_with_hash_in_params.xml')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    exce = UberException.find( project: 'ExampleProject' )
+    exce = UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
     assert_equal 1, exce.count
     assert_equal 1, exce.first.occurrences_count
   end
 
   def test_api_minimal_exception
-    assert_equal [], UberException.find( project: 'ExampleProject' )
+    assert_equal [], UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
 
     post '/notifier_api/v2/notices/', read_fixtures_file('fixtures/minimal_exception.xml')
     assert last_response.ok?
 
     Exceptionist.esclient.refresh
 
-    exce = UberException.find( project: 'ExampleProject' )
+    exce = UberException.find( terms: [ { project_name: 'ExampleProject' } ] )
     assert_equal 1, exce.count
     assert_equal 1, exce.first.occurrences_count
   end

@@ -66,8 +66,8 @@ class UberExceptionTest < MiniTest::Test
   end
 
   def test_find
-    assert_equal [@exce1, @exce3, @exce2, @exce4], UberException.find(project: 'ExampleProject')
-    assert_equal [@exce2], UberException.find(project: 'ExampleProject', from: 2, size: 1)
+    assert_equal [@exce1, @exce3, @exce2, @exce4], UberException.find(terms: [ { project_name: 'ExampleProject' } ] )
+    assert_equal [@exce2], UberException.find(terms: [ { project_name: 'ExampleProject' } ], from: 2, size: 1)
   end
 
   def test_find_sorted_by_occurrences_count
@@ -123,18 +123,18 @@ class UberExceptionTest < MiniTest::Test
     UberException.forget_old_exceptions('ExampleProject', days)
     Exceptionist.esclient.refresh
 
-    assert_equal [@exce1, @exce3, @exce2, @exce4], UberException.find(project: 'ExampleProject')
+    assert_equal [@exce1, @exce3, @exce2, @exce4], UberException.find(terms: [ { project_name: 'ExampleProject' } ])
 
     days = (Time.now - Time.local(2011, 1, 7)) / 86400
     UberException.forget_old_exceptions('ExampleProject', days)
     Exceptionist.esclient.refresh
 
-    assert_equal [@exce1, @exce3], UberException.find(project: 'ExampleProject')
+    assert_equal [@exce1, @exce3], UberException.find(terms: [ { project_name: 'ExampleProject' } ])
 
     UberException.forget_old_exceptions('ExampleProject')
     Exceptionist.esclient.refresh
 
-    assert_equal [], UberException.find(project: 'ExampleProject')
+    assert_equal [], UberException.find(terms: [ { project_name: 'ExampleProject' } ])
   end
 
   def test_forget!
@@ -151,7 +151,7 @@ class UberExceptionTest < MiniTest::Test
 
     Exceptionist.esclient.refresh
 
-    assert_equal [], UberException.find(filters: {term: { id: @exce1.id } } )
+    assert_equal [], UberException.find(terms: [ { id: @exce1.id } ] )
   end
 
   def test_current_occurrence

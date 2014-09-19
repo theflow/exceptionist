@@ -43,7 +43,7 @@ class ExceptionistApp < Sinatra::Base
     if params[:sort_by] && params[:sort_by] == 'frequent'
       @uber_exceptions = UberException.find_sorted_by_occurrences_count(project: @current_project.name, from: @start)
     else
-      @uber_exceptions = UberException.find(project: @current_project.name, from: @start)
+      @uber_exceptions = UberException.find(terms: [ { project_name: @current_project.name } ], from: @start)
     end
     @title = "Latest Exceptions for #{@current_project.name}"
     erb :index

@@ -23,7 +23,7 @@ class UberException
   end
 
   def self.find_sorted_by_occurrences_count(project: '', from: 0, size: 25)
-    UberException.find(project: project, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
+    UberException.find(terms: [ { project_name: project } ], sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
   def self.find_since_last_deploy(project: '', from: 0, size: 25)
@@ -32,7 +32,7 @@ class UberException
     agg_exces = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = find( project: project, filters: { ids: { type: 'exceptions', values: ids } }, from: from, size: size )
+    exces = find( terms: [ { project_name: project } ], filters: [ { ids: { type: 'exceptions', values: ids } } ], from: from, size: size )
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
@@ -64,12 +64,12 @@ class UberException
     exces
   end
 
-  def self.find(project: '', filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
+  def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
     raise ArgumentError, 'position has to be >= 0' if from < 0
 
-    filters = [filters] if filters.class == Hash
-    filters << { term: { closed: false } } << { term: { project_name: project } }
-    Exceptionist.esclient.search_exceptions(filters: filters, sort: sort, from: from, size: size)
+    terms = terms.map { |term| { term: term } }
+    terms << { term: { closed: false } }
+    Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
   end
 
   def self.find_new_on(project, day)
