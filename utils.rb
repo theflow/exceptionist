@@ -56,9 +56,17 @@ module Utils
 
   class Mapping
     def self.run
-      pp Exceptionist.esclient.get_mapping('occurrences')
-      puts
-      pp Exceptionist.esclient.get_mapping('exceptions')
+      Net::HTTP.start('exceptionist.nextpodio.dk', 6000) do |http|
+        request = Net::HTTP::Post.new('/notifier_api/v2/deploy/?')
+        request.body = JSON.generate({
+                                         'project_name'        => 'project',
+                                         'api_key'             => 'api_key',
+                                         'changelog_link'      => 'changes',
+                                         'version'             => 'version',
+
+                                     })
+        puts response = http.request(request)
+      end
     end
   end
 end
