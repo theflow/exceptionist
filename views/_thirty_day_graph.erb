@@ -1,13 +1,18 @@
 <div id="<%= holder_div_id %>" style="width:870px; height: 220px"></div>
 <script type="text/javascript" charset="utf-8">
+    <% highest_pair = data.max_by do |element|
+        element.last
+    end
+    yaxis_max = highest_pair.last * 1.1
+    %>
     var exceptions_a_day = [<%= data.map { |day| "[#{day.first.to_i * 1000}, #{day.last}]" }.join(",") %>];
-    var deploys = [<%= deploys.map { |deploy| "[#{deploy.occurred_at.to_i * 1000}, 0]" }.join(",") %>];
+    var deploys = [<%= deploys.map { |deploy| "[#{deploy.occurred_at.to_i * 1000}, #{yaxis_max}]" }.join(",") %>];
     var data = [{
         data: exceptions_a_day,
         bars: { lineWidth: 0, show: true, fill: 1, fillColor: "#8486CE", barWidth: 20 * 60 * 60 * 1000, align: "center" }
     },{
         data: deploys,
-        points: { radius: 4, show: true, fillColor: "#990000" }
+        bars: { lineWidth: 0, show: true, fill: 1, fillColor: "#990000", barWidth: 70 * 60 * 1000, align: "center" }
     }];
 
     var options = {
@@ -18,8 +23,13 @@
             borderColor: "#cccccc",
             borderWidth: 1
         },
-        xaxis: { mode: "time" },
-        yaxis: {min: 0}
+        xaxis: {
+            mode: "time"
+        },
+        yaxis: {
+            min: 0,
+            max: <%= yaxis_max %>
+        }
     }
 
     $.plot($("#<%= holder_div_id %>"), data, options);
