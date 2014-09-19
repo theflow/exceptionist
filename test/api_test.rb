@@ -102,7 +102,7 @@ class ApiTest < MiniTest::Test
 
     Exceptionist.esclient.refresh
 
-    assert_equal 1, Deploy.find_by_project('ExampleProject').count
+    assert_equal 'ExampleProject', Deploy.find_by_project('ExampleProject').first.project_name
   end
 
   def test_api_unauth_deploy
