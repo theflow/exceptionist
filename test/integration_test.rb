@@ -417,4 +417,17 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'NameError in users#index'
   end
 
+  def test_deploys_no_deploys
+    visit '/deploys/ExampleProject'
+    assert_contain 'No deploys'
+  end
+
+  def test_deploys_no_deploys
+    create_deploy
+    Exceptionist.esclient.refresh
+
+    visit '/deploys/ExampleProject'
+    assert_not_contain 'No deploys'
+  end
+
 end

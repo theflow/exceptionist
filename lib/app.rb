@@ -134,6 +134,15 @@ class ExceptionistApp < Sinatra::Base
     redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")
   end
 
+  get '/deploys/:project' do
+    @deploys = Deploy.find_by_project(params[:project])
+    @current_project = Project.new(params[:project])
+
+    @title = "All deploys for Project #{@current_project.name}"
+
+    erb :deploy
+  end
+
   post '/notifier_api/v2/notices/?' do
     occurrence = Occurrence.from_xml(params[:data] || request.body.read)
     project = Project.find_by_key(occurrence.api_key)
