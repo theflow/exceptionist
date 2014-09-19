@@ -97,7 +97,7 @@ class IntegrationTest < MiniTest::Test
     visit '/projects/ExampleProject'
 
     assert_contain 'Latest Exceptions for ExampleProject'
-    assert_contain 'no exceptions'
+    assert_contain 'No exceptions'
     assert_not_contain 'next page'
     assert_not_contain 'previous page'
   end
@@ -200,7 +200,7 @@ class IntegrationTest < MiniTest::Test
     visit '/projects/ExampleProject/since_last_deploy'
 
     assert_contain 'since last deploy'
-    assert_contain 'no exceptions'
+    assert_contain 'No exceptions'
   end
 
   def test_projects_since_last_deploy_old_deploy
