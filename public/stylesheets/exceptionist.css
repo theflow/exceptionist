@@ -50,7 +50,12 @@ div.head_box {
 div.message_box {
   padding: 5px;
   font-size: 1.2em;
-  background-color: #E9E9EB;
+}
+
+div.action_box {
+    padding: 5px;
+    font-size: 1.2em;
+    background-color: #e8e8e8;
 }
 
 dd.backtrace {
