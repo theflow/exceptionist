@@ -19,18 +19,6 @@
   <div class="span-3 last right-aligned"><%= format_time(@uber_exception.last_occurrence.occurred_at) %></big></div>
 </div>
 
-<div class="span-24">
-  <form action="/exceptions/<%= @occurrence.uber_key %>/category" method="post" id="category">
-    <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
-    <select name="category" style="float: left">
-      <% ['low', 'high'].each do |value| %>
-          <option value="<%= value %>" <% if value == @uber_exception.category %> selected="selected" <% end %> ><%= value %></option>
-      <% end %>
-    </select>
-    <button type="submit"> save </button>
-  </form>
-</div>
-
 <div class="span-24 last head_box">
   <div class="span-18"><%= @occurrence.http_method %> <a href="<%= @occurrence.url %>" class="silent_link" target="_blank"><%= @occurrence.url %></a></div>
   <div class="span-6 last right-aligned">
@@ -46,10 +34,12 @@
 <div class="span-24 last append-bottom action_box">
   <form action="/exceptions/<%= @occurrence.uber_key %>/close" method="post" style="display: inline" id="close">
     <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
-    <button type="submit" class="button positive close_button">
+    <button type="submit" class="button action_button">
       <img src="/tick.png" alt="Close"/> Close
     </button>
   </form>
+  <button type="submit" class="action_button negative category_button <% if @uber_exception.category == 'high' %> active <% end %> " id="high" >high</button>
+  <button type="submit" class="action_button positive category_button <% if @uber_exception.category == 'low' %> active<% end %> " id="low">low</button>
 </div>
 
 <div class="span-24 last append-bottom">
@@ -85,3 +75,30 @@
     <% end %>
   </dl>
 </div>
+
+<script type="text/javascript" charset="utf-8">
+    $( ".category_button" ).click(function(e) {
+        e.preventDefault();
+        $button = $(this);
+        $button.blur();
+
+        if($(e.target).hasClass('active')){
+            category = 'no-category'
+        } else {
+            category = $(e.target).text();
+        }
+
+        e.preventDefault();
+        $.ajax({
+            url: 'category',
+            type: 'POST',
+            data : "id=<%= @uber_exception.id %>&category=" + category,
+            accepts: "application/json",
+            success: function(json) {
+                $button.toggleClass('active')
+                $button.siblings('button').removeClass('active')
+                $('.message_box').removeClass('high').removeClass('low').removeClass('no-category').addClass(category);
+            }
+        });
+    });
+</script>
