@@ -26,13 +26,12 @@ class UberException
     UberException.find(terms: terms, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
-  def self.find_since_last_deploy(project: '', from: 0, size: 25)
-    deploy = Deploy.find_last_deploy(project)
-    return nil unless deploy
-    agg_exces = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
+  def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
+    agg_exces = aggregation_since_last_deploy(project)
+
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = find( terms: [ { project_name: project } ], filters: [ { ids: { type: 'exceptions', values: ids } } ], from: from, size: size )
+    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: 'exceptions', values: ids } } ], from: from, size: size )
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
@@ -45,13 +44,14 @@ class UberException
     exces
   end
 
-  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', from: 0, size: 25)
-    deploy = Deploy.find_last_deploy(project)
-    return nil unless deploy
-    agg_exces = Exceptionist.esclient.search_aggs([ { term: { project_name: project } }, { range: { occurred_at: { gte: deploy.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ],'uber_key')
+  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
+    agg_exces = aggregation_since_last_deploy(project)
+
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = Exceptionist.esclient.mget(ids: ids.slice!(from, size))
+    exces = Exceptionist.esclient.mget(ids: ids)
+    exces = exces.select{ |exce| exce.category == category } unless category.nil?
+    exces = exces.slice(from, size)
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
@@ -62,6 +62,14 @@ class UberException
       end
     end
     exces
+  end
+
+  def self.aggregation_since_last_deploy(project)
+    deploy = Deploy.find_last_deploy(project)
+    raise 'There is no deploy' if deploy.nil?
+
+    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: deploy.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ]
+    Exceptionist.esclient.search_aggs( filters_occur,'uber_key')
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)

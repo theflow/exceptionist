@@ -94,7 +94,9 @@ class UberExceptionTest < MiniTest::Test
   end
 
   def test_find_since_last_deploy_with_no_deploy
-    assert_equal nil, UberException.find_since_last_deploy(project: 'NotExistingProject')
+    assert_raises RuntimeError do
+      UberException.find_since_last_deploy(project: 'NotExistingProject')
+    end
   end
 
   def test_find_since_last_deploy_ordered_by_occurrences_count
