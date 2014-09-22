@@ -1,5 +1,6 @@
-require 'elasticsearch'
 require 'boot'
+require 'config'
+require 'elasticsearch'
 
 
 module Utils
@@ -16,8 +17,6 @@ module Utils
 
   class Importer
     def self.run
-      Exceptionist.endpoint = 'localhost:9200'
-
       puts "importing deploy.yaml"
       YAML.load(File.read('import/deploy.yaml')).each { |key, value| Deploy.new(value).save}
 
@@ -42,8 +41,6 @@ module Utils
 
   class ClearDB
     def self.run
-      Exceptionist.endpoint = 'localhost:9200'
-
       begin
         Exceptionist.esclient.delete_indices('exceptionist')
       rescue Elasticsearch::Transport::Transport::Errors::NotFound
@@ -56,17 +53,9 @@ module Utils
 
   class Mapping
     def self.run
-      Net::HTTP.start('exceptionist.nextpodio.dk', 6000) do |http|
-        request = Net::HTTP::Post.new('/notifier_api/v2/deploy/?')
-        request.body = JSON.generate({
-                                         'project_name'        => 'project',
-                                         'api_key'             => 'api_key',
-                                         'changelog_link'      => 'changes',
-                                         'version'             => 'version',
-
-                                     })
-        puts response = http.request(request)
-      end
+      pp Exceptionist.esclient.get_mapping 'deploys'
+      pp Exceptionist.esclient.get_mapping 'exceptions'
+      pp Exceptionist.esclient.get_mapping 'occurrences'
     end
   end
 end
