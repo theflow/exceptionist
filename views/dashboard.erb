@@ -1,12 +1,5 @@
 <h2><%= @title %></h2>
 
-<div class="span-24">
-  <% for project in @projects %>
-      <button type="button" class="hide-project"><%= project.name %></button>
-  <% end %>
-</div>
-
-
 <% for project in @projects %>
     <div class="span-24 prepend-top" id="<%= project.name %>">
       <h3><a href="/projects/<%= project.name %>"><%= project.name %></a> (<%= project.exceptions_count %>)
@@ -17,10 +10,3 @@
       </div>
     </div>
 <% end %>
-
-<script type="text/javascript" charset="utf-8">
-    $( ".hide-project" ).click(function(event) {
-        $('#' + $(this).html() ).slideToggle('fast', 'linear');
-    });
-</script>
-
