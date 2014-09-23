@@ -22,7 +22,6 @@ class Deploy
   end
 
   def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    raise ArgumentError, 'position has to be >= 0' if from < 0
     Exceptionist.esclient.search_deploys( filters: filters, sort: sort, from: from, size: size )
   end
 

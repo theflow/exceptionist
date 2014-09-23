@@ -75,8 +75,6 @@ class UberException
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
-    raise ArgumentError, 'position has to be >= 0' if from < 0
-
     terms = terms.map { |term| { term: term } unless term.nil? }
     terms << { term: { closed: false } }
     Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
