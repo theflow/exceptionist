@@ -127,7 +127,7 @@ class UberException
   def forget!
     Occurrence.delete_all_for(id)
 
-    Exceptionist.esclient.delete('exceptions', id)
+    Exceptionist.esclient.delete(id: id)
   end
 
   def close!
