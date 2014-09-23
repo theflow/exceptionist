@@ -67,7 +67,7 @@ class ExceptionistApp < Sinatra::Base
       @category = { category: params[:category] }  if params[:category]
       @uber_exceptions = UberException.find_since_last_deploy(project: @current_project.name, terms: [@category], from: @start)
     end
-    @title = "Exceptions since last deploy for #{@current_project.name}"
+    @title = "Exceptions since last deploy (#{format_time(@deploy.occurred_at)}) for project #{@current_project.name}"
     erb :index
   end
 
