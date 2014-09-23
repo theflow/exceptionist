@@ -10,19 +10,7 @@ class Project
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
-  end
-
-  def self.last_n_days(days)
-    start = Helpers.get_day_ago(days)
-    today = Time.now
-
-    n_days = []
-    begin
-      n_days << Time.utc(start.year, start.month, start.day)
-    end while (start += 86400) <= today
-
-    n_days
+    Helpers.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
   end
 
   def last_deploy

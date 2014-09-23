@@ -156,7 +156,7 @@ class UberException
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day, occurrences_count_on(day)] }
+    Helpers.last_n_days(30).map { |day| [day, occurrences_count_on(day)] }
   end
 
   def ==(other)

@@ -6,11 +6,6 @@ class ProjectTest < MiniTest::Test
     clear_collections
   end
 
-  def test_last_n_days
-    assert_equal 2, Project.last_n_days(2).size
-    assert_equal 4, Project.last_n_days(4).size
-  end
-
   def test_exceptions_count
     project = Project.new("ExampleProject")
 

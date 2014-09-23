@@ -5,6 +5,18 @@ module Helpers
     today - (3600 * 24 * (days - 1)) # `days` days ago
   end
 
+  def self.last_n_days(days)
+    start = Helpers.get_day_ago(days)
+    today = Time.now
+
+    n_days = []
+    begin
+      n_days << Time.utc(start.year, start.month, start.day)
+    end while (start += 86400) <= today
+
+    n_days
+  end
+
   def self.symbolize_keys(hash)
     hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
