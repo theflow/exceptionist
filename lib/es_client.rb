@@ -25,12 +25,6 @@ class ESClient
     hash.hits.hits.map { |doc| create_occurrence(doc) }
   end
 
-  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
-    query = create_search_query(filters, sort, from, size)
-    response = @es.search(index: INDEX, type: type, body: query)
-    Hashie::Mash.new(response)
-  end
-
   def search_aggs(filters, aggs)
     # size set 0 for Integer.MAX_VALUE
     query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
@@ -94,6 +88,12 @@ class ESClient
   end
 
   private
+  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
+    query = create_search_query(filters, sort, from, size)
+    response = @es.search(index: INDEX, type: type, body: query)
+    Hashie::Mash.new(response)
+  end
+
   def create_occurrence(attr)
     attr = transform(attr)
     Occurrence.new(attr)
