@@ -34,7 +34,7 @@ class Deploy
   end
 
   def save
-    deploy = Exceptionist.esclient.index('deploys', to_hash)
+    deploy = Exceptionist.esclient.index(type: 'deploys', body: to_hash)
     @id = deploy._id
     self
   end

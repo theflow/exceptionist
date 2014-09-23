@@ -53,7 +53,7 @@ class ESClient
     hash.docs.map { |doc| create_exception(doc) }
   end
 
-  def index(type, body)
+  def index(type: TYPE_OCCURRENCES, body: {})
     response = @es.index(index: INDEX, type: type, body: body)
     Hashie::Mash.new(response)
   end

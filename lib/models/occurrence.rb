@@ -112,7 +112,7 @@ class Occurrence
   #
 
   def save
-    occurrence = Exceptionist.esclient.index('occurrences', to_hash)
+    occurrence = Exceptionist.esclient.index(type: 'occurrences', body: to_hash)
     @id = occurrence._id
     self
   end
