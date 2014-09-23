@@ -36,10 +36,6 @@ class Occurrence
     Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, from: from, size: size)
   end
 
-  def self.find_by_name(project, size=25)
-    Occurrence.find(filters: { term: { project_name: project } }, size: size)
-  end
-
   def self.find_next(uber_key, date)
     Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end

@@ -40,11 +40,10 @@ class OccurrenceTest < MiniTest::Test
 
   def test_delete_all_for
     Occurrence.delete_all_for(@occur11.uber_key)
-
     Exceptionist.esclient.refresh
 
-    assert_equal 5, Occurrence.find_by_name('ExampleProject').size
-    assert_equal 1, Occurrence.find_by_name('OtherProject').size
+    assert_equal 5, Occurrence.find(filters: { term: { project_name: 'ExampleProject' } } ).size
+    assert_equal 1, Occurrence.find(filters: { term: { project_name: 'OtherProject' } } ).size
   end
 
   def test_find_first_for
@@ -57,11 +56,6 @@ class OccurrenceTest < MiniTest::Test
 
   def test_find_since
     assert_equal [@occur19, @occur18], Occurrence.find_since(uber_key: @occur18.uber_key, date: Time.local(2011, 1, 7, 12, 0))
-  end
-
-  def test_find_by_name
-    assert_equal 14, Occurrence.find_by_name('ExampleProject').size
-    assert_equal [@occur41], Occurrence.find_by_name('OtherProject')
   end
 
   def test_find_next

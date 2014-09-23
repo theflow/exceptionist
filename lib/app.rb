@@ -73,7 +73,7 @@ class ExceptionistApp < Sinatra::Base
 
   get '/projects/:project/river' do
     @current_project = Project.new(params[:project])
-    @occurrences = Occurrence.find_by_name(@current_project.name)
+    @occurrences = Occurrence.find( filters: { term: { project_name: @current_project.name } } )
 
     @title = "Latest Occurrences for #{@current_project.name}"
     erb :river
