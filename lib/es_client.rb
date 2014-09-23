@@ -121,15 +121,16 @@ class ESClient
     attr
   end
 
-  def create_search_query(terms, sort, from, size)
-    sort = wrap_sort(sort) unless sort.empty?
-    return { sort: sort, from: from, size: size } if terms.empty?
-    { query: { filtered: { filter: { bool: { must: terms } } } }, sort: sort, from: from, size: size}
+  def create_search_query(filters, sort, from, size)
+    { query: wrap_filters(filters), sort: sort, from: from, size: size }
   end
 
   def wrap_sort(sort)
-    sort = [sort] if sort.class == Hash
-    sort.each { | field | add_ignore_unmapped(field) }
+    Helpers.wrap(sort).each { | field | add_ignore_unmapped(field) }
+  end
+
+  def wrap_filters(filters)
+    { filtered: { filter: { bool: { must: filters } } } }
   end
 
   def add_ignore_unmapped(hash)
