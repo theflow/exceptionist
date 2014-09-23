@@ -99,10 +99,6 @@ class Occurrence
     cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
   end
 
-  def occurred_at
-    @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
-  end
-
   def project
     Project.new(project_name)
   end
