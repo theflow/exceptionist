@@ -77,7 +77,9 @@ class UberException
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
     terms = terms.map { |term| { term: term } unless term.nil? }
     terms << { term: { closed: false } }
-    Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
+
+    hash = Exceptionist.esclient.search(type: TYPE_EXCEPTIONS, filters: terms.push(*filters), sort: sort, from: from, size: size)
+    hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
   def self.occurred(occurrence)
@@ -105,7 +107,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } } ] )
+    uber_exceptions = find( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } } ] )
 
     uber_exceptions.each do |exception|
       exception.forget!

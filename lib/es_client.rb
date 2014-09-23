@@ -19,11 +19,6 @@ class ESClient
     Hashie::Mash.new(response)
   end
 
-  def search_exceptions(filters: {}, sort: {}, from: 0, size: 25)
-    hash = search(type: TYPE_EXCEPTIONS, filters: filters, sort: sort, from: from, size: size)
-    hash.hits.hits.map { |doc| create_exception(doc) }
-  end
-
   def search_aggs(filters, aggs)
     # size set 0 for Integer.MAX_VALUE
     query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
