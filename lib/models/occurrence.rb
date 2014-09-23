@@ -4,6 +4,7 @@ class Occurrence
                 :parameters, :session, :cgi_data, :environment,
                 :project_name, :occurred_at, :occurred_at_day, :id, :uber_key, :api_key, :sort
 
+  TYPE_OCCURRENCES = 'occurrences'
 
   def initialize(attributes={})
     attributes.each do |key, value|
@@ -43,7 +44,9 @@ class Occurrence
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
     filters = Helper.wrap(filters)
     filters << { term: { uber_key: uber_key } } unless uber_key.empty?
-    Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, from: from, size: size )
+
+    hash = Exceptionist.esclient.search(type: TYPE_OCCURRENCES, filters: filters, sort: sort, from: from, size: size)
+    hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
   def self.count_all_on(project, day)

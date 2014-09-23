@@ -11,7 +11,7 @@ class ESClient
     @es = Elasticsearch::Client.new(host: endpoint)
   end
 
-  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
+  def search(type: '', filters: {}, sort: {}, from: 0, size: 25)
     raise ArgumentError, 'from has to be >= 0' if from < 0
 
     query = create_search_query(filters, sort, from, size)
@@ -22,11 +22,6 @@ class ESClient
   def search_exceptions(filters: {}, sort: {}, from: 0, size: 25)
     hash = search(type: TYPE_EXCEPTIONS, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| create_exception(doc) }
-  end
-
-  def search_occurrences(filters: {}, sort: {}, from: 0, size: 25)
-    hash = search(filters: filters, sort: sort, from: from, size: size)
-    hash.hits.hits.map { |doc| create_occurrence(doc) }
   end
 
   def search_aggs(filters, aggs)
@@ -92,11 +87,6 @@ class ESClient
   end
 
   private
-
-  def create_occurrence(attr)
-    attr = transform(attr)
-    Occurrence.new(attr)
-  end
 
   def create_exception(attr)
     attr = transform(attr)
