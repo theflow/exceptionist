@@ -20,4 +20,4 @@ require 'models/mailer'
 require 'mapping/mapping_helper'
 
 require 'exceptionist'
-require 'helpers'
+require 'helper'

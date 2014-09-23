@@ -33,29 +33,29 @@ class Occurrence
   end
 
   def self.find_since(uber_key: "", date: Time.local, from: 0, size: 25)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, from: from, size: size)
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helper.es_time(date) } } }, from: from, size: size)
   end
 
   def self.find_next(uber_key, date)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helper.es_time(date) } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end
 
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    filters = Helpers.wrap(filters)
+    filters = Helper.wrap(filters)
     filters << { term: { uber_key: uber_key } } unless uber_key.empty?
     Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, from: from, size: size )
   end
 
   def self.count_all_on(project, day)
-    Occurrence.count( project: project, filters: { term: { occurred_at_day: Helpers.es_day(day) } })
+    Occurrence.count( project: project, filters: { term: { occurred_at_day: Helper.es_day(day) } })
   end
 
   def self.count_since(uber_key, date)
-    Occurrence.count(filters: [{ range: { occurred_at: { gte: Helpers.es_time(date) } } }, { term: { uber_key: uber_key } }] )
+    Occurrence.count(filters: [{ range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } }] )
   end
 
   def self.count(project: '', filters: {})
-    filters = Helpers.wrap(filters)
+    filters = Helper.wrap(filters)
     filters << { term: { project_name: project } } unless project.empty?
     Exceptionist.esclient.count( filters: filters )
   end
@@ -106,8 +106,8 @@ class Occurrence
       parameters:           parameters,
       cgi_data:             cgi_data,
       url:                  url,
-      occurred_at:          Helpers.es_time(occurred_at),
-      occurred_at_day:      Helpers.es_day(occurred_at),
+      occurred_at:          Helper.es_time(occurred_at),
+      occurred_at_day:      Helper.es_day(occurred_at),
       exception_backtrace:  exception_backtrace,
       controller_name:      controller_name,
       environment:          environment,

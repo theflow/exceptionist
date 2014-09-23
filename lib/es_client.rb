@@ -115,7 +115,7 @@ class ESClient
 
   def transform(attr)
     attr.merge!(attr['_source']).delete('_source')
-    attr = Helpers.symbolize_keys(attr)
+    attr = Helper.symbolize_keys(attr)
     attr[:id] = attr.delete :_id
     attr
   end
@@ -125,11 +125,11 @@ class ESClient
   end
 
   def wrap_sort(sort)
-    Helpers.wrap(sort).each { | field | add_ignore_unmapped(field) }
+    Helper.wrap(sort).each { | field | add_ignore_unmapped(field) }
   end
 
   def wrap_filters(filters)
-    { filtered: { filter: { bool: { must: Helpers.wrap(filters) } } } }
+    { filtered: { filter: { bool: { must: Helper.wrap(filters) } } } }
   end
 
   def add_ignore_unmapped(hash)

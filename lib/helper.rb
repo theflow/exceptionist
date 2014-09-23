@@ -1,4 +1,4 @@
-module Helpers
+module Helper
 
   def self.get_day_ago(days)
     today = Time.now
@@ -6,7 +6,7 @@ module Helpers
   end
 
   def self.last_n_days(days)
-    start = Helpers.get_day_ago(days)
+    start = Helper.get_day_ago(days)
     today = Time.now
 
     n_days = []

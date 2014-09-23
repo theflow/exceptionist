@@ -10,7 +10,7 @@ class Project
   end
 
   def last_thirty_days
-    Helpers.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
+    Helper.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
   end
 
   def last_deploy
@@ -18,7 +18,7 @@ class Project
   end
 
   def deploys_last_thirty_days
-    since = Helpers.get_day_ago(30)
+    since = Helper.get_day_ago(30)
     Deploy.find_by_project_since(@name, since)
   end
 
