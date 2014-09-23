@@ -52,9 +52,8 @@ class UberException
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
     exces = Exceptionist.esclient.mget(ids: ids)
-    exces = exces.select{ |exce| exce.category == category } unless category.nil?
-    exces = exces.slice(from, size)
-    exces.each do |exce|
+    exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
+    exces.slice(from, size).each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
           exce.occurrences_count = occurr['doc_count']
