@@ -74,7 +74,7 @@ class ESClient
 
   private
   def create_search_query(filters, sort, from, size)
-    { query: wrap_filters(filters), sort: sort, from: from, size: size }
+    { query: wrap_filters(filters), sort: wrap_sort(sort), from: from, size: size }
   end
 
   def wrap_sort(sort)
