@@ -1,5 +1,7 @@
 class ESClient
+
   attr_accessor :es, :host, :port
+
   INDEX = 'exceptionist'
   TYPE_EXCEPTIONS = 'exceptions'
   TYPE_OCCURRENCES = 'occurrences'
