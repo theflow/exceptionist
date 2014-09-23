@@ -30,11 +30,34 @@ class UberException
   end
 
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
-    agg_exces = aggregation_since_last_deploy(project)
+    agg_exces, ids = aggregation_since_last_deploy(project)
 
+    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: TYPE_EXCEPTIONS, values: ids } } ], from: from, size: size )
+    merge(exces, agg_exces)
+  end
+
+  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
+    agg_exces, ids = aggregation_since_last_deploy(project)
+
+    # to preserve ordering and filtering category at the same time, filtering has to be done in ruby, not on db-level
+    exces = Exceptionist.esclient.mget(type: TYPE_EXCEPTIONS, ids: ids).map { |doc| new(Helper.transform(doc)) }
+    exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
+    merge(exces.slice(from, size), agg_exces)
+  end
+
+  def self.aggregation_since_last_deploy(project)
+    deploy = Deploy.find_last_deploy(project)
+    raise 'There is no deploy' if deploy.nil?
+
+    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } } ]
+    agg_exces = Occurrence.search_aggs(filters: filters_occur, aggs: 'uber_key')
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: TYPE_EXCEPTIONS, values: ids } } ], from: from, size: size )
+
+    return agg_exces, ids
+  end
+
+  def self.merge(exces, agg_exces)
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
@@ -45,33 +68,6 @@ class UberException
       end
     end
     exces
-  end
-
-  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
-    agg_exces = aggregation_since_last_deploy(project)
-
-    ids = []
-    agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = Exceptionist.esclient.mget(type: TYPE_EXCEPTIONS, ids: ids).map { |doc| new(Helper.transform(doc)) }
-    exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
-    exces.slice(from, size).each do |exce|
-      agg_exces.each do |occurr|
-        if occurr['key'] == exce.id
-          exce.occurrences_count = occurr['doc_count']
-          agg_exces.delete(occurr)
-          break
-        end
-      end
-    end
-    exces
-  end
-
-  def self.aggregation_since_last_deploy(project)
-    deploy = Deploy.find_last_deploy(project)
-    raise 'There is no deploy' if deploy.nil?
-
-    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } } ]
-    Occurrence.search_aggs(filters: filters_occur, aggs: 'uber_key')
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
