@@ -10,7 +10,7 @@ class Deploy
   end
 
   def self.find_by_project_since(project, date)
-    find( filters: [ { term: { project_name: project } }, { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ] )
+    find( filters: [ { term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(date) } } } ] )
   end
 
   def self.find_by_project(project)

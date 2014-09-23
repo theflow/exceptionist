@@ -18,7 +18,7 @@ class UberException
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } } ] )
   end
 
   def self.get(uber_key)
@@ -70,7 +70,7 @@ class UberException
     deploy = Deploy.find_last_deploy(project)
     raise 'There is no deploy' if deploy.nil?
 
-    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: deploy.occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } } ]
+    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } } ]
     Exceptionist.esclient.search_aggs( filters_occur,'uber_key')
   end
 
@@ -92,7 +92,7 @@ class UberException
 
     end
 
-    first_timestamp = first_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+    first_timestamp = Helper.es_time(first_timestamp)
     hash = occurrence.to_hash
     hash[:id] = occurrence.id
     Exceptionist.esclient.update(id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
@@ -105,7 +105,7 @@ class UberException
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: since_date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    uber_exceptions = Exceptionist.esclient.search_exceptions( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } } ] )
 
     uber_exceptions.each do |exception|
       exception.forget!
