@@ -79,7 +79,7 @@ class UberException
     Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
   end
 
-  def self.find_new_on(project, day)
+  def self.find_new_on(day)
     next_day = day + 86400
 
     buckets = Exceptionist.esclient.search_aggs({ term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, 'uber_key' )

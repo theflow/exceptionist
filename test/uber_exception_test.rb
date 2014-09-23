@@ -113,10 +113,10 @@ class UberExceptionTest < MiniTest::Test
   end
 
   def test_find_new_on
-    exceptions = UberException.find_new_on('ExampleProject', Time.local(2011, 1, 1))
+    exceptions = UberException.find_new_on(Time.local(2011, 1, 1))
     assert_equal 1, exceptions.size
 
-    assert_equal [], UberException.find_new_on('OtherProject', Time.local(2011, 1, 4, 12, 30))
+    assert_equal [], UberException.find_new_on(Time.local(2011, 1, 4, 12, 30))
   end
 
   def test_forget_old_exceptions

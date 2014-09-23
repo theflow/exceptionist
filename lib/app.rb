@@ -82,7 +82,7 @@ class ExceptionistApp < Sinatra::Base
   get '/projects/:project/new_on/:day' do
     @day = Time.parse(params[:day])
     @current_project = Project.new(params[:project])
-    @uber_exceptions = UberException.find_new_on(@current_project.name, @day)
+    @uber_exceptions = UberException.find_new_on(@day)
 
     message_body = erb(:new_exceptions, :layout => false)
 
