@@ -3,8 +3,6 @@ class ESClient
   attr_accessor :es, :host, :port
 
   INDEX = 'exceptionist'
-  TYPE_EXCEPTIONS = 'exceptions'
-  TYPE_OCCURRENCES = 'occurrences'
 
   def initialize(endpoint)
     @host, @port = endpoint.split(':')
@@ -33,22 +31,22 @@ class ESClient
     hash.hits.hits.map { |doc| create_exception(doc) }
   end
 
-  def mget(ids: [])
-    response = @es.mget( index: INDEX, type: TYPE_EXCEPTIONS, body: { ids: ids } )
+  def mget(type: '', ids: [])
+    response = @es.mget( index: INDEX, type: type, body: { ids: ids } )
     hash = Hashie::Mash.new(response)
     hash.docs.map { |doc| create_exception(doc) }
   end
 
-  def index(type: TYPE_OCCURRENCES, body: {})
+  def index(type: '', body: {})
     response = @es.index(index: INDEX, type: type, body: body)
     Hashie::Mash.new(response)
   end
 
-  def update(type: TYPE_EXCEPTIONS, id: -1, body: {})
+  def update(type: '', id: -1, body: {})
     @es.update(index: INDEX, type: type, id: id, body: body)
   end
 
-  def count(type: TYPE_OCCURRENCES, filters: [])
+  def count(type: '', filters: [])
     @es.count(index: INDEX, type: type, body: { query: wrap_filters(filters) } )['count']
   end
 
@@ -56,7 +54,7 @@ class ESClient
     @es.delete_by_query( index: INDEX, body: { query: query } )
   end
 
-  def delete(type: TYPE_EXCEPTIONS, id: -1)
+  def delete(type: '', id: -1)
     @es.delete(index: INDEX, type: type, id: id)
   end
 

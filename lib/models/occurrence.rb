@@ -60,7 +60,7 @@ class Occurrence
   def self.count(project: '', filters: {})
     filters = Helper.wrap(filters)
     filters << { term: { project_name: project } } unless project.empty?
-    Exceptionist.esclient.count( filters: filters )
+    Exceptionist.esclient.count( type: TYPE_OCCURRENCES, filters: filters )
   end
 
   def self.search_aggs(filters: [], aggs: '')
