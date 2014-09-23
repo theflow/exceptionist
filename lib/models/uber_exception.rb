@@ -13,11 +13,11 @@ class UberException
   end
 
   def self.count_all(project)
-    Exceptionist.esclient.count(type: 'exceptions', filters: { term: { project_name: project } } )
+    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: { term: { project_name: project } } )
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: 'exceptions', filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
+    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } ] )
   end
 
   def self.get(uber_key)
@@ -33,7 +33,7 @@ class UberException
 
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: 'exceptions', values: ids } } ], from: from, size: size )
+    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: TYPE_EXCEPTIONS, values: ids } } ], from: from, size: size )
     exces.each do |exce|
       agg_exces.each do |occurr|
         if occurr['key'] == exce.id
