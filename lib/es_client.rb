@@ -116,13 +116,9 @@ class ESClient
 
   def transform(attr)
     attr.merge!(attr['_source']).delete('_source')
-    attr = symbolize_keys(attr)
+    attr = Helpers.symbolize_keys(attr)
     attr[:id] = attr.delete :_id
     attr
-  end
-
-  def symbolize_keys(hash)
-    hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
 
   def create_search_query(terms, sort, from, size)

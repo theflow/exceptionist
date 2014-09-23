@@ -5,4 +5,7 @@ module Helpers
     today - (3600 * 24 * (days - 1)) # `days` days ago
   end
 
+  def self.symbolize_keys(hash)
+    hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
+  end
 end

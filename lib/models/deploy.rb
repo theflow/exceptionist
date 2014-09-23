@@ -27,7 +27,7 @@ class Deploy
   end
 
   def self.from_json(json)
-    attr = symbolize_keys(JSON.parse(json))
+    attr = Helpers.symbolize_keys(JSON.parse(json))
     attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
 
     Deploy.new(attr)
@@ -56,9 +56,5 @@ class Deploy
         changelog_link: changelog_link,
         occurred_at: occurred_at.is_a?(String) ? occurred_at : occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
     }
-  end
-
-  def self.symbolize_keys(hash)
-    hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
 end
