@@ -16,6 +16,23 @@ class IntegrationTest < MiniTest::Test
 
   def setup
     clear_collections
+
+    @exce1 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 1)))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 10)))
+
+    @exce2 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 6), action_name: 'save'))
+    @exce2.update(category: 'high')
+
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 6), action_name: 'delete', url: 'http://example.com/?show=one'))
+    UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 7), action_name: 'delete', url: 'http://example.com/?show=two'))
+    @exce3 = UberException.occurred(create_occurrence(occurred_at: Time.local(2011, 1, 8), action_name: 'delete', url: 'http://example.com/?show=three'))
+    @exce3.update(category: 'low')
+
+    create_deploy(occurred_at: Time.local(2011, 1, 5))
+    create_deploy(occurred_at: Time.local(2011, 1, 6), project_name: 'OtherProject')
+    create_deploy(occurred_at: Time.local(2011, 1, 6), project_name: 'ThirdProject')
+
+    Exceptionist.esclient.refresh
   end
 
   def app
@@ -26,103 +43,59 @@ class IntegrationTest < MiniTest::Test
     visit '/'
   end
 
-  def test_dashboard_with_one_project
-    occurrence = create_occurrence
-    UberException.occurred(occurrence)
-
-    Exceptionist.esclient.refresh
-
+  def test_dashboard_contain_projects
     visit '/'
     assert_contain 'ExampleProject'
+    assert_contain 'ThirdProject'
 
     click_link 'ExampleProject'
   end
 
-  def test_dashboard_with_no_deploy
-    occurrence = create_occurrence
-    UberException.occurred(occurrence)
-
-    Exceptionist.esclient.refresh
-
+  def test_dashboard_contain_no_deploy_message
     visit '/'
     assert_contain '- no deploy found'
   end
 
-  def test_dashboard_with_deploy
-    occurrence = create_occurrence
-    UberException.occurred(occurrence)
-    create_deploy
-
-    Exceptionist.esclient.refresh
-
+  def test_dashboard_contain_deploy_message
     visit '/'
     assert_contain '- deploy:'
   end
 
-  def test_dashboard_with_two_projects
-    occur1 = create_occurrence(project_name: 'ExampleProject')
-    UberException.occurred(occur1)
-
-    occur2 = create_occurrence(project_name: 'ExampleProject2')
-    UberException.occurred(occur2)
-
-    Exceptionist.esclient.refresh
-
-    visit '/'
-    assert_contain 'ExampleProject'
-    assert_contain 'ExampleProject2'
-  end
-
   def test_river
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
     visit '/river'
     assert_contain 'River'
   end
 
   def test_river_project
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
     visit 'projects/ExampleProject/river'
     assert_contain 'Latest Occurrences'
   end
 
   def test_projects_with_no_exceptions
-    visit '/projects/ExampleProject'
+    visit '/projects/PhantomProject'
 
-    assert_contain 'Latest Exceptions for ExampleProject'
+    assert_contain 'Latest Exceptions for PhantomProject'
     assert_contain 'No exceptions'
     assert_not_contain 'next page'
     assert_not_contain 'previous page'
   end
 
-  def test_projects_with_one_exception
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
+  def test_projects_with_exceptions
     visit '/projects/ExampleProject'
 
     assert_contain 'Latest Exceptions for ExampleProject'
     assert_contain 'NameError in users#show'
-    assert_contain '# 2'
+    assert_contain 'NameError in users#save'
+    assert_contain 'NameError in users#delete'
   end
 
   def test_projects_pagination_latest
     27.times do |i|
-      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+      UberException.occurred(create_occurrence(action_name:"action_#{i}", project_name: 'ThirdProject'))
     end
-
     Exceptionist.esclient.refresh
 
-    visit '/projects/ExampleProject?sort_by=latest'
+    visit '/projects/ThirdProject?sort_by=latest'
     assert_contain 'next page'
     assert_not_contain 'previous page'
 
@@ -133,12 +106,11 @@ class IntegrationTest < MiniTest::Test
 
   def test_projects_pagination_frequent
     27.times do |i|
-      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+      UberException.occurred(create_occurrence(action_name:"action_#{i}", project_name: 'ThirdProject'))
     end
-
     Exceptionist.esclient.refresh
 
-    visit '/projects/ExampleProject?sort_by=frequent'
+    visit '/projects/ThirdProject?sort_by=frequent'
     assert_contain 'next page'
     assert_not_contain 'previous page'
 
@@ -147,102 +119,58 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'previous page'
   end
 
-  def test_projects_be_sorted_by_most_recent
-    UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-03-01'))
-    UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2009-02-01'))
-
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject'
-
-    # TODO: how to def test order?
-    assert_contain 'NameError in users#index'
-    assert_contain 'NameError in users#show'
-  end
-
   def test_projects_show_new_exceptions
-    UberException.occurred(create_occurrence(action_name:'show', occurred_at:'2010-07-01'))
-    UberException.occurred(create_occurrence(action_name:'index', occurred_at:'2010-08-01'))
-
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject/new_on/2010-07-01?mail_to=the@dude.org'
+    visit '/projects/ExampleProject/new_on/2011-01-01?mail_to=the@dude.org'
 
     assert_contain 'NameError in users#show'
-    assert_not_contain 'NameError in users#index'
+    assert_not_contain 'NameError in users#save'
+    assert_not_contain 'NameError in users#delete'
   end
 
   def test_projects_forget_old_exceptions
-    UberException.occurred(create_occurrence(action_name:'show', occurred_at:Time.now - (86400 * 50)))
-    UberException.occurred(create_occurrence(action_name:'index', occurred_at:Time.now))
-
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject/forget_exceptions', :post
 
-    assert_contain 'Deleted exceptions: 1'
+    assert_contain 'Deleted exceptions'
   end
 
   def test_projects_since_last_deploy_with_no_deploy
     assert_raises(ArgumentError) do
-      get '/projects/ExampleProject/since_last_deploy'
+      get '/projects/PhantomProject/since_last_deploy'
     end
   end
 
-  def test_projects_since_last_deploy_fresh_deploy
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-    create_deploy
-
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject/since_last_deploy'
+  def test_projects_since_last_deploy_with_no_exceptions
+    visit '/projects/ThirdProject/since_last_deploy'
 
     assert_contain 'since last deploy'
     assert_contain 'No exceptions'
   end
 
-  def test_projects_since_last_deploy_old_deploy
-    create_deploy
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
+  def test_projects_since_last_deploy
     visit '/projects/ExampleProject/since_last_deploy'
 
     assert_contain 'NameError in users#show'
+    assert_contain 'NameError in users#save'
+    assert_contain 'NameError in users#delete'
     assert_not_contain 'next page'
     assert_not_contain 'previous page'
   end
 
   def test_projects_since_last_deploy_ordered_by_occurrences_count
-    create_deploy
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject/since_last_deploy?sort_by=frequent'
 
     assert_contain 'NameError in users#show'
-    assert_not_contain 'next page'
-    assert_not_contain 'previous page'
+    assert_contain 'NameError in users#save'
+    assert_contain 'NameError in users#delete'
   end
 
   def test_projects_since_last_deploy_pagination
-    create_deploy
-
     27.times do |i|
-      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+      UberException.occurred(create_occurrence(action_name:"action_#{i}", project_name: 'ThirdProject'),)
     end
-
     Exceptionist.esclient.refresh
 
-    visit '/projects/ExampleProject/since_last_deploy'
+    visit '/projects/ThirdProject/since_last_deploy'
     assert_contain 'since last deploy'
     assert_contain 'next page'
     assert_not_contain 'previous page'
@@ -254,119 +182,66 @@ class IntegrationTest < MiniTest::Test
   end
 
   def test_projects_new_exception_since_deploy
-    create_deploy
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject'
     assert_contain 'new'
-
-    create_deploy
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject'
-    assert_not_contain 'new'
   end
 
-  def test_projects_filter
-    UberException.occurred(create_occurrence)
-
-    Exceptionist.esclient.refresh
-
+  def test_projects_category_filter
     visit '/projects/ExampleProject'
     assert_have_selector '.no-category'
-    assert_have_no_selector '.low'
-    assert_have_no_selector '.high'
+    assert_have_selector '.high'
+    assert_have_selector '.low'
 
     visit '/projects/ExampleProject?category=no-category'
     assert_not_contain 'No exceptions'
 
     visit '/projects/ExampleProject?category=high'
-    assert_contain 'No exceptions'
-  end
-
-  def test_projects_filter_change
-    @uber_exce = UberException.occurred(create_occurrence)
-    @uber_exce.update(category: 'high')
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject'
-    assert_have_selector '.high'
-    assert_have_no_selector '.low'
-    assert_have_no_selector '.no-category'
+    assert_not_contain 'No exceptions'
 
     visit '/projects/ExampleProject?category=low'
-    assert_contain 'No exceptions'
-
-    visit '/projects/ExampleProject?category=high'
     assert_not_contain 'No exceptions'
   end
 
   def test_projects_since_last_deploy_filter
-    create_deploy
-    @uber_exce = UberException.occurred(create_occurrence)
-    @uber_exce.update(category: 'high')
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject/since_last_deploy?'
-    assert_not_contain 'No exceptions'
     assert_have_selector '.high'
-    assert_have_no_selector '.low'
-    assert_have_no_selector '.no-category'
+    assert_have_selector '.low'
+    assert_have_selector '.no-category'
 
-    visit '/projects/ExampleProject/since_last_deploy?category=low'
-    assert_contain 'No exceptions'
+    visit '/projects/ExampleProject/since_last_deploy?category=no-category'
+    assert_have_selector '.no-category'
+    assert_have_no_selector '.high'
 
     visit '/projects/ExampleProject/since_last_deploy?category=high'
-    assert_not_contain 'No exceptions'
+    assert_have_selector '.high'
+    assert_have_no_selector '.low'
+
+    visit '/projects/ExampleProject/since_last_deploy?category=low'
+    assert_have_selector '.low'
+    assert_have_no_selector '.no-category'
   end
 
   def test_projects_since_last_deploy_filter_sorted_by_occurrence
-    create_deploy
-    @uber_exce = UberException.occurred(create_occurrence)
-    @uber_exce.update(category: 'low')
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject/since_last_deploy?sort_by=frequent'
-    assert_not_contain 'No exceptions'
+    assert_have_selector '.no-category'
+    assert_have_selector '.high'
     assert_have_selector '.low'
-    assert_have_no_selector '.high'
-    assert_have_no_selector '.no-category'
 
-    visit '/projects/ExampleProject/since_last_deploy?category=low&sort_by=frequent'
-    assert_not_contain 'No exceptions'
+    visit '/projects/ExampleProject/since_last_deploy?category=no-category&sort_by=frequent'
+    assert_have_selector '.no-category'
+    assert_have_no_selector '.high'
 
     visit '/projects/ExampleProject/since_last_deploy?category=high&sort_by=frequent'
-    assert_contain 'No exceptions'
-  end
+    assert_have_selector '.high'
+    assert_have_no_selector '.low'
 
-  def test_projects_sort_most_frequent_filter
-    @uber_exce = UberException.occurred(create_occurrence)
-    @uber_exce.update(category: 'low')
-    Exceptionist.esclient.refresh
-
-    visit '/projects/ExampleProject?sort_by=frequent'
+    visit '/projects/ExampleProject/since_last_deploy?category=low&sort_by=frequent'
     assert_have_selector '.low'
-    assert_have_no_selector '.high'
     assert_have_no_selector '.no-category'
-
-    visit '/projects/ExampleProject?category=low&sort_by=frequent'
-    assert_not_contain 'No exceptions'
-
-    visit '/projects/ExampleProject?category=high&sort_by=frequent'
-    assert_contain 'No exceptions'
   end
 
   def test_exceptions_show_a_minimal_occurrence
-    occurrence = create_occurrence
-    UberException.occurred(occurrence)
-
-    Exceptionist.esclient.refresh
-
-    visit "/exceptions/#{occurrence.uber_key}"
+    visit "/exceptions/#{@exce1.id}"
     assert_contain 'GET http://example.com'
     assert_contain 'NameError: undefined local variable or method dude'
     assert_contain 'Params:'
@@ -376,16 +251,7 @@ class IntegrationTest < MiniTest::Test
   end
 
   def test_exceptions_paginate_occurrences
-    occur1 = create_occurrence(url: 'http://example.com/?show=one')
-    occur2 = create_occurrence(url: 'http://example.com/?show=two')
-    occur3 = create_occurrence(url: 'http://example.com/?show=three')
-    UberException.occurred(occur1)
-    UberException.occurred(occur2)
-    UberException.occurred(occur3)
-
-    Exceptionist.esclient.refresh
-
-    visit "/exceptions/#{occur1.uber_key}"
+    visit "/exceptions/#{@exce3.id}"
     assert_contain 'Older'
     assert_contain 'Newer'
     assert_contain '3 of 3'
@@ -404,40 +270,17 @@ class IntegrationTest < MiniTest::Test
   end
 
   def test_projects_be_able_to_close_an_exception
-    UberException.occurred(create_occurrence(action_name:'show'))
-    UberException.occurred(create_occurrence(action_name:'index'))
-
-    Exceptionist.esclient.refresh
-
     visit '/projects/ExampleProject'
-    assert_contain 'NameError in users#show'
-    assert_contain 'NameError in users#index'
 
     click_link 'NameError in users#show'
 
     submit_form 'close'
-
     Exceptionist.esclient.refresh
-
     follow_redirect!
 
     # redirects back to project page
     assert_equal 'http://example.org/projects/ExampleProject', last_request.url
     assert_not_contain 'NameError in users#show'
-    assert_contain 'NameError in users#index'
+    assert_contain 'NameError in users#delete'
   end
-
-  def test_deploys_no_deploys
-    visit '/deploys/ExampleProject'
-    assert_contain 'No deploys'
-  end
-
-  def test_deploys_no_deploys
-    create_deploy
-    Exceptionist.esclient.refresh
-
-    visit '/deploys/ExampleProject'
-    assert_not_contain 'No deploys'
-  end
-
 end

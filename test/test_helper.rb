@@ -29,7 +29,9 @@ Exceptionist.esclient.refresh
 
 # Configure
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
-Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
+Exceptionist.add_project 'OtherProject', 'ANOTHER_SECRET_OTHER_KEY'
+Exceptionist.add_project 'ThirdProject', 'ANOTHER_SECRET_THIRD_KEY'
+Exceptionist.add_project 'PhantomProject', 'ANOTHER_SECRET_PHANTOM_KEY'
 
 ##
 # Exceptionist specific helpers
