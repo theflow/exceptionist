@@ -33,4 +33,11 @@ module Helper
   def self.es_day(date)
     date.strftime('%Y-%m-%d')
   end
+
+  def self.transform(attr)
+    attr.merge!(attr['_source']).delete('_source')
+    attr = Helper.symbolize_keys(attr)
+    attr[:id] = attr.delete :_id
+    attr
+  end
 end

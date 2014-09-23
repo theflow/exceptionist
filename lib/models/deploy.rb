@@ -1,6 +1,8 @@
 class Deploy
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
+  TYPE_DEPLOYS = 'deploys'
+
   def initialize(attributes={})
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
@@ -22,7 +24,8 @@ class Deploy
   end
 
   def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    Exceptionist.esclient.search_deploys( filters: filters, sort: sort, from: from, size: size )
+    hash = Exceptionist.esclient.search(type: TYPE_DEPLOYS, filters: filters, sort: sort, from: from, size: size)
+    hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
   def self.from_json(json)

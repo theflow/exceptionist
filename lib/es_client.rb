@@ -5,16 +5,18 @@ class ESClient
   INDEX = 'exceptionist'
   TYPE_EXCEPTIONS = 'exceptions'
   TYPE_OCCURRENCES = 'occurrences'
-  TYPE_DEPLOYS = 'deploys'
 
   def initialize(endpoint)
     @host, @port = endpoint.split(':')
     @es = Elasticsearch::Client.new(host: endpoint)
   end
 
-  def search_deploys(filters: {}, sort: {}, from: 0, size: 25)
-    hash = search(type: TYPE_DEPLOYS, filters: filters, sort: sort, from: from, size: size)
-    hash.hits.hits.map { |doc| create_deploy(doc) }
+  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
+    raise ArgumentError, 'from has to be >= 0' if from < 0
+
+    query = create_search_query(filters, sort, from, size)
+    response = @es.search(index: INDEX, type: type, body: query)
+    Hashie::Mash.new(response)
   end
 
   def search_exceptions(filters: {}, sort: {}, from: 0, size: 25)
@@ -90,13 +92,6 @@ class ESClient
   end
 
   private
-  def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
-    raise ArgumentError, 'from has to be >= 0' if from < 0
-
-    query = create_search_query(filters, sort, from, size)
-    response = @es.search(index: INDEX, type: type, body: query)
-    Hashie::Mash.new(response)
-  end
 
   def create_occurrence(attr)
     attr = transform(attr)
@@ -106,11 +101,6 @@ class ESClient
   def create_exception(attr)
     attr = transform(attr)
     UberException.new(attr)
-  end
-
-  def create_deploy(attr)
-    attr = transform(attr)
-    Deploy.new(attr)
   end
 
   def transform(attr)
