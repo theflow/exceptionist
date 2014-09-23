@@ -79,20 +79,6 @@ class ExceptionistApp < Sinatra::Base
     erb :river
   end
 
-  get '/projects/:project/new_on/:day' do
-    @day = Time.parse(params[:day])
-    @current_project = Project.new(params[:project])
-    @uber_exceptions = UberException.find_new_on(@day)
-
-    message_body = erb(:new_exceptions, :layout => false)
-
-    if params[:mail_to]
-      Mailer.deliver_new_exceptions(@current_project, @day, params[:mail_to], message_body)
-    end
-
-    message_body
-  end
-
   post '/projects/:project/forget_exceptions' do
     days = params[:days] ? params[:days].to_i : 31
     deleted = UberException.forget_old_exceptions(params[:project], days)

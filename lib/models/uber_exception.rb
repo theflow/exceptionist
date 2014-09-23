@@ -79,15 +79,6 @@ class UberException
     Exceptionist.esclient.search_exceptions(filters: terms.push(*filters), sort: sort, from: from, size: size)
   end
 
-  def self.find_new_on(day)
-    next_day = day + 86400
-
-    buckets = Exceptionist.esclient.search_aggs({ term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, 'uber_key' )
-    uber_exceptions = Exceptionist.esclient.search_ids(ids: buckets.map { |occ| occ['key'] } )
-
-    uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
-  end
-
   def self.occurred(occurrence)
     first_timestamp = occurrence.occurred_at
 

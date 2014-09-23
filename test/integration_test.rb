@@ -119,14 +119,6 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'previous page'
   end
 
-  def test_projects_show_new_exceptions
-    visit '/projects/ExampleProject/new_on/2011-01-01?mail_to=the@dude.org'
-
-    assert_contain 'NameError in users#show'
-    assert_not_contain 'NameError in users#save'
-    assert_not_contain 'NameError in users#delete'
-  end
-
   def test_projects_forget_old_exceptions
     visit '/projects/ExampleProject/forget_exceptions', :post
 

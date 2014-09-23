@@ -112,13 +112,6 @@ class UberExceptionTest < MiniTest::Test
     assert_equal Time.local(2011, 1, 2), uber_exces[2].first_occurred_at
   end
 
-  def test_find_new_on
-    exceptions = UberException.find_new_on(Time.local(2011, 1, 1))
-    assert_equal 1, exceptions.size
-
-    assert_equal [], UberException.find_new_on(Time.local(2011, 1, 4, 12, 30))
-  end
-
   def test_forget_old_exceptions
     days = (Time.now - Time.local(2011, 1, 1)) / 86400
     # shouldn't forget anything
