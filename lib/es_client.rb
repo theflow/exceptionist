@@ -19,10 +19,10 @@ class ESClient
     Hashie::Mash.new(response)
   end
 
-  def search_aggs(filters, aggs)
+  def search_aggs(type: '', filters: [], aggs: '')
     # size set 0 for Integer.MAX_VALUE
     query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
-    response = @es.search(index: INDEX, type: TYPE_OCCURRENCES, body: query, search_type: 'count')
+    response = @es.search(index: INDEX, type: type, body: query, search_type: 'count')
     hash = Hashie::Mash.new(response)
     hash.aggregations.exceptions.buckets
   end

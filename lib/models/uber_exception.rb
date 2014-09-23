@@ -71,7 +71,7 @@ class UberException
     raise 'There is no deploy' if deploy.nil?
 
     filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } } ]
-    Exceptionist.esclient.search_aggs( filters_occur,'uber_key')
+    Occurrence.search_aggs(filters: filters_occur, aggs: 'uber_key')
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)

@@ -63,6 +63,10 @@ class Occurrence
     Exceptionist.esclient.count( filters: filters )
   end
 
+  def self.search_aggs(filters: [], aggs: '')
+    Exceptionist.esclient.search_aggs(type: TYPE_OCCURRENCES, filters: filters, aggs: aggs)
+  end
+
   #
   # accessors
   #
