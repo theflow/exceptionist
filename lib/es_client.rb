@@ -73,13 +73,6 @@ class ESClient
   end
 
   private
-  def transform(attr)
-    attr.merge!(attr['_source']).delete('_source')
-    attr = Helper.symbolize_keys(attr)
-    attr[:id] = attr.delete :_id
-    attr
-  end
-
   def create_search_query(filters, sort, from, size)
     { query: wrap_filters(filters), sort: sort, from: from, size: size }
   end
