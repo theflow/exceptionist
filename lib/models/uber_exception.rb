@@ -84,7 +84,7 @@ class UberException
     next_day = day + 86400
 
     buckets = Exceptionist.esclient.search_aggs({ term: { occurred_at_day: day.strftime('%Y-%m-%d') } }, 'uber_key' )
-    uber_exceptions = Exceptionist.esclient.search_ids('exceptions', buckets.map { |occ| occ['key'] } )
+    uber_exceptions = Exceptionist.esclient.search_ids(ids: buckets.map { |occ| occ['key'] } )
 
     uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
   end
