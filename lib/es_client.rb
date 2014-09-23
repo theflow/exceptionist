@@ -25,12 +25,6 @@ class ESClient
     hash.aggregations.exceptions.buckets
   end
 
-  def search_ids(type: TYPE_EXCEPTIONS, ids: [])
-    response = @es.search(index: INDEX, type: type, body: { query: { ids: { values: ids } } } )
-    hash = Hashie::Mash.new(response)
-    hash.hits.hits.map { |doc| create_exception(doc) }
-  end
-
   def mget(type: '', ids: [])
     response = @es.mget( index: INDEX, type: type, body: { ids: ids } )
     hash = Hashie::Mash.new(response)
