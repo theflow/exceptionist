@@ -53,7 +53,7 @@ class Deploy
         api_key: api_key,
         version: version,
         changelog_link: changelog_link,
-        occurred_at: occurred_at.is_a?(String) ? occurred_at : occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+        occurred_at: Helper.es_time(occurred_at)
     }
   end
 end
