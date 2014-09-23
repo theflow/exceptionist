@@ -62,7 +62,7 @@ class ESClient
     @es.delete_by_query( index: INDEX, body: { query: query } )
   end
 
-  def delete(type, id)
+  def delete(type: TYPE_EXCEPTIONS, id: -1)
     @es.delete(index: INDEX, type: type, id: id)
   end
 
