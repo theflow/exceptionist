@@ -275,4 +275,8 @@ class IntegrationTest < MiniTest::Test
     assert_not_contain 'NameError in users#show'
     assert_contain 'NameError in users#delete'
   end
+
+  def test_deploys
+    visit '/deploys/ExampleProject'
+  end
 end
