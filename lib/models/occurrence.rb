@@ -45,8 +45,6 @@ class Occurrence
   end
 
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    raise ArgumentError, 'position has to be >= 0' if from < 0
-
     filters = Helpers.wrap(filters)
     filters << { term: { uber_key: uber_key } } unless uber_key.empty?
     Exceptionist.esclient.search_occurrences( filters: filters, sort: sort, from: from, size: size )

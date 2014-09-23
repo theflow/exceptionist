@@ -91,6 +91,8 @@ class ESClient
 
   private
   def search(type: 'occurrences', filters: {}, sort: {}, from: 0, size: 25)
+    raise ArgumentError, 'from has to be >= 0' if from < 0
+
     query = create_search_query(filters, sort, from, size)
     response = @es.search(index: INDEX, type: type, body: query)
     Hashie::Mash.new(response)
