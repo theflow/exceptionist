@@ -35,7 +35,7 @@ class ESClient
 
   def search_aggs(filters, aggs)
     # size set 0 for Integer.MAX_VALUE
-    query = { query: { filtered: { filter: { bool: { must: filters } } } }, aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
+    query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
     response = @es.search(index: INDEX, type: TYPE_OCCURRENCES, body: query, search_type: 'count')
     hash = Hashie::Mash.new(response)
     hash.aggregations.exceptions.buckets
@@ -63,10 +63,7 @@ class ESClient
   end
 
   def count(type: TYPE_OCCURRENCES, filters: [])
-    filters = [filters] if filters.class == Hash
-    query = { query: { filtered: { filter: { bool: { must: filters } } } } }
-
-    @es.count(index: INDEX, type: type, body: query)['count']
+    @es.count(index: INDEX, type: type, body: { query: wrap_filters(filters) } )['count']
   end
 
   def delete_by_query(query: { match_all: {} })
@@ -130,7 +127,7 @@ class ESClient
   end
 
   def wrap_filters(filters)
-    { filtered: { filter: { bool: { must: filters } } } }
+    { filtered: { filter: { bool: { must: Helpers.wrap(filters) } } } }
   end
 
   def add_ignore_unmapped(hash)
