@@ -58,7 +58,7 @@ class ESClient
     Hashie::Mash.new(response)
   end
 
-  def update(type, id, body)
+  def update(type: TYPE_EXCEPTIONS, id: 0, body: {})
     @es.update(index: INDEX, type: type, id: id, body: body)
   end
 

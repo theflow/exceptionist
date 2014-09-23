@@ -104,7 +104,7 @@ class UberException
     first_timestamp = first_timestamp.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
     hash = occurrence.to_hash
     hash[:id] = occurrence.id
-    Exceptionist.esclient.update('exceptions', occurrence.uber_key, { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
+    Exceptionist.esclient.update(id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: first_timestamp, closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: first_timestamp} })
     Exceptionist.esclient.get_exception(occurrence.uber_key)
@@ -131,11 +131,11 @@ class UberException
   end
 
   def close!
-    Exceptionist.esclient.update('exceptions', @id, { doc: { closed: true } })
+    Exceptionist.esclient.update(id: @id, body: { doc: { closed: true } })
   end
 
   def update(doc)
-    Exceptionist.esclient.update('exceptions', @id, { doc: doc })
+    Exceptionist.esclient.update(id: @id, body: { doc: doc })
   end
 
   def current_occurrence(position)
