@@ -8,4 +8,9 @@ module Helpers
   def self.symbolize_keys(hash)
     hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
+
+  def self.wrap(args)
+    return [] unless args
+    args.is_a?(Array) ? args : [args]
+  end
 end
