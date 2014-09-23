@@ -13,4 +13,12 @@ module Helpers
     return [] unless args
     args.is_a?(Array) ? args : [args]
   end
+
+  def self.es_time(date)
+    date.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+  end
+
+  def self.es_day(date)
+    date.strftime('%Y-%m-%d')
+  end
 end

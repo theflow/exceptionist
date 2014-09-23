@@ -33,7 +33,7 @@ class Occurrence
   end
 
   def self.find_since(uber_key: "", date: Time.local, from: 0, size: 25)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, from: from, size: size)
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, from: from, size: size)
   end
 
   def self.find_by_name(project, size=25)
@@ -41,7 +41,7 @@ class Occurrence
   end
 
   def self.find_next(uber_key, date)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: date.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
+    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helpers.es_time(date) } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end
 
   def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
@@ -53,11 +53,11 @@ class Occurrence
   end
 
   def self.count_all_on(project, day)
-    Occurrence.count( project: project, filters: { term: { occurred_at_day: day.strftime('%Y-%m-%d') } })
+    Occurrence.count( project: project, filters: { term: { occurred_at_day: Helpers.es_day(day) } })
   end
 
-  def self.count_since(uber_key, time)
-    Occurrence.count(filters: [{ range: { occurred_at: { gte: time.strftime("%Y-%m-%dT%H:%M:%S.%L%z") } } }, { term: { uber_key: uber_key } }] )
+  def self.count_since(uber_key, date)
+    Occurrence.count(filters: [{ range: { occurred_at: { gte: Helpers.es_time(date) } } }, { term: { uber_key: uber_key } }] )
   end
 
   def self.count(project: '', filters: {})
@@ -120,8 +120,8 @@ class Occurrence
       parameters:           parameters,
       cgi_data:             cgi_data,
       url:                  url,
-      occurred_at:          occurred_at.strftime("%Y-%m-%dT%H:%M:%S.%L%z"),
-      occurred_at_day:      occurred_at.strftime('%Y-%m-%d'),
+      occurred_at:          Helpers.es_time(occurred_at),
+      occurred_at_day:      Helpers.es_day(occurred_at),
       exception_backtrace:  exception_backtrace,
       controller_name:      controller_name,
       environment:          environment,
