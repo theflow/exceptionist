@@ -27,9 +27,7 @@ class ESClient
   end
 
   def search_deploys(filters: {}, sort: {}, from: 0, size: 25)
-    query = create_search_query(filters, sort, from, size)
-    response = @es.search(index: INDEX, type: TYPE_DEPLOYS, body: query)
-    hash = Hashie::Mash.new(response)
+    hash = search(type: TYPE_DEPLOYS, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| create_deploy(doc) }
   end
 
