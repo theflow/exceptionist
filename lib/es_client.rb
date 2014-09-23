@@ -80,8 +80,8 @@ class ESClient
     @es.indices.get_mapping(index: INDEX, type: type)
   end
 
-  def get_exception(id)
-    response = @es.get(index: INDEX, type: TYPE_EXCEPTIONS, id: id)
+  def get(type: '', id: id)
+    response = @es.get(index: INDEX, type: type, id: id)
     create_exception(response)
   end
 

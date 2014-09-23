@@ -1,6 +1,8 @@
 class UberException
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
+  TYPE_EXCEPTIONS = 'exceptions'
+
   def initialize(attributes)
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
@@ -19,7 +21,7 @@ class UberException
   end
 
   def self.get(uber_key)
-    Exceptionist.esclient.get_exception(uber_key)
+    Exceptionist.esclient.get(type: TYPE_EXCEPTIONS, id: uber_key)
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
@@ -94,7 +96,7 @@ class UberException
 
     #TODO maybe remove when events arrive sorted
     begin
-      exec = Exceptionist.esclient.get_exception(occurrence.uber_key)
+      exec = UberException.get(occurrence.uber_key)
       occurrence = exec.last_occurrence.occurred_at < first_timestamp ? occurrence : exec.last_occurrence
       first_timestamp = first_timestamp < exec.first_occurred_at ? first_timestamp :  exec.first_occurred_at
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
@@ -107,7 +109,7 @@ class UberException
     Exceptionist.esclient.update(id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: first_timestamp, closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: first_timestamp} })
-    Exceptionist.esclient.get_exception(occurrence.uber_key)
+    UberException.get(occurrence.uber_key)
   end
 
   def self.forget_old_exceptions(project, days=0)
