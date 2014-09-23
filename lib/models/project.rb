@@ -22,10 +22,6 @@ class Project
     Deploy.find_by_project_since(@name, since)
   end
 
-  def total_count_on(day)
-    Occurrence.count_all_on(name, day)
-  end
-
   def self.find_by_key(api_key)
     project = Exceptionist.projects.find { |name, project_key| project_key == api_key }
     project ? Project.new(project.first) : nil
