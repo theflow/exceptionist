@@ -60,14 +60,6 @@ class Occurrence
     Exceptionist.esclient.count( filters: filters )
   end
 
-  def ==(other)
-    id == other.id
-  end
-
-  def inspect
-    "(Occurrence id=#{id} uber_key=#{uber_key})"
-  end
-
   #
   # accessors
   #
@@ -184,6 +176,14 @@ class Occurrence
   def self.parse_optional_element(doc, xpath)
     element = doc.xpath(xpath).first
     element ? element.content : nil
+  end
+
+  def ==(other)
+    id == other.id
+  end
+
+  def inspect
+    "(Occurrence id=#{id} uber_key=#{uber_key})"
   end
 
   private
