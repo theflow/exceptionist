@@ -28,7 +28,7 @@ class ESClient
   def mget(type: '', ids: [])
     response = @es.mget( index: INDEX, type: type, body: { ids: ids } )
     hash = Hashie::Mash.new(response)
-    hash.docs.map { |doc| create_exception(doc) }
+    hash.docs
   end
 
   def index(type: '', body: {})
@@ -65,8 +65,7 @@ class ESClient
   end
 
   def get(type: '', id: id)
-    response = @es.get(index: INDEX, type: type, id: id)
-    create_exception(response)
+    @es.get(index: INDEX, type: type, id: id)
   end
 
   def refresh
@@ -74,12 +73,6 @@ class ESClient
   end
 
   private
-
-  def create_exception(attr)
-    attr = transform(attr)
-    UberException.new(attr)
-  end
-
   def transform(attr)
     attr.merge!(attr['_source']).delete('_source')
     attr = Helper.symbolize_keys(attr)

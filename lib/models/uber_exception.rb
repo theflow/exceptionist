@@ -22,7 +22,7 @@ class UberException
   end
 
   def self.get(uber_key)
-    Exceptionist.esclient.get(type: TYPE_EXCEPTIONS, id: uber_key)
+    new(Helper.transform(Exceptionist.esclient.get(type: TYPE_EXCEPTIONS, id: uber_key)))
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
@@ -52,7 +52,7 @@ class UberException
 
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
-    exces = Exceptionist.esclient.mget(type: TYPE_EXCEPTIONS, ids: ids)
+    exces = Exceptionist.esclient.mget(type: TYPE_EXCEPTIONS, ids: ids).map { |doc| new(Helper.transform(doc)) }
     exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
     exces.slice(from, size).each do |exce|
       agg_exces.each do |occurr|
