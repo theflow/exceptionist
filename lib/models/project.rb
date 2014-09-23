@@ -26,14 +26,6 @@ class Project
     Occurrence.count_all_on(name, day)
   end
 
-  def ==(other)
-    name == other.name
-  end
-
-  def inspect
-    "(Project name=#{name})"
-  end
-
   def self.find_by_key(api_key)
     project = Exceptionist.projects.find { |name, project_key| project_key == api_key }
     project ? Project.new(project.first) : nil
@@ -41,5 +33,13 @@ class Project
 
   def self.all
     Exceptionist.projects.map { |name, api_key| Project.new(name) }
+  end
+
+  def ==(other)
+    name == other.name
+  end
+
+  def inspect
+    "(Project name=#{name})"
   end
 end
