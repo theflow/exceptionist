@@ -111,7 +111,7 @@ span.new {
 }
 
 .low {
-    background-color: #F5F8E5;
+    background-color: #EFF5F9;
 }
 
 .high {
@@ -180,7 +180,7 @@ button img, a.button img{
 
 /* Standard */
 button:hover, a.button:hover{
-  background-color:#dff4ff;
+  background-color:#C9DCE6;
   border:1px solid #c2e1ef;
   color:#336699;
 }
@@ -188,6 +188,12 @@ a.button:active{
   background-color:#6299c5;
   border:1px solid #6299c5;
   color:#fff;
+}
+
+.active {
+    background-color:#dff4ff;
+    border:1px solid #c2e1ef;
+    color:#336699;
 }
 
 /* Positive */
@@ -199,12 +205,6 @@ a.positive:hover, button.positive:hover{
   background-color:#C6D880;
   border:1px solid #C6D880;
   color:#529214;
-}
-
-.positive.active {
-    background-color:#E6EFC2;
-    border:1px solid #C6D880;
-    color:#529214;
 }
 
 /* Negative */
