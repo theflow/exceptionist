@@ -110,6 +110,7 @@ class ExceptionistApp < Sinatra::Base
   post '/exceptions/:id/close' do
     @uber_exceptions = UberException.get(params[:id])
     @uber_exceptions.close!
+    Exceptionist.esclient.refresh
 
     redirect to("/projects/#{@uber_exceptions.project_name}?#{Rack::Utils.unescape(params[:backparams])}")
   end
@@ -117,6 +118,7 @@ class ExceptionistApp < Sinatra::Base
   post '/exceptions/category' do
     @uber_exceptions = UberException.get(params[:id])
     @uber_exceptions.update( category: params[:category] )
+    Exceptionist.esclient.refresh
 
     halt 200, 'category changed'
   end
