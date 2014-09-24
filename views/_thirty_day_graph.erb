@@ -1,11 +1,11 @@
 <div id="<%= holder_div_id %>" style="width:870px; height: 220px"></div>
 <script type="text/javascript" charset="utf-8">
-    <% highest_pair = data.max_by do |element|
+    <% highest_pair = occur_count.max_by do |element|
         element.last
     end
     yaxis_max = highest_pair.last * 1.1
     %>
-    var exceptions_a_day = [<%= data.map { |day| "[#{day.first.to_i * 1000}, #{day.last}]" }.join(",") %>];
+    var exceptions_a_day = [<%= occur_count.map { |day| "[#{day.first.to_i * 1000}, #{day.last}]" }.join(",") %>];
     var deploys = [<%= deploys.map { |deploy| "[#{deploy.occurred_at.to_i * 1000}, #{yaxis_max}]" }.join(",") %>];
     var data = [{
         data: exceptions_a_day,
