@@ -2,7 +2,8 @@ class Occurrence
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :occurred_at_day, :id, :uber_key, :api_key, :sort
+                :project_name, :occurred_at, :occurred_at_day, :id, :uber_key, :api_key, :sort,
+                :ip_address, :request_id
 
   TYPE_OCCURRENCES = 'occurrences'
 
@@ -116,7 +117,10 @@ class Occurrence
       environment:          environment,
       exception_class:      exception_class,
       project_name:         project_name,
-      uber_key:             uber_key }
+      uber_key:             uber_key,
+      request_id:           request_id,
+      ip_address:           ip_address
+    }
   end
 
   def self.from_xml(xml_text)
@@ -147,6 +151,9 @@ class Occurrence
       hash[:parameters]  = parse_vars(doc.xpath('/notice/request/params'))
       hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
       hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_internal => true)
+
+      hash[:request_id] = hash[:cgi_data]["HTTP_X_PODIO_REQUEST_ID"]
+      hash[:ip_address] = hash[:cgi_data]["HTTP_X_FORWARDED_FOR"]
     end
 
     hash
