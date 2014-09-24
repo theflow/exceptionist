@@ -63,11 +63,6 @@ class OccurrenceTest < MiniTest::Test
     assert_equal @occur12, Occurrence.find_next(@occur11.uber_key, Time.local(2011, 1, 1, 12, 0))
   end
 
-  def test_count_all_on
-    assert_equal 0, Occurrence.count_all_on('ExampleProject', Time.local(2011, 1, 20))
-    assert_equal 4, Occurrence.count_all_on('ExampleProject', Time.local(2011, 1, 6))
-  end
-
   def test_count_since
     assert_equal 2, Occurrence.count_since(@occur11.uber_key, Time.local(2011, 1, 7, 12, 0))
     assert_equal 0, Occurrence.count_since(@occur21.uber_key, Time.local(2011, 1, 8))

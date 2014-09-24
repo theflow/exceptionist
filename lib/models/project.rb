@@ -10,7 +10,7 @@ class Project
   end
 
   def last_thirty_days
-    Helper.last_n_days(30).map { |day| [day,  Occurrence.count_all_on(name,day)] }
+    Helper.last_n_days(30).map { |day| [day,  Occurrence.count(filters: [ { term: { project_name: name } }, { term: { occurred_at_day: Helper.es_day(day) } } ] )] }
   end
 
   def last_deploy

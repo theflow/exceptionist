@@ -49,10 +49,6 @@ class Occurrence
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
-  def self.count_all_on(project, day)
-    Occurrence.count( project: project, filters: { term: { occurred_at_day: Helper.es_day(day) } })
-  end
-
   def self.count_since(uber_key, date)
     Occurrence.count(filters: [{ range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } }] )
   end

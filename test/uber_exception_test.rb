@@ -162,7 +162,7 @@ class UberExceptionTest < MiniTest::Test
 
   def test_occurrences_count_on
     assert_equal 1, @exce1.occurrences_count_on(Time.local(2011, 1, 9))
-    assert_equal 3, @exce2.occurrences_count_on(Time.local(2011, 1, 4))
+    assert_equal 4, @exce2.occurrences_count_on(Time.local(2011, 1, 6))
   end
 
   def test_new_since
