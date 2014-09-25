@@ -12,7 +12,7 @@ module Helper
     n_days = []
     begin
       n_days << Time.utc(start.year, start.month, start.day)
-    end while (start += 86400) <= today
+    end while (start += 86_400) <= today
 
     n_days
   end
