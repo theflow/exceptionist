@@ -26,7 +26,7 @@ class UberException < AbstractModel
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
-    UberException.find(terms: terms, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
+    find(terms: terms, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
   end
 
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
@@ -83,7 +83,7 @@ class UberException < AbstractModel
 
     #TODO maybe remove when events arrive sorted
     begin
-      exec = UberException.get(occurrence.uber_key)
+      exec = get(occurrence.uber_key)
       occurrence = exec.last_occurrence.occurred_at < first_timestamp ? occurrence : exec.last_occurrence
       first_timestamp = first_timestamp < exec.first_occurred_at ? first_timestamp :  exec.first_occurred_at
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
@@ -95,7 +95,7 @@ class UberException < AbstractModel
     Exceptionist.esclient.update(type: TYPE_EXCEPTIONS, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: Helper.es_time(first_timestamp)} })
-    UberException.get(occurrence.uber_key)
+    get(occurrence.uber_key)
   end
 
   def self.forget_old_exceptions(project, days=0)

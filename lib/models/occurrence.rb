@@ -36,7 +36,7 @@ class Occurrence < AbstractModel
   end
 
   def self.find_next(uber_key, date)
-    Occurrence.find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], sort: { occurred_at: { order: 'asc' } }, size: 1).first
+    find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end
 
   def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
@@ -45,7 +45,7 @@ class Occurrence < AbstractModel
   end
 
   def self.count_since(uber_key, date)
-    Occurrence.count(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ] )
+    count(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ] )
   end
 
   def self.count(filters: {})

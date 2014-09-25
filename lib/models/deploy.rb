@@ -33,7 +33,7 @@ class Deploy < AbstractModel
     attr = Helper.symbolize_keys(JSON.parse(json))
     attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
 
-    Deploy.new(attr)
+    new(attr)
   end
 
   def save
