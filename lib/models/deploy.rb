@@ -13,7 +13,7 @@ class Deploy < AbstractModel
   end
 
   def self.find_by_project_since(project, date)
-    find( filters: [ { term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(date) } } } ] )
+    find( filters: [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(date) } } }] )
   end
 
   def self.find_by_project(project)

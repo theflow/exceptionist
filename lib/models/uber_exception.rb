@@ -18,7 +18,7 @@ class UberException < AbstractModel
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } } ] )
+    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
   end
 
   def self.get(uber_key)
@@ -32,7 +32,7 @@ class UberException < AbstractModel
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
     agg_exces, ids = aggregation_since_last_deploy(project)
 
-    exces = find( terms: terms.compact << { closed: false }, filters: [ { ids: { type: TYPE_EXCEPTIONS, values: ids } } ], from: from, size: size )
+    exces = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: TYPE_EXCEPTIONS, values: ids } }], from: from, size: size)
     merge(exces, agg_exces)
   end
 
@@ -49,7 +49,7 @@ class UberException < AbstractModel
     deploy = Deploy.find_last_deploy(project)
     raise 'There is no deploy' if deploy.nil?
 
-    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } } ]
+    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } }]
     agg_exces = Occurrence.search_aggs(filters: filters_occur, aggs: 'uber_key')
     ids = []
     agg_exces.each { |occurr| ids << occurr['key'] }
@@ -102,7 +102,7 @@ class UberException < AbstractModel
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = find( filters: [ { term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } } ] )
+    uber_exceptions = find(filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } }])
 
     uber_exceptions.each do |exception|
       exception.forget!
@@ -149,7 +149,7 @@ class UberException < AbstractModel
   end
 
   def occurrences_count_on(date)
-    Occurrence.count( filters: [ { term: { uber_key: @id } }, { range: { occurred_at: Helper.day_range(date) } } ] )
+    Occurrence.count(filters: [{ term: { uber_key: @id } }, { range: { occurred_at: Helper.day_range(date) } }])
   end
 
   def last_thirty_days

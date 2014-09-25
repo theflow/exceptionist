@@ -11,7 +11,7 @@ class Project < AbstractModel
   end
 
   def last_thirty_days
-    Helper.last_n_days(30).map { |day| [day,  Occurrence.count(filters: [ { term: { project_name: name } }, { range: { occurred_at: Helper.day_range(day) } } ] )] }
+    Helper.last_n_days(30).map { |day| [day,  Occurrence.count(filters: [{ term: { project_name: name } }, { range: { occurred_at: Helper.day_range(day) } }] )] }
   end
 
   def last_deploy
