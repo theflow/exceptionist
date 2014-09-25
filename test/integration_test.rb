@@ -87,6 +87,8 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'NameError in users#show'
     assert_contain 'NameError in users#save'
     assert_contain 'NameError in users#delete'
+
+    assert_contain 'since last deploy'
   end
 
   def test_projects_pagination_latest
