@@ -10,7 +10,7 @@ class UberException < AbstractModel
     end
 
     @last_occurrence = Occurrence.new(attributes[:last_occurrence])
-    @first_occurred_at = Time.parse(self.first_occurred_at) if self.first_occurred_at.is_a? String
+    @first_occurred_at = Time.parse(first_occurred_at) if first_occurred_at.is_a? String
   end
 
   def self.count_all(project)

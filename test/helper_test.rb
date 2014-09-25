@@ -19,14 +19,6 @@ class HelperTest < MiniTest::Test
     assert_equal 2, Helper.last_n_days(2).size
     assert_equal 4, Helper.last_n_days(4).size
   end
-
-  def test_wrap
-    assert_equal [1], Helper.wrap(1)
-    assert_equal [], Helper.wrap(nil)
-    assert_equal [1], Helper.wrap([1])
-    assert_equal [{test: 1}, {test: 2}], Helper.wrap([{test: 1}, {test: 2}])
-    assert_equal [{test: 1}], Helper.wrap({test: 1})
-  end
   
   def test_day_range
     expect = { gte: Helper.es_time(Time.local(2010, 5, 5)), lte: Helper.es_time(Time.local(2010, 5, 5, 23, 59, 59)) }

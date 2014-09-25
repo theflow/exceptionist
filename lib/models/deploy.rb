@@ -9,7 +9,7 @@ class Deploy < AbstractModel
       instance_variable_set("@#{key}", value)
     end
 
-    @occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
+    @occurred_at = Time.parse(occurred_at) if occurred_at.is_a? String
   end
 
   def self.find_by_project_since(project, date)

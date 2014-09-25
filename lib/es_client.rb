@@ -78,15 +78,20 @@ class ESClient
   end
 
   def wrap_sort(sort)
-    Helper.wrap(sort).each { | field | add_ignore_unmapped(field) }
+    wrap(sort).each { | field | add_ignore_unmapped(field) }
   end
 
   def wrap_filters(filters)
-    { filtered: { filter: { bool: { must: Helper.wrap(filters) } } } }
+    { filtered: { filter: { bool: { must: wrap(filters) } } } }
   end
 
   def add_ignore_unmapped(hash)
     hash.each { | field, ordering | ordering[:ignore_unmapped] = true }
+  end
+
+  def wrap(args)
+    return [] unless args
+    args.is_a?(Array) ? args : [args]
   end
 
 end

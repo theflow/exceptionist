@@ -21,11 +21,6 @@ module Helper
     hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
   end
 
-  def self.wrap(args)
-    return [] unless args
-    args.is_a?(Array) ? args : [args]
-  end
-
   def self.es_time(date)
     date.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
   end

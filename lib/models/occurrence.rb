@@ -13,7 +13,7 @@ class Occurrence < AbstractModel
       instance_variable_set("@#{key}", value)
     end
 
-    @occurred_at = Time.parse(self.occurred_at) if self.occurred_at.is_a? String
+    @occurred_at = Time.parse(occurred_at) if occurred_at.is_a? String
     @uber_key ||= generate_uber_key
   end
 
@@ -135,7 +135,7 @@ class Occurrence < AbstractModel
   def self.parse_vars(node, options = {})
     node.children.inject({}) do |hash, child|
       key = child['key']
-      value = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+      value = node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
       hash[key] = value unless value.nil?
       hash
     end
@@ -145,7 +145,7 @@ class Occurrence < AbstractModel
     if node.children.size > 1
       node.children.inject({}) do |hash, child|
         key = child['key']
-        hash[key] = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+        hash[key] = node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
         hash
       end
     elsif node.children.size == 1 && node.children.first.keys.include?('key')
