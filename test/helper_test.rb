@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class HelpersTest < MiniTest::Test
+class HelperTest < MiniTest::Test
 
   def setup
     Timecop.freeze(Time.local(2010, 5, 5))
