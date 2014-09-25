@@ -25,27 +25,24 @@ class Occurrence
   end
 
   def self.find_first_for(uber_key)
-    occurrences = Occurrence.find(uber_key: uber_key, sort: { occurred_at: { order: 'asc' } }, size: 1)
+    occurrences = Occurrence.find(filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc' } }, size: 1)
     occurrences.any? ? occurrences.first : nil
   end
 
   def self.find_last_for(uber_key)
-    occurrences = Occurrence.find(uber_key: uber_key, size: 1)
+    occurrences = Occurrence.find(filters: { term: { uber_key: uber_key } }, size: 1)
     occurrences.any? ? occurrences.first : nil
   end
 
-  def self.find_since(uber_key: "", date: Time.local, from: 0, size: 25)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helper.es_time(date) } } }, from: from, size: size)
+  def self.find_since(uber_key: "", date: "", from: 0, size: 25)
+    Occurrence.find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], from: from, size: size)
   end
 
   def self.find_next(uber_key, date)
-    Occurrence.find(uber_key: uber_key, filters: { range: { occurred_at: { gte: Helper.es_time(date) } } }, sort: { occurred_at: { order: 'asc' } }, size: 1).first
+    Occurrence.find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end
 
-  def self.find(uber_key: '', filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    filters = Helper.wrap(filters)
-    filters << { term: { uber_key: uber_key } } unless uber_key.empty?
-
+  def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
     hash = Exceptionist.esclient.search(type: TYPE_OCCURRENCES, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
