@@ -18,7 +18,8 @@ class UberException < AbstractModel
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: TYPE_EXCE, filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
+    Exceptionist.esclient.count(type: TYPE_EXCE, filters: [{ term: { project_name: project } },
+                                                           range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
   end
 
   def self.get(uber_key)
