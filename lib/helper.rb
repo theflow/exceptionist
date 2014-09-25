@@ -34,6 +34,11 @@ module Helper
     date.strftime('%Y-%m-%d')
   end
 
+  def self.day_range(date)
+    plain_day = Time.new(date.year, date.month, date.day)
+    { gte: es_time(plain_day), lte: es_time(plain_day + 60*60*24 - 1) }
+  end
+
   def self.transform(attr)
     attr.merge!(attr['_source']).delete('_source')
     attr = Helper.symbolize_keys(attr)
