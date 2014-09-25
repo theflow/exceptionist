@@ -1,4 +1,5 @@
-class Project
+class Project < AbstractModel
+
   attr_accessor :name
 
   def initialize(name)

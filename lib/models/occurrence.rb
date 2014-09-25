@@ -1,4 +1,5 @@
-class Occurrence
+class Occurrence < AbstractModel
+
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,

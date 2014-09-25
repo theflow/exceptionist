@@ -1,4 +1,4 @@
-class UberException
+class UberException < AbstractModel
 
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 

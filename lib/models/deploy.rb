@@ -1,4 +1,5 @@
-class Deploy
+class Deploy < AbstractModel
+
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
   TYPE_DEPLOYS = 'deploys'
