@@ -8,7 +8,7 @@ class Occurrence < AbstractModel
 
   TYPE_OCCURRENCES = 'occurrences'
 
-  def initialize(attributes={})
+  def initialize(attributes = {})
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
     end

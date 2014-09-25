@@ -4,7 +4,7 @@ class Deploy < AbstractModel
 
   TYPE_DEPLOYS = 'deploys'
 
-  def initialize(attributes={})
+  def initialize(attributes = {})
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
