@@ -99,26 +99,6 @@ class Occurrence < AbstractModel
     self
   end
 
-  def to_hash
-    { exception_message:    exception_message,
-      session:              session,
-      action_name:          action_name,
-      parameters:           parameters,
-      cgi_data:             cgi_data,
-      url:                  url,
-      occurred_at:          Helper.es_time(occurred_at),
-      occurred_at_day:      Helper.es_day(occurred_at),
-      exception_backtrace:  exception_backtrace,
-      controller_name:      controller_name,
-      environment:          environment,
-      exception_class:      exception_class,
-      project_name:         project_name,
-      uber_key:             uber_key,
-      request_id:           request_id,
-      ip_address:           ip_address
-    }
-  end
-
   def self.from_xml(xml_text)
     attr = parse_xml(xml_text)
     attr['occurred_at'] = Time.now if attr['occurred_at'].nil?

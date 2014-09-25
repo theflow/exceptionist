@@ -49,15 +49,4 @@ class Deploy < AbstractModel
   def inspect
     "(Deploy id=#{id} project_name=#{project_name})"
   end
-
-  private
-  def to_hash
-    {
-        project_name: project_name,
-        api_key: api_key,
-        version: version,
-        changelog_link: changelog_link,
-        occurred_at: Helper.es_time(occurred_at)
-    }
-  end
 end
