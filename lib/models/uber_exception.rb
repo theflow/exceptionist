@@ -2,7 +2,7 @@ class UberException < AbstractModel
 
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
-  TYPE_EXCEPTIONS = 'exceptions'
+  TYPE_EXCE = 'exceptions'
 
   def initialize(attributes = {})
     attributes.each do |key, value|
@@ -14,15 +14,15 @@ class UberException < AbstractModel
   end
 
   def self.count_all(project)
-    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: { term: { project_name: project } } )
+    Exceptionist.esclient.count(type: TYPE_EXCE, filters: { term: { project_name: project } } )
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: TYPE_EXCEPTIONS, filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
+    Exceptionist.esclient.count(type: TYPE_EXCE, filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
   end
 
   def self.get(uber_key)
-    new(Helper.transform(Exceptionist.esclient.get(type: TYPE_EXCEPTIONS, id: uber_key)))
+    new(Helper.transform(Exceptionist.esclient.get(type: TYPE_EXCE, id: uber_key)))
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
@@ -32,7 +32,7 @@ class UberException < AbstractModel
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
     agg_exces, ids = aggregation_since_last_deploy(project)
 
-    exces = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: TYPE_EXCEPTIONS, values: ids } }], from: from, size: size)
+    exces = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: TYPE_EXCE, values: ids } }], from: from, size: size)
     merge(exces, agg_exces)
   end
 
@@ -40,7 +40,7 @@ class UberException < AbstractModel
     agg_exces, ids = aggregation_since_last_deploy(project)
 
     # to preserve ordering and filtering category at the same time, filtering has to be done in ruby, not on db-level
-    exces = Exceptionist.esclient.mget(type: TYPE_EXCEPTIONS, ids: ids).map { |doc| new(Helper.transform(doc)) }
+    exces = Exceptionist.esclient.mget(type: TYPE_EXCE, ids: ids).map { |doc| new(Helper.transform(doc)) }
     exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
     merge(exces.slice(from, size), agg_exces)
   end
@@ -74,7 +74,7 @@ class UberException < AbstractModel
     terms = terms.map { |term| { term: term } unless term.nil? }
     terms << { term: { closed: false } }
 
-    hash = Exceptionist.esclient.search(type: TYPE_EXCEPTIONS, filters: terms.push(*filters), sort: sort, from: from, size: size)
+    hash = Exceptionist.esclient.search(type: TYPE_EXCE, filters: terms.push(*filters), sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
@@ -92,7 +92,7 @@ class UberException < AbstractModel
 
     hash = occurrence.to_hash
     hash[:id] = occurrence.id
-    Exceptionist.esclient.update(type: TYPE_EXCEPTIONS, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
+    Exceptionist.esclient.update(type: TYPE_EXCE, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: Helper.es_time(first_timestamp)} })
     get(occurrence.uber_key)
@@ -115,15 +115,15 @@ class UberException < AbstractModel
   def forget!
     Occurrence.delete_all_for(id)
 
-    Exceptionist.esclient.delete(type: TYPE_EXCEPTIONS, id: id)
+    Exceptionist.esclient.delete(type: TYPE_EXCE, id: id)
   end
 
   def close!
-    Exceptionist.esclient.update(type: TYPE_EXCEPTIONS, id: @id, body: { doc: { closed: true } })
+    Exceptionist.esclient.update(type: TYPE_EXCE, id: @id, body: { doc: { closed: true } })
   end
 
   def update(doc)
-    Exceptionist.esclient.update(type: TYPE_EXCEPTIONS, id: @id, body: { doc: doc })
+    Exceptionist.esclient.update(type: TYPE_EXCE, id: @id, body: { doc: doc })
   end
 
   def current_occurrence(position)
