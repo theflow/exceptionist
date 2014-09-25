@@ -56,8 +56,8 @@ class ESClient
     @es.indices.delete(index: index)
   end
 
-  def create_indices(index, query={})
-    @es.indices.create(index: index, body: query)
+  def create_indices(index, body={})
+    @es.indices.create(index: index, body: body)
   end
 
   def get_mapping(type)
