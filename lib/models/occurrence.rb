@@ -48,7 +48,7 @@ class Occurrence
   end
 
   def self.count_since(uber_key, date)
-    Occurrence.count(filters: [{ range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } }] )
+    Occurrence.count(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ] )
   end
 
   def self.count(project: '', filters: {})
