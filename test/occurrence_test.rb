@@ -54,10 +54,6 @@ class OccurrenceTest < MiniTest::Test
     assert_equal @occur19, Occurrence.find_last_for(@occur12.uber_key)
   end
 
-  def test_find_since
-    assert_equal [@occur19, @occur18], Occurrence.find_since(uber_key: @occur18.uber_key, date: Time.local(2011, 1, 7, 12, 0))
-  end
-
   def test_find_next
     assert_equal @occur19, Occurrence.find_next(@occur18.uber_key, Time.local(2011, 1, 8, 12, 0))
     assert_equal @occur12, Occurrence.find_next(@occur11.uber_key, Time.local(2011, 1, 1, 12, 0))

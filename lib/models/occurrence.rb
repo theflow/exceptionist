@@ -35,10 +35,6 @@ class Occurrence < AbstractModel
     occurrences.any? ? occurrences.first : nil
   end
 
-  def self.find_since(uber_key: "", date: "", from: 0, size: 25)
-    Occurrence.find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], from: from, size: size)
-  end
-
   def self.find_next(uber_key, date)
     Occurrence.find(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ], sort: { occurred_at: { order: 'asc' } }, size: 1).first
   end
