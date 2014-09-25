@@ -51,9 +51,7 @@ class Occurrence
     Occurrence.count(filters: [ { range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } } ] )
   end
 
-  def self.count(project: '', filters: {})
-    filters = Helper.wrap(filters)
-    filters << { term: { project_name: project } } unless project.empty?
+  def self.count(filters: {})
     Exceptionist.esclient.count( type: TYPE_OCCURRENCES, filters: filters )
   end
 
