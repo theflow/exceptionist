@@ -150,7 +150,7 @@ class UberException
   end
 
   def occurrences_count_on(date)
-    Occurrence.count( filters: [ { term: { uber_key: @id } }, { term: { occurred_at_day: Helper.es_day(date) } } ] )
+    Occurrence.count( filters: [ { term: { uber_key: @id } }, { range: { occurred_at: Helper.day_range(date) } } ] )
   end
 
   def last_thirty_days
