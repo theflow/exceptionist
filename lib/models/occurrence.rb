@@ -52,7 +52,7 @@ class Occurrence < AbstractModel
     Exceptionist.esclient.count( type: TYPE_OCCURRENCES, filters: filters )
   end
 
-  def self.search_aggs(filters: [], aggs: '')
+  def self.search_aggs(filters: {}, aggs: '')
     Exceptionist.esclient.search_aggs(type: TYPE_OCCURRENCES, filters: filters, aggs: aggs)
   end
 
