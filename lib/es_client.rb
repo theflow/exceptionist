@@ -17,9 +17,9 @@ class ESClient
     Hashie::Mash.new(response)
   end
 
-  def search_aggs(type: '', filters: [], aggs: '')
+  def aggregation(type: '', filters: [], aggregation: '')
     # size set 0 for Integer.MAX_VALUE
-    query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggs, size: 0 } } } }
+    query = { query: wrap_filters(filters), aggs: { exceptions: { terms: { field: aggregation, size: 0 } } } }
     response = @es.search(index: ES_INDEX, type: type, body: query, search_type: 'count')
     hash = Hashie::Mash.new(response)
     hash.aggregations.exceptions.buckets

@@ -31,10 +31,10 @@ class UberException
   end
 
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
-    agg_exceptions, ids = aggregation_since_last_deploy(project)
+    aggregation, ids = aggregation_since_last_deploy(project)
 
     exceptions = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: ES_TYPE, values: ids } }], from: from, size: size)
-    merge(exceptions, agg_exceptions)
+    merge(exceptions, aggregation)
   end
 
   def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
@@ -51,19 +51,19 @@ class UberException
     raise 'There is no deploy' if deploy.nil?
 
     filters_occurrence = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } }]
-    agg_exceptions = Occurrence.search_aggs(filters: filters_occurrence, aggs: 'uber_key')
+    agg_exceptions = Occurrence.aggregation(filters: filters_occurrence, aggregation: 'uber_key')
     ids = []
     agg_exceptions.each { |occurrence| ids << occurrence['key'] }
 
     return agg_exceptions, ids
   end
 
-  def self.merge(exceptions, agg_exceptions)
+  def self.merge(exceptions, aggregation)
     exceptions.each do |exception|
-      agg_exceptions.each do |occurrence|
+      aggregation.each do |occurrence|
         if occurrence['key'] == exception.id
           exception.occurrences_count = occurrence['doc_count']
-          agg_exceptions.delete(occurrence)
+          aggregation.delete(occurrence)
           break
         end
       end

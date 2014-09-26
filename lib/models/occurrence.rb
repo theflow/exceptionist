@@ -53,9 +53,8 @@ class Occurrence
     Exceptionist.esclient.count(type: ES_TYPE, filters: filters)
   end
 
-  # TODO: better method name
-  def self.search_aggs(filters: {}, aggs: '')
-    Exceptionist.esclient.search_aggs(type: ES_TYPE, filters: filters, aggs: aggs)
+  def self.aggregation(filters: {}, aggregation: '')
+    Exceptionist.esclient.aggregation(type: ES_TYPE, filters: filters, aggregation: aggregation)
   end
 
   #
