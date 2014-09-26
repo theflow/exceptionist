@@ -134,8 +134,10 @@ class Occurrence
       hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
       hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_internal => true)
 
-      hash[:request_id] = hash[:cgi_data]["HTTP_X_PODIO_REQUEST_ID"]
-      hash[:ip_address] = hash[:cgi_data]["HTTP_X_FORWARDED_FOR"]
+      if hash[:cgi_data]
+        hash[:request_id] = hash[:cgi_data]["HTTP_X_PODIO_REQUEST_ID"]
+        hash[:ip_address] = hash[:cgi_data]["HTTP_X_FORWARDED_FOR"]
+      end
     end
 
     hash
