@@ -4,8 +4,6 @@ source 'https://rubygems.org'
 gem 'unicorn'
 
 gem 'rake'
-gem 'mongo'
-gem 'bson_ext'
 gem 'sinatra'
 gem 'nokogiri', '~> 1.5.10'
 gem 'yajl-ruby'

@@ -8,9 +8,6 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
     ansi (1.4.3)
-    bson (1.10.2)
-    bson_ext (1.10.2)
-      bson (~> 1.10.2)
     docile (1.1.5)
     elasticsearch (1.0.4)
       elasticsearch-api (= 1.0.4)
@@ -30,8 +27,6 @@ GEM
     json (1.8.1)
     kgio (2.9.2)
     minitest (5.4.0)
-    mongo (1.10.2)
-      bson (= 1.10.2)
     multi_json (1.10.1)
     multipart-post (2.0.0)
     nokogiri (1.5.11)
@@ -75,11 +70,9 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
-  bson_ext
   elasticsearch
   elasticsearch-extensions
   hashie
-  mongo
   nokogiri (~> 1.5.10)
   patron
   rack-test
