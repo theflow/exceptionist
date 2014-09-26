@@ -92,11 +92,18 @@ class UberException
       # we could also search with a query but then we have to handle the null value and it would be slower
     end
 
-    hash = occurrence.create_es_hash
-    hash[:id] = occurrence.id
-    Exceptionist.esclient.update(type: ES_TYPE, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
-                                                                      upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'},
-                                                                      params: { occurrence: hash, timestamp: Helper.es_time(first_timestamp)} })
+    occurrence_hash = occurrence.create_es_hash
+    occurrence_hash[:id] = occurrence.id
+
+    script = 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=var_occurrence; ctx._source.first_occurred_at=var_timestamp'
+    body = { project_name: occurrence.project_name, last_occurrence: occurrence_hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'}
+    Exceptionist.esclient.update(type: ES_TYPE, id: occurrence.uber_key,
+                                 body: {
+                                     script: script,
+                                     params: { var_occurrence: occurrence_hash, var_timestamp: Helper.es_time(first_timestamp)},
+                                     upsert: body
+                                 }
+    )
     get(occurrence.uber_key)
   end
 
