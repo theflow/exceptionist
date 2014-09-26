@@ -25,10 +25,6 @@ module Helper
     date.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
   end
 
-  def self.es_day(date)
-    date.strftime('%Y-%m-%d')
-  end
-
   def self.day_range(date)
     plain_day = Time.new(date.year, date.month, date.day)
     { gte: es_time(plain_day), lte: es_time(plain_day + 60*60*24 - 1) }
