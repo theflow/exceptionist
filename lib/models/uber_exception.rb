@@ -88,7 +88,8 @@ class UberException
       occurrence = exec.last_occurrence.occurred_at < first_timestamp ? occurrence : exec.last_occurrence
       first_timestamp = first_timestamp < exec.first_occurred_at ? first_timestamp :  exec.first_occurred_at
     rescue Elasticsearch::Transport::Transport::Errors::NotFound
-
+      # get throws NotFound exception when there is no exception with this uber_key
+      # we could also search with a query but then we have to handle the null value and it would be slower
     end
 
     hash = occurrence.create_es_hash
