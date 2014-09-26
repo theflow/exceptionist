@@ -11,7 +11,6 @@ require 'yaml'
 require 'json'
 require 'pp'
 
-require 'models/abstract_model'
 require 'models/project'
 require 'models/uber_exception'
 require 'models/occurrence'

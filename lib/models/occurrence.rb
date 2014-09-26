@@ -1,4 +1,4 @@
-class Occurrence < AbstractModel
+class Occurrence
 
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
@@ -92,9 +92,17 @@ class Occurrence < AbstractModel
   #
 
   def save
-    occurrence = Exceptionist.esclient.index(type: ES_TYPE, body: to_hash)
+    occurrence = Exceptionist.esclient.index(type: ES_TYPE, body: create_es_hash)
     @id = occurrence._id
     self
+  end
+
+  def create_es_hash
+    self.instance_variables.each_with_object({}) do |var, hash|
+      value = self.instance_variable_get(var);
+      value = Helper.es_time(value) if value.is_a?(Time)
+      hash[var.to_s.delete("@")] = value
+    end
   end
 
   def self.from_xml(xml_text)

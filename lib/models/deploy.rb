@@ -1,4 +1,4 @@
-class Deploy < AbstractModel
+class Deploy
 
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
@@ -37,7 +37,7 @@ class Deploy < AbstractModel
   end
 
   def save
-    deploy = Exceptionist.esclient.index(type: ES_TYPE, body: to_hash)
+    deploy = Exceptionist.esclient.index(type: ES_TYPE, body: create_es_hash)
     @id = deploy._id
     self
   end
@@ -48,5 +48,15 @@ class Deploy < AbstractModel
 
   def inspect
     "(Deploy id=#{id} project_name=#{project_name})"
+  end
+
+  private
+
+  def create_es_hash
+    self.instance_variables.each_with_object({}) do |var, hash|
+      value = self.instance_variable_get(var);
+      value = Helper.es_time(value) if value.is_a?(Time)
+      hash[var.to_s.delete("@")] = value
+    end
   end
 end

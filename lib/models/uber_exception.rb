@@ -1,4 +1,4 @@
-class UberException < AbstractModel
+class UberException
 
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
@@ -91,7 +91,7 @@ class UberException < AbstractModel
 
     end
 
-    hash = occurrence.to_hash
+    hash = occurrence.create_es_hash
     hash[:id] = occurrence.id
     Exceptionist.esclient.update(type: ES_TYPE, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'},

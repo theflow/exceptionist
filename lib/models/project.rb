@@ -1,4 +1,4 @@
-class Project < AbstractModel
+class Project
 
   attr_accessor :name
 

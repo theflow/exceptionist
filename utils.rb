@@ -7,7 +7,7 @@ module Utils
 
   class Exporter
     def self.run
-      occurrences = Occurrence.find.map { |occurrence| occurrence.to_hash }
+      occurrences = Occurrence.find.map { |occurrence| occurrence.create_es_hash }
 
       File.open('occurrences_export.json', 'w') do |file|
         file.write(Yajl::Encoder.encode(occurrences))
