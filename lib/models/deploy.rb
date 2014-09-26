@@ -2,7 +2,7 @@ class Deploy < AbstractModel
 
   attr_accessor :id, :project_name, :api_key, :version, :changelog_link, :occurred_at
 
-  TYPE_DEPLOYS = 'deploys'
+  ES_TYPE = 'deploys'
 
   def initialize(attributes = {})
     attributes.each do |key, value|
@@ -25,7 +25,7 @@ class Deploy < AbstractModel
   end
 
   def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    hash = Exceptionist.esclient.search(type: TYPE_DEPLOYS, filters: filters, sort: sort, from: from, size: size)
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
@@ -37,7 +37,7 @@ class Deploy < AbstractModel
   end
 
   def save
-    deploy = Exceptionist.esclient.index(type: TYPE_DEPLOYS, body: to_hash)
+    deploy = Exceptionist.esclient.index(type: ES_TYPE, body: to_hash)
     @id = deploy._id
     self
   end

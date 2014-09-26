@@ -6,7 +6,7 @@ class Occurrence < AbstractModel
                 :project_name, :occurred_at, :id, :uber_key, :api_key, :sort,
                 :ip_address, :request_id
 
-  TYPE_OCCUR = 'occurrences'
+  ES_TYPE = 'occurrences'
 
   def initialize(attributes = {})
     attributes.each do |key, value|
@@ -41,7 +41,7 @@ class Occurrence < AbstractModel
   end
 
   def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
-    hash = Exceptionist.esclient.search(type: TYPE_OCCUR, filters: filters, sort: sort, from: from, size: size)
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: filters, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
@@ -50,11 +50,12 @@ class Occurrence < AbstractModel
   end
 
   def self.count(filters: {})
-    Exceptionist.esclient.count(type: TYPE_OCCUR, filters: filters)
+    Exceptionist.esclient.count(type: ES_TYPE, filters: filters)
   end
 
+  # TODO: better method name
   def self.search_aggs(filters: {}, aggs: '')
-    Exceptionist.esclient.search_aggs(type: TYPE_OCCUR, filters: filters, aggs: aggs)
+    Exceptionist.esclient.search_aggs(type: ES_TYPE, filters: filters, aggs: aggs)
   end
 
   #
@@ -91,7 +92,7 @@ class Occurrence < AbstractModel
   #
 
   def save
-    occurrence = Exceptionist.esclient.index(type: TYPE_OCCUR, body: to_hash)
+    occurrence = Exceptionist.esclient.index(type: ES_TYPE, body: to_hash)
     @id = occurrence._id
     self
   end

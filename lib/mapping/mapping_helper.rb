@@ -1,17 +1,17 @@
 class MappingHelper
   def self.get_mapping
-    occur = YAML.load(File.read('lib/mapping/occurrences.yaml'))
-    exce = YAML.load(File.read('lib/mapping/exceptions.yaml'))
+    occurrence = YAML.load(File.read('lib/mapping/occurrences.yaml'))
+    exception = YAML.load(File.read('lib/mapping/exceptions.yaml'))
     deploy = YAML.load(File.read('lib/mapping/deploys.yaml'))
 
-    exce['properties']['last_occurrence'] = occur
+    exception['properties']['last_occurrence'] = occurrence
 
     {
       'mappings' => {
         '_default_' => {
           'dynamic' => 'false'},
-        'occurrences' => occur,
-        'exceptions' => exce,
+        'occurrences' => occurrence,
+        'exceptions' => exception,
         'deploys' => deploy
       }
     }

@@ -2,7 +2,7 @@ class UberException < AbstractModel
 
   attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
-  TYPE_EXCE = 'exceptions'
+  ES_TYPE = 'exceptions'
 
   def initialize(attributes = {})
     attributes.each do |key, value|
@@ -14,16 +14,16 @@ class UberException < AbstractModel
   end
 
   def self.count_all(project)
-    Exceptionist.esclient.count(type: TYPE_EXCE, filters: { term: { project_name: project } } )
+    Exceptionist.esclient.count(type: ES_TYPE, filters: { term: { project_name: project } } )
   end
 
   def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: TYPE_EXCE, filters: [{ term: { project_name: project } },
+    Exceptionist.esclient.count(type: ES_TYPE, filters: [{ term: { project_name: project } },
                                                            range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
   end
 
   def self.get(uber_key)
-    new(Helper.transform(Exceptionist.esclient.get(type: TYPE_EXCE, id: uber_key)))
+    new(Helper.transform(Exceptionist.esclient.get(type: ES_TYPE, id: uber_key)))
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
@@ -31,51 +31,51 @@ class UberException < AbstractModel
   end
 
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
-    agg_exces, ids = aggregation_since_last_deploy(project)
+    agg_exceptions, ids = aggregation_since_last_deploy(project)
 
-    exces = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: TYPE_EXCE, values: ids } }], from: from, size: size)
-    merge(exces, agg_exces)
+    exceptions = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: ES_TYPE, values: ids } }], from: from, size: size)
+    merge(exceptions, agg_exceptions)
   end
 
   def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
-    agg_exces, ids = aggregation_since_last_deploy(project)
+    agg_exceptions, ids = aggregation_since_last_deploy(project)
 
     # to preserve ordering and filtering category at the same time, filtering has to be done in ruby, not on db-level
-    exces = Exceptionist.esclient.mget(type: TYPE_EXCE, ids: ids).map { |doc| new(Helper.transform(doc)) }
-    exces.select!{ |exce| exce.category == category && !exce.closed } unless category.nil?
-    merge(exces.slice(from, size), agg_exces)
+    exceptions = Exceptionist.esclient.mget(type: ES_TYPE, ids: ids).map { |doc| new(Helper.transform(doc)) }
+    exceptions.select!{ |exception| exception.category == category && !exception.closed } unless category.nil?
+    merge(exceptions.slice(from, size), agg_exceptions)
   end
 
   def self.aggregation_since_last_deploy(project)
     deploy = Deploy.find_last_deploy(project)
     raise 'There is no deploy' if deploy.nil?
 
-    filters_occur = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } }]
-    agg_exces = Occurrence.search_aggs(filters: filters_occur, aggs: 'uber_key')
+    filters_occurrence = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } }]
+    agg_exceptions = Occurrence.search_aggs(filters: filters_occurrence, aggs: 'uber_key')
     ids = []
-    agg_exces.each { |occurr| ids << occurr['key'] }
+    agg_exceptions.each { |occurrence| ids << occurrence['key'] }
 
-    return agg_exces, ids
+    return agg_exceptions, ids
   end
 
-  def self.merge(exces, agg_exces)
-    exces.each do |exce|
-      agg_exces.each do |occurr|
-        if occurr['key'] == exce.id
-          exce.occurrences_count = occurr['doc_count']
-          agg_exces.delete(occurr)
+  def self.merge(exceptions, agg_exceptions)
+    exceptions.each do |exception|
+      agg_exceptions.each do |occurrence|
+        if occurrence['key'] == exception.id
+          exception.occurrences_count = occurrence['doc_count']
+          agg_exceptions.delete(occurrence)
           break
         end
       end
     end
-    exces
+    exceptions
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
     terms = terms.map { |term| { term: term } unless term.nil? }
     terms << { term: { closed: false } }
 
-    hash = Exceptionist.esclient.search(type: TYPE_EXCE, filters: terms.push(*filters), sort: sort, from: from, size: size)
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: terms.push(*filters), sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
@@ -93,7 +93,7 @@ class UberException < AbstractModel
 
     hash = occurrence.to_hash
     hash[:id] = occurrence.id
-    Exceptionist.esclient.update(type: TYPE_EXCE, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
+    Exceptionist.esclient.update(type: ES_TYPE, id: occurrence.uber_key, body: { script: 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=occurrence; ctx._source.first_occurred_at=timestamp',
                                                                       upsert: { project_name: occurrence.project_name, last_occurrence: hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'},
                                                                       params: { occurrence: hash, timestamp: Helper.es_time(first_timestamp)} })
     get(occurrence.uber_key)
@@ -103,9 +103,9 @@ class UberException < AbstractModel
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = find(filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } }])
+    exceptions = find(filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } }])
 
-    uber_exceptions.each do |exception|
+    exceptions.each do |exception|
       exception.forget!
       deleted += 1
     end
@@ -116,15 +116,15 @@ class UberException < AbstractModel
   def forget!
     Occurrence.delete_all_for(id)
 
-    Exceptionist.esclient.delete(type: TYPE_EXCE, id: id)
+    Exceptionist.esclient.delete(type: ES_TYPE, id: id)
   end
 
   def close!
-    Exceptionist.esclient.update(type: TYPE_EXCE, id: @id, body: { doc: { closed: true } })
+    Exceptionist.esclient.update(type: ES_TYPE, id: @id, body: { doc: { closed: true } })
   end
 
   def update(doc)
-    Exceptionist.esclient.update(type: TYPE_EXCE, id: @id, body: { doc: doc })
+    Exceptionist.esclient.update(type: ES_TYPE, id: @id, body: { doc: doc })
   end
 
   def current_occurrence(position)
