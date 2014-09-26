@@ -9,11 +9,11 @@ module Exceptionist
   attr_accessor :esclient
 
   def self.esclient
-    @esclient ||= ESClient.new(@endpoint)
+    @esclient ||= ESClient.new(@elasticsearch_host)
   end
 
-  def self.endpoint=(endpoint)
-    @endpoint = endpoint
+  def self.elasticsearch_host=(elasticsearch_host)
+    @elasticsearch_host = elasticsearch_host
   end
 
   def self.config

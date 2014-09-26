@@ -17,7 +17,7 @@ end
 # minitest install its own at_exit, so we need to do this after our own
 require 'minitest/autorun'
 
-Exceptionist.endpoint = "localhost:10000"
+Exceptionist.elasticsearch_host = "localhost:10000"
 Elasticsearch::Extensions::Test::Cluster.start(
     cluster_name: "testing-cluster",
     port: Exceptionist.esclient.port,
