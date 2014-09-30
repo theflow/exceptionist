@@ -75,6 +75,22 @@ class ESClient
     @es.indices.refresh
   end
 
+  def export(type)
+    export = []
+
+    # Open the view
+    result = @es.search(index: ES_INDEX, search_type: 'scan', scroll: '5m', body: { query: { match: { _type: type } } }, size: 10)
+    result = Hashie::Mash.new(result)
+
+    while result = Hashie::Mash.new(@es.scroll(scroll_id: result._scroll_id, scroll: '5m')) and not result.hits.hits.empty? do
+      result.hits.hits.each do |object|
+        export << Occurrence.new(Helper.transform(object)).create_es_hash
+      end
+    end
+
+    export
+  end
+
   private
   def create_search_query(filters, sort, from, size)
     { query: wrap_filters(filters), sort: wrap_sort(sort), from: from, size: size }

@@ -7,7 +7,16 @@ module Utils
 
   class Exporter
     def self.run
-      occurrences = Occurrence.find.map { |occurrence| occurrence.create_es_hash }
+
+      puts "exporting deploys"
+      deploys = Exceptionist.esclient.export('deploys')
+
+      File.open('deploys_export.json', 'w') do |file|
+        file.write(Yajl::Encoder.encode(deploys))
+      end
+
+      puts "exporting occurrences"
+      occurrences = Exceptionist.esclient.export('occurrences')
 
       File.open('occurrences_export.json', 'w') do |file|
         file.write(Yajl::Encoder.encode(occurrences))
@@ -17,8 +26,8 @@ module Utils
 
   class Importer
     def self.run
-      puts "importing deploy.yaml"
-      YAML.load(File.read('import/deploy.yaml')).each { |key, value| Deploy.new(value).save}
+      puts "importing deploys"
+      Yajl::Parser.parse(File.read('import/deploys_export.json')).each { |hash| Deploy.new(hash).save}
 
       files = Dir.glob('import/occurrences_export*').sort
       files.each do |file|

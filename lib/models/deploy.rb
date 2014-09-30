@@ -50,8 +50,6 @@ class Deploy
     "(Deploy id=#{id} project_name=#{project_name})"
   end
 
-  private
-
   def create_es_hash
     self.instance_variables.each_with_object({}) do |var, hash|
       value = self.instance_variable_get(var);
