@@ -121,6 +121,17 @@ class IntegrationTest < MiniTest::Test
     assert_contain 'previous page'
   end
 
+  def test_projects_pagination_category
+    27.times do |i|
+      UberException.occurred(create_occurrence(action_name:"action_#{i}"))
+    end
+    Exceptionist.esclient.refresh
+
+    visit '/projects/ExampleProject?category=low'
+    assert_not_contain 'next page'
+    assert_not_contain 'previous page'
+  end
+
   def test_projects_forget_old_exceptions
     visit '/projects/ExampleProject/forget_exceptions', :post
 

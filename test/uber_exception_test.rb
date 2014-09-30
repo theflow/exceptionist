@@ -55,12 +55,6 @@ class UberExceptionTest < MiniTest::Test
     assert_equal 1, UberException.count_all('OtherProject')
   end
 
-  def test_count_since
-    assert_equal 4, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 1, 1))
-    assert_equal 2, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 1, 7))
-    assert_equal 1, UberException.count_since(project: 'ExampleProject', date: Time.local(2011, 1, 9))
-  end
-
   def test_get
     assert_equal @exce1.id, UberException.get(@exce1.id).id
   end

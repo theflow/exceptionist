@@ -36,11 +36,11 @@ class ExceptionistApp < Sinatra::Base
   get '/projects/:project' do
     @projects = Project.all
     @current_project = Project.new(params[:project])
-    @exceptions_count = UberException.count_all(@current_project.name)
 
     @start = params[:start] ? params[:start].to_i : 0
     @category = { category: params[:category] } if params[:category]
     @terms =[{ project_name: @current_project.name }] << @category
+    @exceptions_count = UberException.count(terms: @terms)
 
     if params[:sort_by] && params[:sort_by] == 'frequent'
       @uber_exceptions = UberException.find_sorted_by_occurrences_count(terms: @terms, from: @start)
@@ -58,7 +58,9 @@ class ExceptionistApp < Sinatra::Base
     @deploy = @current_project.last_deploy
     raise ArgumentError, "There is no deploy for project #{@current_project.name}" unless @deploy
 
-    @exceptions_count = UberException.count_since(project: @current_project.name, date: @deploy.occurred_at)
+    @category = { category: params[:category] } if params[:category]
+    @terms =[{ project_name: @current_project.name }] << @category
+    @exceptions_count = UberException.count(terms: @terms, filters: [ { range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(@deploy.occurred_at) } } } ])
 
     @start = params[:start] ? params[:start].to_i : 0
     if params[:sort_by] && params[:sort_by] == 'frequent'

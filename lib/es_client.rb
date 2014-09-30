@@ -40,8 +40,11 @@ class ESClient
     @es.update(index: ES_INDEX, type: type, id: id, body: body)
   end
 
-  def count(type: '', filters: [])
-    @es.count(index: ES_INDEX, type: type, body: { query: wrap_filters(filters) } )['count']
+  def count(type: '', filters: [], terms: [])
+    terms = wrap(terms)
+    filters = wrap(filters)
+    terms = transform_terms(terms)
+    @es.count(index: ES_INDEX, type: type, body: { query: wrap_filters(terms.push(*filters)) } )['count']
   end
 
   def delete_by_query(query: { match_all: {} })
@@ -94,4 +97,8 @@ class ESClient
     args.is_a?(Array) ? args : [args]
   end
 
+  def transform_terms(terms)
+    terms = terms.map { |term| { term: term } if term }
+    terms.compact
+  end
 end

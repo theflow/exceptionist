@@ -14,12 +14,11 @@ class UberException
   end
 
   def self.count_all(project)
-    Exceptionist.esclient.count(type: ES_TYPE, filters: { term: { project_name: project } } )
+    Exceptionist.esclient.count(type: ES_TYPE, terms: { project_name: project } )
   end
 
-  def self.count_since(project: '', date: '')
-    Exceptionist.esclient.count(type: ES_TYPE, filters: [{ term: { project_name: project } },
-                                                           range: { 'last_occurrence.occurred_at' => { gte: Helper.es_time(date) } }] )
+  def self.count(terms: [], filters: [])
+    Exceptionist.esclient.count(type: ES_TYPE, filters: filters, terms: terms)
   end
 
   def self.get(uber_key)
