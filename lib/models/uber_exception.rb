@@ -37,12 +37,12 @@ class UberException
   end
 
   def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
-    agg_exceptions, ids = aggregation_since_last_deploy(project)
+    aggregation_exceptions, ids = aggregation_since_last_deploy(project)
 
     # to preserve ordering and filtering category at the same time, filtering has to be done in ruby, not on db-level
     exceptions = Exceptionist.esclient.mget(type: ES_TYPE, ids: ids).map { |doc| new(Helper.transform(doc)) }
     exceptions.select!{ |exception| exception.category == category && !exception.closed } unless category.nil?
-    merge(exceptions.slice(from, size), agg_exceptions)
+    merge(exceptions.slice(from, size), aggregation_exceptions)
   end
 
   def self.aggregation_since_last_deploy(project)
