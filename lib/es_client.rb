@@ -9,8 +9,10 @@ class ESClient
     @es = Elasticsearch::Client.new(host: endpoint)
   end
 
-  def search(type: '', filters: {}, sort: {}, from: 0, size: 25)
+  def search(type: '', filters: [], terms: [], sort: {}, from: 0, size: 25)
     raise ArgumentError, 'from has to be >= 0' if from < 0
+
+    filters = merge(filters, terms)
 
     query = create_search_query(filters, sort, from, size)
     response = @es.search(index: ES_INDEX, type: type, body: query)
@@ -41,10 +43,8 @@ class ESClient
   end
 
   def count(type: '', filters: [], terms: [])
-    terms = wrap(terms)
-    filters = wrap(filters)
-    terms = transform_terms(terms)
-    @es.count(index: ES_INDEX, type: type, body: { query: wrap_filters(terms.push(*filters)) } )['count']
+    filters = merge(filters, terms)
+    @es.count(index: ES_INDEX, type: type, body: { query: wrap_filters(filters) } )['count']
   end
 
   def delete_by_query(query: { match_all: {} })
@@ -95,6 +95,14 @@ class ESClient
   def wrap(args)
     return [] unless args
     args.is_a?(Array) ? args : [args]
+  end
+
+  def merge(filters, terms)
+    filters = wrap(filters)
+    terms = wrap(terms)
+
+    terms = transform_terms(terms)
+    terms.push(*filters)
   end
 
   def transform_terms(terms)

@@ -71,10 +71,9 @@ class UberException
   end
 
   def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
-    terms = terms.map { |term| { term: term } unless term.nil? }
-    terms << { term: { closed: false } }
+    terms << { closed: false }
 
-    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: terms.push(*filters), sort: sort, from: from, size: size)
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: filters, terms: terms, sort: sort, from: from, size: size)
     hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
