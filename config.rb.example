@@ -12,7 +12,7 @@ require 'app'
 #
 
 # Configure your ES server and port
-Exceptionist.endpoint = 'localhost:9200'
+Exceptionist.elasticsearch_host = 'localhost:9200'
 
 # Credentials for accessing the web app, remove if you do auth in another way
 Exceptionist.enable_authentication('username', 'password')
