@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# script to find inconsistent occurences_count on elasticsearch backing exceptionist
+# script to find inconsistent occurrences_count on elasticsearch backing exceptionist
 # occurrences_count can then be corrected by hand.
 
 import requests
@@ -32,7 +32,7 @@ def all_docs(index, es_type, size=100):
     except Exception as e:
         print resp.content
 
-def count(index, es_type, filtr):
+def count(index, filtr):
     query = {
         "query": {
             "term": filtr
@@ -44,7 +44,7 @@ def count(index, es_type, filtr):
 def find_inconsistent_uber_ids():
     for uber in all_docs("exceptionist", "exceptions"):
         expect = uber['_source'].get('occurrences_count', 0)
-        actual = count("exceptionist", "occurences", {"uber_key":  uber["_id"]}).get('count', 0)
+        actual = count("exceptionist", {"uber_key":  uber["_id"]}).get('count', 0)
         if expect != actual:
             print uber["_id"], ":", expect, "!=", actual
 
