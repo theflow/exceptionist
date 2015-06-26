@@ -1,6 +1,6 @@
 class UberException
 
-  attr_accessor :id, :project_name, :occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
+  attr_accessor :id, :project_name, :_occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
 
   ES_TYPE = 'exceptions'
 
@@ -8,7 +8,7 @@ class UberException
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
-
+    @_occurrences_count = nil
     @last_occurrence = Occurrence.new(attributes[:last_occurrence])
     @first_occurred_at = Time.parse(first_occurred_at) if first_occurred_at.is_a? String
   end
@@ -26,7 +26,8 @@ class UberException
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
-    find(terms: terms, sort: { occurrences_count: { order: 'desc'} }, from: from, size: size)
+    uber_list = Occurrence.aggregation(filters: terms.map{|t| {term: t}}, aggregation: "uber_key")
+    uber_list.map{|raw_uber| get(raw_uber['key'])}
   end
 
   def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
@@ -58,10 +59,11 @@ class UberException
   end
 
   def self.merge(exceptions, aggregation)
+    # used by  _since_last_deploy's to correct the occurences_count
     exceptions.each do |exception|
       aggregation.each do |occurrence|
         if occurrence['key'] == exception.id
-          exception.occurrences_count = occurrence['doc_count']
+          exception._occurrences_count = occurrence['doc_count']
           aggregation.delete(occurrence)
           break
         end
@@ -136,6 +138,12 @@ class UberException
   def current_occurrence(position)
     occurrences = Occurrence.find(filters: { term: { uber_key: id } }, sort: { occurred_at: { order: 'asc'} }, from: position - 1, size: 1)
     occurrences.any? ? occurrences.first : nil
+  end
+
+  def occurrences_count
+    return @_occurrences_count unless @_occurrences_count.nil?
+    d = Occurrence.aggregation(filters: [{ term: { type: ES_TYPE, uber_key: @id } }], aggregation: "uber_key")
+    d[0]["doc_count"]
   end
 
   def new_since_last_deploy
