@@ -26,7 +26,7 @@ class UberException
   end
 
   def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
-    uber_list = Occurrence.aggregation(filters: terms.map{|t| {term: t}}, aggregation: "uber_key")
+    uber_list = Occurrence.aggregation(filters: terms.select{|t| ! t.nil? }.map{|t| {term: t}}, aggregation: "uber_key")
     uber_list.map{|raw_uber| get(raw_uber['key'])}
   end
 
