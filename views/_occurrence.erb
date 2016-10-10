@@ -1,6 +1,6 @@
 <!-- occurrence navigation -->
 <div class="span-24 last append-bottom" style="font-size:1.2em">
-  <div class="span-3"><%= format_time(@uber_exception.first_occurrence.occurred_at) %></div>
+  <div class="span-3"><%= format_time(@uber_exception.first_occurred_at) %></div>
   <div class="span-18 centered">
     <% if @occurrence_position == 1 %>
       <span class="quiet">&laquo; Older</span>
@@ -21,20 +21,25 @@
 
 <div class="span-24 last head_box">
   <div class="span-18"><%= @occurrence.http_method %> <a href="<%= @occurrence.url %>" class="silent_link" target="_blank"><%= @occurrence.url %></a></div>
-  <div class="span-3"></div>
   <div class="span-6 last right-aligned">
     <span style="margin-right: 10px"><%= format_time(@occurrence.occurred_at) %></span>
-    <form action="/exceptions/<%= @occurrence.uber_key %>/close" method="post" style="display: inline">
-      <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
-      <button type="submit" class="button positive close_button">
-        <img src="/tick.png" alt="Close"/> Close
-      </button>
-    </form>
+
   </div>
 </div>
 
-<div class="span-24 last append-bottom message_box">
+<div class="span-24 last message_box <%= @uber_exception.category %>">
   <%= escape_html @occurrence.exception_message %>
+</div>
+
+<div class="span-24 last append-bottom action_box">
+  <form action="/exceptions/<%= @occurrence.uber_key %>/close" method="post" style="display: inline" id="close">
+    <input type="hidden" name="backparams" value="<%= params[:backparams] %>" />
+    <button type="submit" class="button action_button">
+      <img src="/tick.png" alt="Close"/> Close
+    </button>
+  </form>
+  <button type="submit" class="action_button negative category_button <% if @uber_exception.category == 'high' %> active <% end %> " id="high" >high</button>
+  <button type="submit" class="action_button category_button <% if @uber_exception.category == 'low' %> active<% end %> " id="low">low</button>
 </div>
 
 <div class="span-24 last append-bottom">
@@ -70,3 +75,30 @@
     <% end %>
   </dl>
 </div>
+
+<script type="text/javascript" charset="utf-8">
+    $( ".category_button" ).click(function(e) {
+        e.preventDefault();
+        $button = $(this);
+        $button.blur();
+
+        if($(e.target).hasClass('active')){
+            category = 'no-category'
+        } else {
+            category = $(e.target).text();
+        }
+
+        e.preventDefault();
+        $.ajax({
+            url: 'category',
+            type: 'POST',
+            data : "id=<%= @uber_exception.id %>&category=" + category,
+            accepts: "application/json",
+            success: function(json) {
+                $button.toggleClass('active')
+                $button.siblings('button').removeClass('active')
+                $('.message_box').removeClass('high').removeClass('low').removeClass('no-category').addClass(category);
+            }
+        });
+    });
+</script>

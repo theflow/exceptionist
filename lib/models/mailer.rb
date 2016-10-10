@@ -8,7 +8,7 @@ From: Exceptionist <the@exceptionist.org>
 To: Exceptionist <the@exceptionist.org>
 MIME-Version: 1.0
 Content-type: text/html
-Subject: [Exceptionist][#{project.name}] Summary for #{day.strftime('%Y-%m-%d')}
+Subject: [Exceptionist][#{project.name}] Summary for #{Helper.es_day(day)}
 
 #{body}
 MESSAGE_END

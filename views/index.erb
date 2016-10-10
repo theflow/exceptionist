@@ -1,30 +1,45 @@
 <h2><%= @title %></h2>
 
-<div class="span-4 sorting_links">
+<div class="span-10 sorting_links">
   <a href="/projects/<%= @current_project.name %>/river">River</a>
-</div>
-
-<div class="span-20 sorting_links right-aligned last">
-  <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</spa>
-  <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
-</div>
-
-
-<div class="span-24">
-  <hr />
-  <%= partial(:exceptions, :exceptions => @uber_exceptions) %>
-</div>
-
-<div class="span-3 append-18">
-  <% if @start - 25 >= 0 %>
-  <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
-  <% end %>&nbsp;
-</div>
-<% p  %>
-<div class="span-3 right-aligned last">
-  <% if @start + 25 <= @current_project.exceptions_count %>
-  <strong><a href="/projects/<%= @current_project.name %>?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
+  &nbsp;|&nbsp;
+  <a href="/deploys/<%= @current_project.name %>">Deploys</a>
+  <% if !@deploy && @current_project.last_deploy %>&nbsp;|&nbsp;
+      <a href="/projects/<%= @current_project.name %>/since_last_deploy">since last deploy</a>
   <% end %>
 </div>
+
+    <div class="span-14 sorting_links right-aligned last">
+      <a href="?"><%= '&darr; ' if params[:category].nil? %>all</a> <span class="divider">&middot;</span>
+      <a href="?<%= build_query_args('category' => 'high') %>"><%= '&darr; ' if params[:category] == 'high' %>high</a> <span class="divider">&middot;</span>
+      <a href="?<%= build_query_args('category' => 'low') %>"><%= '&darr; ' if params[:category] == 'low' %>low</a> <span class="divider">&middot;</span>
+      <a href="?<%= build_query_args('category' => 'no-category') %>"><%= '&darr; ' if params[:category] == 'no-category' %>no category</a>
+      &nbsp;|&nbsp;
+      <a href="?<%= build_query_args('sort_by' => 'latest') %>"><%= '&darr; ' if params[:sort_by].nil? || params[:sort_by] == 'latest' %>most recent</a> <span class="divider">&middot;</span>
+      <a href="?<%= build_query_args('sort_by' => 'frequent') %>"><%= '&darr; ' if params[:sort_by] == 'frequent' %>most frequent</a>
+    </div>
+
+<% if @uber_exceptions && @uber_exceptions.any? %>
+
+    <div class="span-24">
+      <%= partial(:exceptions, :exceptions => @uber_exceptions) %>
+    </div>
+
+    <div class="span-3 append-18">
+      <% if @start - 25 >= 0 %>
+          <strong><a href="?<%= build_query_args('start' => @start - 25) %>">&laquo; previous page</a></strong>
+      <% end %>&nbsp;
+    </div>
+    <% p  %>
+    <div class="span-3 right-aligned last">
+      <% if @start + 25 <= @exceptions_count %>
+          <strong><a href="?<%= build_query_args('start' => @start + 25) %>">next page &raquo;</a></strong>
+      <% end %>
+    </div>
+
+<% else %>
+    <hr/>
+    <p>No exceptions!</p>
+<% end %>
 
 <hr class="space" />

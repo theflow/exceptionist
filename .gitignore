@@ -1,9 +1,9 @@
 config.rb
 dump.rdb
 webrat.log
-*.json
+import
+coverage
 vendor/bundle
 .bundle
-Gemfile.lock
 
 .idea

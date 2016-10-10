@@ -1,35 +1,37 @@
-$LOAD_PATH.unshift File.dirname(File.expand_path(__FILE__)) + '/../lib'
+require 'simplecov'
+SimpleCov.start do
+  add_filter 'test'
+end
+
+ENV['RACK_ENV'] = 'test'
 
 require 'app'
+require 'timecop'
+require 'elasticsearch/extensions/test/cluster'
 
-##
-# start our own mongodb when the tests start,
-# kill it when they end
-#
+
 at_exit do
-  next if $!
-
-  pid = `ps -e -o pid,command | grep [m]ongod-test`.split(" ")[0]
-  puts "Killing test mongod server..."
-  Process.kill("KILL", pid.to_i)
-  `rm -rf /tmp/test_mongodb`
-  exit exit_code
+  Elasticsearch::Extensions::Test::Cluster.stop( port: Exceptionist.esclient.port )
 end
 
 # minitest install its own at_exit, so we need to do this after our own
 require 'minitest/autorun'
 
-puts 'Starting mongod for testing at localhost:9736...'
+Exceptionist.elasticsearch_host = "localhost:10000"
+Elasticsearch::Extensions::Test::Cluster.start(
+  cluster_name: "testing-cluster",
+  port: Exceptionist.esclient.port,
+  number_of_nodes: 1,
+)
 
-`mkdir -p /tmp/test_mongodb`
-test_dir = File.dirname(File.expand_path(__FILE__))
-`mongod run --fork --logpath /dev/null --config #{test_dir}/mongod-test.conf`
-sleep 1
+Exceptionist.esclient.create_indices('exceptionist', MappingHelper.get_mapping)
+Exceptionist.esclient.refresh
 
 # Configure
-Exceptionist.mongo = 'localhost:9736'
 Exceptionist.add_project 'ExampleProject', 'SECRET_API_KEY'
-Exceptionist.add_project 'ExampleProject2', 'ANOTHER_SECRET_API_KEY'
+Exceptionist.add_project 'OtherProject', 'ANOTHER_SECRET_OTHER_KEY'
+Exceptionist.add_project 'ThirdProject', 'ANOTHER_SECRET_THIRD_KEY'
+Exceptionist.add_project 'PhantomProject', 'ANOTHER_SECRET_PHANTOM_KEY'
 
 ##
 # Exceptionist specific helpers
@@ -40,13 +42,14 @@ end
 
 def build_occurrence(attributes = {})
   default_attributes = {
-    :exception_class     => 'NameError',
-    :exception_message   => 'NameError: undefined local variable or method dude',
-    :exception_backtrace => ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
-    :controller_name     => 'users',
-    :action_name         => 'show',
-    :project_name        => 'ExampleProject',
-    :url                 => 'http://example.com'
+    exception_class:      'NameError',
+    exception_message:    'NameError: undefined local variable or method dude',
+    exception_backtrace:  ["[PROJECT_ROOT]/app/models/user.rb:53:in `public'", "[PROJECT_ROOT]/app/controllers/users_controller.rb:14:in `show'"],
+    controller_name:      'users',
+    action_name:          'show',
+    project_name:         'ExampleProject',
+    url:                  'http://example.com',
+    occurred_at:          Time.now
   }
   Occurrence.new(default_attributes.merge(attributes))
 end
@@ -55,7 +58,29 @@ def create_occurrence(attributes = {})
   build_occurrence(attributes).save
 end
 
+def build_deploy(attributes = {})
+  default_attributes = {
+      project_name:         'ExampleProject',
+      api_key:              'SECRET_API_KEY',
+      version:              '0.0.1',
+      changelog_link:       'https://github.com/podio/podio-rb/commit/35b1bbaaafd56b200ee4a0ea38fc13dfdea8304e',
+      occurred_at:          Time.now
+  }
+  Deploy.new(default_attributes.merge(attributes))
+end
+
+def create_deploy(attributes = {})
+  build_deploy(attributes).save
+end
+
 def clear_collections
-  Exceptionist.mongo.drop_collection('occurrences')
-  Exceptionist.mongo.drop_collection('exceptions')
+  Exceptionist.esclient.delete_indices('exceptionist')
+  Exceptionist.esclient.create_indices('exceptionist', MappingHelper.get_mapping)
+  Exceptionist.esclient.refresh
+end
+
+class AbstractTest < Minitest::Test
+  def setup
+    clear_collections
+  end
 end

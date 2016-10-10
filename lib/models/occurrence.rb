@@ -1,26 +1,66 @@
 class Occurrence
+
   attr_accessor :url, :controller_name, :action_name,
                 :exception_class, :exception_message, :exception_backtrace,
                 :parameters, :session, :cgi_data, :environment,
-                :project_name, :occurred_at, :occurred_at_day, :'_id', :uber_key, :api_key
+                :project_name, :occurred_at, :id, :uber_key, :api_key, :sort,
+                :ip_address, :request_id
 
+  ES_TYPE = 'occurrences'
 
-  def initialize(attributes={})
+  def initialize(attributes = {})
     attributes.each do |key, value|
-      send("#{key}=", value)
+      instance_variable_set("@#{key}", value)
     end
 
-    self.occurred_at ||= attributes['occurred_at'] || Time.now
-    self.uber_key ||= generate_uber_key
+    @occurred_at = Time.parse(occurred_at) if occurred_at.is_a? String
+    @uber_key ||= generate_uber_key
   end
 
-  def inspect
-    "(Occurrence: id: #{_id}, title: '#{title}')"
+  def uber_exception
+    UberException.get(uber_key)
   end
 
-  def ==(other)
-    _id == other._id
+  def self.delete_all_for(uber_key)
+    ids = Exceptionist.esclient.find_all(ES_TYPE, query: { term: { uber_key: uber_key } })
+    Exceptionist.esclient.bulk_delete(ES_TYPE, ids)
   end
+
+  def self.find_first_for(uber_key)
+    occurrences = Occurrence.find(filters: { term: { uber_key: uber_key } }, sort: { occurred_at: { order: 'asc' } }, size: 1)
+    occurrences.any? ? occurrences.first : nil
+  end
+
+  def self.find_last_for(uber_key)
+    occurrences = Occurrence.find(filters: { term: { uber_key: uber_key } }, size: 1)
+    occurrences.any? ? occurrences.first : nil
+  end
+
+  def self.find_next(uber_key, date)
+    find(filters: [{ range: { occurred_at: { gte: Helper.es_time(date) } } },
+                   { term: { uber_key: uber_key } }], sort: { occurred_at: { order: 'asc' } }, size: 1).first
+  end
+
+  def self.find(filters: {}, sort: { occurred_at: { order: 'desc' } }, from: 0, size: 25)
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: filters, sort: sort, from: from, size: size)
+    hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
+  end
+
+  def self.count_since(uber_key, date)
+    count(filters: [{ range: { occurred_at: { gte: Helper.es_time(date) } } }, { term: { uber_key: uber_key } }] )
+  end
+
+  def self.count(filters: {})
+    Exceptionist.esclient.count(type: ES_TYPE, filters: filters)
+  end
+
+  def self.aggregation(filters: {}, aggregation: '')
+    Exceptionist.esclient.aggregation(type: ES_TYPE, filters: filters, aggregation: aggregation)
+  end
+
+  #
+  # accessors
+  #
 
   def title
     case exception_class
@@ -43,40 +83,8 @@ class Occurrence
     cgi_data ? cgi_data['HTTP_USER_AGENT'] : nil
   end
 
-  def occurred_at
-    @occurred_at.is_a?(String) ? Time.parse(@occurred_at) : @occurred_at
-  end
-
   def project
     Project.new(project_name)
-  end
-
-  def uber_exception
-    UberException.find(uber_key)
-  end
-
-  def self.delete_all_for(uber_key)
-    Exceptionist.mongo['occurrences'].remove({:uber_key => uber_key}, :w => 1)
-  end
-
-  def self.find_first_for(uber_key)
-    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :asc], :limit => 1).first)
-  end
-
-  def self.find_last_for(uber_key)
-    new(Exceptionist.mongo['occurrences'].find({:uber_key => uber_key}, :sort => [:occurred_at, :desc], :limit => 1).first)
-  end
-
-  def self.count_all_on(project, day)
-    Exceptionist.mongo['occurrences'].find({:project_name => project, :occurred_at_day => day.strftime('%Y-%m-%d')}).count
-  end
-
-  def self.find_all(project=nil, limit=50)
-    find_options = {}
-    find_options[:project_name] = project if project
-
-    occurrences = Exceptionist.mongo['occurrences'].find(find_options, :sort => [:occurred_at, :desc], :limit => limit)
-    occurrences.map { |doc| new(doc) }
   end
 
   #
@@ -84,34 +92,24 @@ class Occurrence
   #
 
   def save
-    Exceptionist.mongo['occurrences'].insert(to_hash)
-
+    occurrence = Exceptionist.esclient.index(type: ES_TYPE, body: create_es_hash)
+    @id = occurrence._id
     self
   end
 
-  def self.create(attributes = {})
-    new(attributes).save
-  end
-
-  def to_hash
-    { :exception_message   => exception_message,
-      :session             => session,
-      :action_name         => action_name,
-      :parameters          => parameters,
-      :cgi_data            => cgi_data,
-      :url                 => url,
-      :occurred_at         => occurred_at,
-      :occurred_at_day     => occurred_at.strftime('%Y-%m-%d'),
-      :exception_backtrace => exception_backtrace,
-      :controller_name     => controller_name,
-      :environment         => environment,
-      :exception_class     => exception_class,
-      :project_name        => project_name,
-      :uber_key            => uber_key }
+  def create_es_hash
+    self.instance_variables.each_with_object({}) do |var, hash|
+      value = self.instance_variable_get(var);
+      value = Helper.es_time(value) if value.is_a?(Time)
+      hash[var.to_s.delete("@")] = value
+    end
   end
 
   def self.from_xml(xml_text)
-    new(parse_xml(xml_text))
+    attr = parse_xml(xml_text)
+    attr['occurred_at'] = Time.now if attr['occurred_at'].nil?
+
+    new(attr)
   end
 
   def self.parse_xml(xml_text)
@@ -135,6 +133,11 @@ class Occurrence
       hash[:parameters]  = parse_vars(doc.xpath('/notice/request/params'))
       hash[:session]     = parse_vars(doc.xpath('/notice/request/session'))
       hash[:cgi_data] = parse_vars(doc.xpath('/notice/request/cgi-data'), :skip_internal => true)
+
+      if hash[:cgi_data]
+        hash[:request_id] = hash[:cgi_data]["HTTP_X_PODIO_REQUEST_ID"]
+        hash[:ip_address] = hash[:cgi_data]["HTTP_X_FORWARDED_FOR"]
+      end
     end
 
     hash
@@ -143,7 +146,7 @@ class Occurrence
   def self.parse_vars(node, options = {})
     node.children.inject({}) do |hash, child|
       key = child['key']
-      value = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+      value = node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
       hash[key] = value unless value.nil?
       hash
     end
@@ -153,7 +156,7 @@ class Occurrence
     if node.children.size > 1
       node.children.inject({}) do |hash, child|
         key = child['key']
-        hash[key] = self.node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
+        hash[key] = node_to_hash(child, options) unless (options[:skip_internal] && key.include?('.'))
         hash
       end
     elsif node.children.size == 1 && node.children.first.keys.include?('key')
@@ -169,19 +172,27 @@ class Occurrence
     element ? element.content : nil
   end
 
-private
+  def ==(other)
+    id == other.id
+  end
+
+  def inspect
+    "(Occurrence id=#{id} uber_key=#{uber_key})"
+  end
+
+  private
 
   def generate_uber_key
     key = case exception_class
-      when *Exceptionist.global_exception_classes
-        "#{exception_class}:#{exception_message}"
-      when *Exceptionist.timeout_exception_classes
-        first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
-        "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
-      else
-        backtrace = exception_backtrace ? exception_backtrace.first : ''
-        "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
-    end
+            when *Exceptionist.global_exception_classes
+              "#{exception_class}:#{exception_message}"
+            when *Exceptionist.timeout_exception_classes
+              first_non_lib_line = exception_backtrace.detect { |line| line =~ /\[PROJECT_ROOT\]/ }
+              "#{exception_class}:#{exception_message}:#{first_non_lib_line}"
+            else
+              backtrace = exception_backtrace ? exception_backtrace.first : ''
+              "#{controller_name}:#{action_name}:#{exception_class}:#{backtrace}"
+          end
 
     Digest::SHA1.hexdigest("#{project_name}:#{key}")
   end

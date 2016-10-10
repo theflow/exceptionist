@@ -1,65 +1,120 @@
 class UberException
-  attr_accessor :id, :project_name, :occurrences_count
 
-  def initialize(attributes)
-    @id = attributes['_id']
-    @project_name = attributes['project_name']
-    @occurrences_count = attributes['occurrence_count']
+  attr_accessor :id, :project_name, :_occurrences_count, :closed, :last_occurrence, :first_occurred_at, :category
+
+  ES_TYPE = 'exceptions'
+
+  def initialize(attributes = {})
+    attributes.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+    @_occurrences_count = nil
+    @last_occurrence = Occurrence.new(attributes[:last_occurrence])
+    @first_occurred_at = Time.parse(first_occurred_at) if first_occurred_at.is_a? String
   end
 
   def self.count_all(project)
-    Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}).count
+    Exceptionist.esclient.count(type: ES_TYPE, terms: { project_name: project } )
   end
 
-  def self.find(uber_key)
-    new(Exceptionist.mongo['exceptions'].find_one({:_id => uber_key}))
+  def self.count(terms: [], filters: [])
+    Exceptionist.esclient.count(type: ES_TYPE, filters: filters, terms: terms)
   end
 
-  def self.find_all(project)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false})
-    uber_exceptions.map { |doc| new(doc) }
+  def self.get(uber_key)
+    new(Helper.transform(Exceptionist.esclient.get(type: ES_TYPE, id: uber_key)))
   end
 
-  def self.find_all_sorted_by_time(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurred_at, :desc])
-    uber_exceptions.map { |doc| new(doc) }
+  def self.find_sorted_by_occurrences_count(terms: [], from: 0, size: 25)
+    uber_list = Occurrence.aggregation(filters: terms.select{|t| ! t.nil? }.map{|t| {term: t}}, aggregation: "uber_key")
+    uber_list.map{|raw_uber| get(raw_uber['key'])}
   end
 
-  def self.find_all_sorted_by_occurrence_count(project, start, limit)
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :closed => false}, :skip => start, :limit => limit, :sort => [:occurrence_count, :desc])
-    uber_exceptions.map { |doc| new(doc) }
+  def self.find_since_last_deploy(project: '', terms: [], from: 0, size: 25)
+    aggregation, ids = aggregation_since_last_deploy(project)
+
+    exceptions = find(terms: terms.compact << { closed: false }, filters: [{ ids: { type: ES_TYPE, values: ids } }], from: from, size: size)
+    merge(exceptions, aggregation)
   end
 
-  def self.find_new_on(project, day)
-    next_day = day + 86400
-    uber_keys = Exceptionist.mongo['occurrences'].distinct(:uber_key, {:occurred_at_day => day.strftime('%Y-%m-%d')})
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:_id => {'$in' => uber_keys}}).map { |doc| new(doc) }
+  def self.find_since_last_deploy_ordered_by_occurrences_count(project: '', category: nil, from: 0, size: 25)
+    aggregation_exceptions, ids = aggregation_since_last_deploy(project)
 
-    uber_exceptions.select { |uber_exp| uber_exp.first_occurred_at >= day && uber_exp.first_occurred_at < next_day }
+    # to preserve ordering and filtering category at the same time, filtering has to be done in ruby, not on db-level
+    exceptions = Exceptionist.esclient.mget(type: ES_TYPE, ids: ids).map { |doc| new(Helper.transform(doc)) }
+    exceptions.select!{ |exception| exception.category == category && !exception.closed } unless category.nil?
+    merge(exceptions.slice(from, size), aggregation_exceptions)
+  end
+
+  def self.aggregation_since_last_deploy(project)
+    deploy = Deploy.find_last_deploy(project)
+    raise 'There is no deploy' if deploy.nil?
+
+    filters_occurrence = [{ term: { project_name: project } }, { range: { occurred_at: { gte: Helper.es_time(deploy.occurred_at) } } }]
+    agg_exceptions = Occurrence.aggregation(filters: filters_occurrence, aggregation: 'uber_key')
+    ids = []
+    agg_exceptions.each { |occurrence| ids << occurrence['key'] }
+
+    return agg_exceptions, ids
+  end
+
+  def self.merge(exceptions, aggregation)
+    # used by  _since_last_deploy's to correct the occurences_count
+    exceptions.each do |exception|
+      aggregation.each do |occurrence|
+        if occurrence['key'] == exception.id
+          exception._occurrences_count = occurrence['doc_count']
+          aggregation.delete(occurrence)
+          break
+        end
+      end
+    end
+    exceptions
+  end
+
+  def self.find(terms: [], filters: [], sort: { 'last_occurrence.occurred_at' => { order: 'desc'} }, from: 0, size: 25)
+    terms << { closed: false }
+
+    hash = Exceptionist.esclient.search(type: ES_TYPE, filters: filters, terms: terms, sort: sort, from: from, size: size)
+    hash.hits.hits.map { |doc| new(Helper.transform(doc)) }
   end
 
   def self.occurred(occurrence)
-    # upsert the UberException
-    Exceptionist.mongo['exceptions'].update(
-      {:_id => occurrence.uber_key},
-      {
-        "$set" => {:project_name => occurrence.project_name, :occurred_at => occurrence.occurred_at, :closed => false},
-        "$inc" => {:occurrence_count => 1}
-      },
-      :upsert => true, :w => 1
-    )
+    first_timestamp = occurrence.occurred_at
 
-    # return the UberException
-    new('_id' => occurrence.uber_key)
+    #TODO maybe remove when events arrive sorted
+    begin
+      exec = get(occurrence.uber_key)
+      occurrence = exec.last_occurrence.occurred_at < first_timestamp ? occurrence : exec.last_occurrence
+      first_timestamp = first_timestamp < exec.first_occurred_at ? first_timestamp :  exec.first_occurred_at
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound
+      # get throws NotFound exception when there is no exception with this uber_key
+      # we could also search with a query but then we have to handle the null value and it would be slower
+    end
+
+    occurrence_hash = occurrence.create_es_hash
+    occurrence_hash[:id] = occurrence.id
+
+    script = 'ctx._source.occurrences_count += 1; ctx._source.closed=false; ctx._source.last_occurrence=var_occurrence; ctx._source.first_occurred_at=var_timestamp'
+    body = { project_name: occurrence.project_name, last_occurrence: occurrence_hash, first_occurred_at: Helper.es_time(first_timestamp), closed: false, occurrences_count: 1, category: 'no-category'}
+    Exceptionist.esclient.update(type: ES_TYPE, id: occurrence.uber_key,
+                                 body: {
+                                     script: script,
+                                     params: { var_occurrence: occurrence_hash, var_timestamp: Helper.es_time(first_timestamp)},
+                                     upsert: body
+                                 }
+    )
+    get(occurrence.uber_key)
   end
 
-  def self.forget_old_exceptions(project, days)
+  def self.forget_old_exceptions(project, days=0)
     since_date = Time.now - (86400 * days)
     deleted = 0
 
-    uber_exceptions = Exceptionist.mongo['exceptions'].find({:project_name => project, :occurred_at => {'$lt' => since_date}})
-    uber_exceptions.each do |doc|
-      UberException.new(doc).forget!
+    exceptions = find(filters: [{ term: { project_name: project } }, range: { 'last_occurrence.occurred_at' => { lte: Helper.es_time(since_date) } }])
+
+    exceptions.each do |exception|
+      exception.forget!
       deleted += 1
     end
 
@@ -68,41 +123,37 @@ class UberException
 
   def forget!
     Occurrence.delete_all_for(id)
-    Exceptionist.mongo['exceptions'].remove({:_id => id}, :w => 1)
+
+    Exceptionist.esclient.delete(type: ES_TYPE, id: id)
   end
 
   def close!
-    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'closed' => true}})
+    Exceptionist.esclient.update(type: ES_TYPE, id: @id, body: { doc: { closed: true } })
   end
 
-  def last_occurrence
-    @last_occurrence ||= Occurrence.find_last_for(id)
-  end
-
-  def first_occurrence
-    @first_occurrence ||= Occurrence.find_first_for(id)
+  def update(doc)
+    Exceptionist.esclient.update(type: ES_TYPE, id: @id, body: { doc: doc })
   end
 
   def current_occurrence(position)
-    if occurrence = Exceptionist.mongo['occurrences'].find({:uber_key => id}, :sort => [:occurred_at, :asc], :skip => position - 1, :limit => 1).first 
-      Occurrence.new(occurrence)
-    else
-      nil
-    end
+    occurrences = Occurrence.find(filters: { term: { uber_key: id } }, sort: { occurred_at: { order: 'asc'} }, from: position - 1, size: 1)
+    occurrences.any? ? occurrences.first : nil
   end
 
-  def update_occurrence_count
-    @occurrences_count = Exceptionist.mongo['occurrences'].find({:uber_key => id}).count
-    Exceptionist.mongo['exceptions'].update({:_id => id}, {'$set' => {'occurrence_count' => @occurrences_count}})
+  def occurrences_count
+    return @_occurrences_count unless @_occurrences_count.nil?
+    d = Occurrence.aggregation(filters: [{ term: {uber_key: @id} }], aggregation: "uber_key")
+    d[0]["doc_count"]
   end
 
-  def first_occurred_at
-    first_occurrence.occurred_at
+  def new_since_last_deploy
+    deploy = Deploy.find_last_deploy(@project_name)
+    deploy.nil? ? true : deploy.occurred_at < @first_occurred_at
   end
 
-  def last_occurred_at
-    last_occurrence.occurred_at
-  end
+  #
+  # accessors
+  #
 
   def title
     last_occurrence.title
@@ -112,12 +163,12 @@ class UberException
     last_occurrence.url
   end
 
-  def occurrence_count_on(date)
-    Exceptionist.mongo['occurrences'].find({:uber_key => id, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
+  def occurrences_count_on(date)
+    Occurrence.count(filters: [{ term: { uber_key: @id } }, { range: { occurred_at: Helper.day_range(date) } }])
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
+    Helper.last_n_days(30).map { |day| [day, occurrences_count_on(day)] }
   end
 
   def ==(other)
@@ -125,6 +176,6 @@ class UberException
   end
 
   def inspect
-    "(UberException: id: #{id})"
+    "(UberException id=#{id})"
   end
 end

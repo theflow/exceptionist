@@ -1,14 +1,21 @@
 <% for uber_exc in exceptions %>
+<div class="span-24 <%= uber_exc.category %>">
+  <hr />
   <div class="span-4 append-bottom quiet">
-    Last: <%= format_time(uber_exc.last_occurred_at) %><br />
-    First: <%= format_time(uber_exc.first_occurred_at) %>
+    <div class="padding">
+      Last: <%= format_time(uber_exc.last_occurrence.occurred_at) %><br />
+      First: <%= format_time(uber_exc.first_occurred_at) %>
+    </div>
   </div>
-  <div class="span-18">
+  <div class="span-16">
     <h6><a href="/exceptions/<%= uber_exc.id %>?backparams=<%= escape(request.query_string) %>"><%= escape_html(truncate(uber_exc.title, 100)) %></a></h6>
     <%= escape_html(truncate(uber_exc.url, 80)) %>
   </div>
-  <div class="span-2 last centered">
-    <span class="occurrence_count"># <%= uber_exc.occurrences_count %></span>
+  <div class="span-4 last centered">
+    <div class="padding">
+      <span class="box occurrences_count"># <%= uber_exc.occurrences_count %></span>
+      <% if uber_exc.new_since_last_deploy %> <span class="box new"> new </span> <% end %>
+    </div>
   </div>
-  <hr />
+</div>
 <% end %>

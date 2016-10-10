@@ -1,8 +1,9 @@
 class Project
+
   attr_accessor :name
 
   def initialize(name)
-    self.name = name
+    @name = name
   end
 
   def exceptions_count
@@ -10,43 +11,16 @@ class Project
   end
 
   def last_thirty_days
-    Project.last_n_days(30).map { |day| [day, occurrence_count_on(day)] }
+    Helper.last_n_days(30).map { |day| [day,  Occurrence.count(filters: [{ term: { project_name: name } }, { range: { occurred_at: Helper.day_range(day) } }] )] }
   end
 
-  def self.last_n_days(days)
-    today = Time.now
-    start = today - (3600 * 24 * (days - 1)) # `days` days ago
-
-    n_days = []
-    begin
-      n_days << Time.utc(start.year, start.month, start.day)
-    end while (start += 86400) <= today
-
-    n_days
+  def last_deploy
+    Deploy.find_last_deploy(name)
   end
 
-  def occurrence_count_on(date)
-    Exceptionist.mongo['occurrences'].find({:project_name => name, :occurred_at_day => date.strftime('%Y-%m-%d')}).count
-  end
-
-  def latest_exceptions(start, limit = 25)
-    UberException.find_all_sorted_by_time(name, start, limit)
-  end
-
-  def most_frequest_exceptions(start, limit = 25)
-    UberException.find_all_sorted_by_occurrence_count(name, start, limit)
-  end
-
-  def new_exceptions_on(day)
-    UberException.find_new_on(name, day)
-  end
-
-  def total_count_on(day)
-    Occurrence.count_all_on(name, day)
-  end
-
-  def ==(other)
-    name == other.name
+  def deploys_last_thirty_days
+    since = Helper.get_day_ago(30)
+    Deploy.find_by_project_since(@name, since)
   end
 
   def self.find_by_key(api_key)
@@ -56,5 +30,13 @@ class Project
 
   def self.all
     Exceptionist.projects.map { |name, api_key| Project.new(name) }
+  end
+
+  def ==(other)
+    name == other.name
+  end
+
+  def inspect
+    "(Project name=#{name})"
   end
 end

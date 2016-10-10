@@ -1,0 +1,23 @@
+<h2><%= @title %></h2>
+
+<div class="span-4 sorting_links">
+  <a href="/projects/<%= @current_project.name %>/river">River</a>
+  &nbsp;|&nbsp;
+  <a href="/projects/<%= @current_project.name %>">Exceptions</a>
+</div>
+
+<hr />
+
+<% if @deploys && @deploys.any? %>
+
+  <% for deploy in @deploys %>
+    <div class="span-24 append-tiny-bottom">
+      <span class="project-label"><%= format_time(deploy.occurred_at) %></span>
+      <span class="quiet">version: <%= truncate(deploy.version, 80) %></span>
+      <a href="<%= deploy.changelog_link %>"><b><%= truncate(deploy.changelog_link, 100) %></b></a>
+    </div>
+  <% end %>
+
+<% else %>
+    <p>No deploys!</p>
+<% end %>

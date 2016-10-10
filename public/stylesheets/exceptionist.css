@@ -1,3 +1,7 @@
+html{
+  word-wrap: break-word;
+}
+
 #project_nav {
   margin-top: 12px;
   font-weight: bold;
@@ -31,9 +35,8 @@ span.divider {
   margin: 0 2px;
 }
 
-button.close_button {
-  float: right;
-  margin: 0;
+button.action_button {
+  margin: 0px 3px;
 }
 
 div.head_box {
@@ -46,7 +49,12 @@ div.head_box {
 div.message_box {
   padding: 5px;
   font-size: 1.2em;
-  background-color: #E9E9EB;
+}
+
+div.action_box {
+    padding: 5px;
+    font-size: 1.2em;
+    background-color: #e8e8e8;
 }
 
 dd.backtrace {
@@ -74,12 +82,21 @@ dd {
   text-align: right;
 }
 
-span.occurrence_count {
-  float: right;
-  background-color: #eee;
-  font-size: 1.2em;
-  padding: 6px 8px;
-  color: #666;
+span.box {
+    float: right;
+    font-size: 1.2em;
+    padding: 6px 8px;
+}
+
+span.occurrences_count {
+  background-color: #ddd;
+  color: #777;
+}
+
+span.new {
+    background-color: #F0113E;
+    color: #ddd;
+    margin-right: 10px;
 }
 
 .project-label {
@@ -90,7 +107,19 @@ span.occurrence_count {
 }
 
 .append-tiny-bottom {
-  margin-bottom:0.5em;
+  margin-bottom: 0.5em;
+}
+
+.low {
+    background-color: #EFF5F9;
+}
+
+.high {
+    background-color: #FCEBEC;
+}
+
+.padding {
+    padding: 0 5px;
 }
 
 
@@ -151,7 +180,7 @@ button img, a.button img{
 
 /* Standard */
 button:hover, a.button:hover{
-  background-color:#dff4ff;
+  background-color:#C9DCE6;
   border:1px solid #c2e1ef;
   color:#336699;
 }
@@ -161,32 +190,36 @@ a.button:active{
   color:#fff;
 }
 
+.active {
+    background-color:#dff4ff;
+    border:1px solid #c2e1ef;
+    color:#336699;
+}
+
 /* Positive */
 body .positive {
   color:#529214;
 }
-a.positive:hover, button.positive:hover {
-  background-color:#E6EFC2;
+
+a.positive:hover, button.positive:hover{
+  background-color:#C6D880;
   border:1px solid #C6D880;
   color:#529214;
-}
-a.positive:active {
-  background-color:#529214;
-  border:1px solid #529214;
-  color:#fff;
 }
 
 /* Negative */
 body .negative {
   color:#d12f19;
 }
+
 a.negative:hover, button.negative:hover {
-  background-color:#fbe3e4;
+  background-color:#FFA6A6;
   border:1px solid #fbc2c4;
   color:#d12f19;
 }
-a.negative:active {
-  background-color:#d12f19;
-  border:1px solid #d12f19;
-  color:#fff;
+
+.negative.active {
+    background-color:#fbe3e4;
+    border:1px solid #fbc2c4;
+    color:#d12f19;
 }
