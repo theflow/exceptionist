@@ -142,7 +142,7 @@ class UberException
 
   def occurrences_count
     return @_occurrences_count unless @_occurrences_count.nil?
-    d = Occurrence.aggregation(filters: [{ term: { type: ES_TYPE, uber_key: @id } }], aggregation: "uber_key")
+    d = Occurrence.aggregation(filters: [{ term: {uber_key: @id} }], aggregation: "uber_key")
     d[0]["doc_count"]
   end
 
