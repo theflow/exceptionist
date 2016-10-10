@@ -47,8 +47,23 @@ class ESClient
     @es.count(index: ES_INDEX, type: type, body: { query: wrap_filters(filters) } )['count']
   end
 
-  def delete_by_query(query: { match_all: {} })
-    @es.delete_by_query( index: ES_INDEX, body: { query: query } )
+  def find_all(type, query)
+    # Open the "view" of the index with the `scan` search_type
+    r = @es.search(index: ES_INDEX, type: type, body: query, search_type: 'scan', scroll: '1m', size: 50)
+
+    ids = []
+
+    # Call the `scroll` API until empty results are returned
+    while r = @es.scroll(scroll_id: r['_scroll_id'], scroll: '1m') and not r['hits']['hits'].empty? do
+      ids += r['hits']['hits'].map { |d| d['_id'] }
+    end
+
+    ids
+  end
+
+  def bulk_delete(type, ids)
+    body = ids.map { |id| {delete: {_index: ES_INDEX, _type: type, _id: id}} }
+    @es.bulk(body: body)
   end
 
   def delete(type: '', id: -1)

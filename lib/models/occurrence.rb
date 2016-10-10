@@ -22,7 +22,8 @@ class Occurrence
   end
 
   def self.delete_all_for(uber_key)
-    Exceptionist.esclient.delete_by_query(query: { term: { uber_key: uber_key } })
+    ids = Exceptionist.esclient.find_all(ES_TYPE, query: { term: { uber_key: uber_key } })
+    Exceptionist.esclient.bulk_delete(ES_TYPE, ids)
   end
 
   def self.find_first_for(uber_key)
