@@ -24,7 +24,7 @@ Elasticsearch::Extensions::Test::Cluster.start(
   number_of_nodes: 1,
 )
 
-Exceptionist.esclient.create_indices( 'exceptionist', MappingHelper.get_mapping )
+Exceptionist.esclient.create_indices('exceptionist', MappingHelper.get_mapping)
 Exceptionist.esclient.refresh
 
 # Configure
@@ -74,7 +74,9 @@ def create_deploy(attributes = {})
 end
 
 def clear_collections
-  Exceptionist.esclient.delete_by_query
+  Exceptionist.esclient.delete_indices('exceptionist')
+  Exceptionist.esclient.create_indices('exceptionist', MappingHelper.get_mapping)
+  Exceptionist.esclient.refresh
 end
 
 class AbstractTest < Minitest::Test
