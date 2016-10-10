@@ -4,6 +4,11 @@ require 'elasticsearch'
 
 
 module Utils
+  class Remover
+    def self.run(uber_key)
+      UberException.get(uber_key).forget!
+    end
+  end
 
   class Exporter
     def self.run
