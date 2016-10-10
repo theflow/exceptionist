@@ -19,9 +19,9 @@ require 'minitest/autorun'
 
 Exceptionist.elasticsearch_host = "localhost:10000"
 Elasticsearch::Extensions::Test::Cluster.start(
-    cluster_name: "testing-cluster",
-    port: Exceptionist.esclient.port,
-    nodes: 1,
+  cluster_name: "testing-cluster",
+  port: Exceptionist.esclient.port,
+  number_of_nodes: 1,
 )
 
 Exceptionist.esclient.create_indices( 'exceptionist', MappingHelper.get_mapping )
